@@ -68,9 +68,19 @@ int main(int argc, char* argv[])
 
 			strcat_s(szOutput, "txt");
 
-			SaveDecompiledContent(szOutput, pData, numEntries);
+			if (SaveDecompiledContent(szOutput, pData, numEntries)) {
+				printf("Successfully saved decompiled content.\n");
+			}
+			else {
+				printf("Failed to saved decompiled content!\n");
+			}
 
 			delete[] pData;
+		}
+		else 
+		{
+			printf("Failed to decompile content!\n");
+			return 1;
 		}
 	}
 
