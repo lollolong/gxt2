@@ -7,8 +7,6 @@ set(SOURCES
     main/main.cpp
     main/main.h
 
-    main/memory.cpp
-
     gxt/gxt2.cpp
     gxt/gxt2.h
 )

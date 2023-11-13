@@ -5,6 +5,7 @@
 #ifndef _GXT2_H_
 #define _GXT2_H_
 
+#include <fstream>
 #include <string>
 #include <cstdio>
 
@@ -17,7 +18,7 @@ struct GxtEntry
 	string m_Data;
 };
 
-bool DecompileContent(FILE* pFile, GxtEntry** pData, unsigned int& entryCount);
+bool DecompileContent(ifstream& stream, GxtEntry** pData, unsigned int& entryCount);
 bool SaveDecompiledContent(const char* szFileName, GxtEntry* pData, unsigned int entryCount);
 
 #endif // _GXT2_H_

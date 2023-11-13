@@ -7,25 +7,23 @@
 #include "main/main_include.h"
 
 // C/C++
+#include <format>
+#include <fstream>
 #include <cstdio>
 #include <string.h>
 #include <sys/stat.h>
 
-bool DecompileContent(FILE* pFile, GxtEntry** pData, unsigned int& entryCount)
+bool DecompileContent(ifstream& stream, GxtEntry** pData, unsigned int& entryCount)
 {
-	if (!pFile) {
-		printf("Cannot read GXT2 from invalid stream.\n");
-		return false;
-	}
-
 	if (!pData) {
 		printf("Output for GXT data is invalid.\n");
 		return false;
 	}
 
 	unsigned int magic = 0, numEntries = 0, dataLength = 0;
-	fread_s(&magic,			sizeof(magic),		sizeof(magic),		1, pFile);	// Magic
-	fread_s(&numEntries,	sizeof(numEntries), sizeof(numEntries), 1, pFile);	// Count
+
+	stream.read((char*)&magic,		sizeof(magic));			// Magic
+	stream.read((char*)&numEntries, sizeof(numEntries));	// Count
 
 	if (magic != 'GXT2') {
 		printf("Not GXT2 file format.\n");
@@ -37,18 +35,18 @@ bool DecompileContent(FILE* pFile, GxtEntry** pData, unsigned int& entryCount)
 
 	for (unsigned int c = 0; c < numEntries; c++)
 	{
-		fread_s(&(*pData)[c].m_Hash,	sizeof(unsigned int), sizeof(unsigned int), 1, pFile);	// GXT Hash
-		fread_s(&(*pData)[c].m_Offset,	sizeof(unsigned int), sizeof(unsigned int), 1, pFile);	// Offset
+		stream.read((char*)&(*pData)[c].m_Hash,		sizeof(unsigned int));	// GXT Hash
+		stream.read((char*)&(*pData)[c].m_Offset,	sizeof(unsigned int));	// Offset
 	}
 
-	fread_s(&magic,			sizeof(magic),		sizeof(magic),		1, pFile);	// Magic
-	fread_s(&dataLength,	sizeof(dataLength), sizeof(dataLength), 1, pFile);	// File size
+	stream.read((char*)&magic,		sizeof(magic));			// Magic
+	stream.read((char*)&dataLength, sizeof(dataLength));	// File size
 
-	unsigned int stringHeapStart	= ftell(pFile);
+	unsigned int stringHeapStart	= static_cast<unsigned int>(stream.tellg());
 	unsigned int stringHeapSize		= dataLength - stringHeapStart;
 
 	char* pStringHeap = system_new char[stringHeapSize];
-	fread_s(pStringHeap, stringHeapSize, stringHeapSize, 1, pFile);
+	stream.read(pStringHeap, stringHeapSize);
 
 	for (unsigned int c = 0; c < numEntries; c++)
 	{
@@ -58,33 +56,50 @@ bool DecompileContent(FILE* pFile, GxtEntry** pData, unsigned int& entryCount)
 	}
 
 	system_delete_array(pStringHeap);
-	//system_delete_array(*pData);
 	return true;
 }
 
 bool SaveDecompiledContent(const char* szFileName, GxtEntry* pData, unsigned int entryCount)
 {
-	FILE* pFile;
-	const int err = fopen_s(&pFile, szFileName, "w");
+	ofstream ofs(szFileName);
 
-	if (err != 0) {
+	if (!ofs.is_open()) {
 		printf("The output file could not be opened.\n");
-		return err;
+		return false;
 	}
 
 	for (unsigned int c = 0; c < entryCount; c++)
 	{
-		char szLine[1024];
-
-
-		sprintf_s(szLine, "0x%08X = ", pData[c].m_Hash);
-		fwrite(szLine, strlen(szLine), 1, pFile);
-		fwrite(pData[c].m_Data.c_str(), pData[c].m_Data.size(), 1, pFile);
-		fputc('\n', pFile);
+		ofs << std::format("0x{:08X} = {}", pData[c].m_Hash, pData[c].m_Data) << std::endl;
 	}
-
-	fclose(pFile);
-	pFile = nullptr;
 
 	return true;
 }
+
+
+//unsigned int magic = 'GXT2';
+//unsigned int count = (int)txtDebugMap.size();
+//
+////std::sort(txtReleaseMap.begin(), txtReleaseMap.end());
+////std::sort(txtReleaseMap.begin(), txtReleaseMap.end(), [](const int& a, const int& b) {return a < b; });
+//
+//gxt2.write((char*)&magic, sizeof(magic));
+//gxt2.write((char*)&count, sizeof(count));
+//
+//unsigned offset = (count * 2 + 4) * 4;
+//for (const auto& [uHash, txtEntry] : txtDebugMap)
+//{
+//	gxt2.write((char*)&uHash, sizeof(uHash));
+//	gxt2.write((char*)&offset, sizeof(offset));
+//	offset += (unsigned)strlen(txtEntry.c_str()) + 1;
+//}
+//
+//gxt2.write((char*)&magic, sizeof(magic));
+//gxt2.write((char*)&offset, sizeof(offset));
+//
+//for (const auto& [uHash, txtEntry] : txtDebugMap)
+//{
+//	char null = '\0';
+//
+//	gxt2.write(txtEntry.c_str(), txtEntry.size());
+//	gxt2.write(&null, sizeof(null));

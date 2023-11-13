@@ -7,6 +7,7 @@
 #include "gxt/gxt2.h"
 
 // C/C++
+#include <fstream>
 #include <stdlib.h>
 #include <string.h>
 
@@ -44,10 +45,9 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	FILE* pFile;
-	const int err = fopen_s(&pFile, szFilePath, "rb");
+	ifstream ifs(szFilePath, ios::binary);
 
-	if (err != 0) {
+	if (!ifs.is_open()) {
 		printf("The specified file could not be opened.\n");
 		return 1;
 	}
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 		GxtEntry* pData = nullptr;
 		unsigned int numEntries = 0;
 
-		if (DecompileContent(pFile, &pData, numEntries))
+		if (DecompileContent(ifs, &pData, numEntries))
 		{
 			char szOutput[_MAX_PATH];
 
