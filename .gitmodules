@@ -1,0 +1,6 @@
+[submodule "vendor/aes256"]
+	path = vendor/aes256
+	url = https://github.com/ilvn/aes256
+[submodule "vendor/zlib-ng"]
+	path = vendor/zlib-ng
+	url = https://github.com/zlib-ng/zlib-ng
