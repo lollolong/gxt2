@@ -10,8 +10,77 @@
 #include <format>
 #include <fstream>
 #include <cstdio>
+#include <vector>
 #include <string.h>
 #include <sys/stat.h>
+
+#include <utility>
+#include <algorithm>
+#include <functional>
+
+#include <map>
+
+bool CompileContent(ifstream& stream, Map& vData)
+{
+	string line;
+
+	while (getline(stream, line))
+	{
+		const string szHash = line.substr(0, 10);
+		const string szText = line.substr(13);
+		unsigned int uHash	= strtoul(szHash.c_str(), NULL, 16);
+
+		printf("szHash = %s\n", szHash.c_str());
+		printf("szHash = %s\n", szText.c_str());
+
+		vData.insert(make_pair(uHash, szText));
+	}
+
+	return true;
+}
+
+void SaveToGxt2(const Map& vData)
+{
+	ofstream ofs("tmp.gxt2", std::ios::binary);
+	
+	unsigned int uCount					= static_cast<unsigned int>(vData.size());
+	//unsigned int uOffset				= 4 * (uCount * 2 + 4);	// ((Hash + Offset * uCount) + uMagic + uCount + uMagic + uOffset)
+	unsigned uOffset = (uCount * 2 + 4) * 4;
+	static const unsigned int uMagic	= 'GXT2';
+
+	printf("uCount = %u\n", uCount);
+
+	////vector<Map::value_type> v(vData.begin(), vData.end());
+
+	//vector items(vData.begin(), vData.end());
+
+	//std::sort(items.begin(), items.end(), [](const auto& a, const auto& b)
+	//{
+	//	return a.first < b.first;
+	//});
+
+	ofs.write((char*)&uMagic, sizeof(uMagic));	// Magic
+	ofs.write((char*)&uCount, sizeof(uCount));	// Count
+
+	for (const auto& [uHash, szText] : vData)
+	{
+		ofs.write((char*)&uHash,	sizeof(uHash));		// GXT Hash
+		ofs.write((char*)&uOffset,	sizeof(uOffset));	// Offset
+
+		uOffset += static_cast<unsigned int>(strlen(szText.c_str())) + 1;	// Next Offset
+	}
+
+	ofs.write((char*)&uMagic,	sizeof(uMagic));	// Magic
+	ofs.write((char*)&uOffset,	sizeof(uOffset));	// File size
+
+	for (const auto& [uHash, szText] : vData)
+	{
+		ofs.write(szText.c_str(), szText.size());	// String
+		ofs.put('\0');								// Null terminator
+	}
+
+	ofs.close();
+}
 
 bool DecompileContent(ifstream& stream, GxtEntry** pData, unsigned int& entryCount)
 {
@@ -22,6 +91,7 @@ bool DecompileContent(ifstream& stream, GxtEntry** pData, unsigned int& entryCou
 
 	unsigned int magic = 0, numEntries = 0, dataLength = 0;
 
+	stream.setstate(stream.rdstate() | ios::binary);
 	stream.read((char*)&magic,		sizeof(magic));			// Magic
 	stream.read((char*)&numEntries, sizeof(numEntries));	// Count
 
@@ -75,31 +145,3 @@ bool SaveDecompiledContent(const char* szFileName, GxtEntry* pData, unsigned int
 
 	return true;
 }
-
-
-//unsigned int magic = 'GXT2';
-//unsigned int count = (int)txtDebugMap.size();
-//
-////std::sort(txtReleaseMap.begin(), txtReleaseMap.end());
-////std::sort(txtReleaseMap.begin(), txtReleaseMap.end(), [](const int& a, const int& b) {return a < b; });
-//
-//gxt2.write((char*)&magic, sizeof(magic));
-//gxt2.write((char*)&count, sizeof(count));
-//
-//unsigned offset = (count * 2 + 4) * 4;
-//for (const auto& [uHash, txtEntry] : txtDebugMap)
-//{
-//	gxt2.write((char*)&uHash, sizeof(uHash));
-//	gxt2.write((char*)&offset, sizeof(offset));
-//	offset += (unsigned)strlen(txtEntry.c_str()) + 1;
-//}
-//
-//gxt2.write((char*)&magic, sizeof(magic));
-//gxt2.write((char*)&offset, sizeof(offset));
-//
-//for (const auto& [uHash, txtEntry] : txtDebugMap)
-//{
-//	char null = '\0';
-//
-//	gxt2.write(txtEntry.c_str(), txtEntry.size());
-//	gxt2.write(&null, sizeof(null));

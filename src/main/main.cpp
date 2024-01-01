@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	ifstream ifs(szFilePath, ios::binary);
+	ifstream ifs(szFilePath);
 
 	if (!ifs.is_open()) {
 		printf("The specified file could not be opened.\n");
@@ -86,7 +86,10 @@ int main(int argc, char* argv[])
 
 	if (bCreateMode)
 	{
+		Map data;
 
+		CompileContent(ifs, data);
+		SaveToGxt2(data);
 	}
 	
 
