@@ -9,7 +9,7 @@
 using namespace std;
 
 CTextFile::CTextFile(const string& fileName) :
-	CTextFile(fileName, ios::in)
+	CTextFile(fileName, fstream::in | fstream::out)
 {
 } // ::CTextFile(const string& fileName)
 
@@ -69,7 +69,7 @@ void CTextFile::Dump() const
 
 
 CGxtFile::CGxtFile(const string& fileName) :
-	CTextFile(fileName, ios::in | ios::binary)
+	CTextFile(fileName, fstream::in | fstream::out | fstream::binary)
 {
 } // ::CGxtFile(const string& fileName)
 
@@ -122,7 +122,7 @@ bool CGxtFile::WriteEntries() const
 
 
 CTxtFile::CTxtFile(const string& fileName) :
-	CTextFile(fileName, ios::in | ios::binary)
+	CTextFile(fileName)
 {
 } // ::CTxtFile(const string& fileName)
 
