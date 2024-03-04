@@ -2,146 +2,136 @@
 //	gxt/gxt2.cpp
 //
 
-// Project
 #include "gxt2.h"
-#include "main/main_include.h"
-
-// C/C++
-#include <format>
-#include <fstream>
-#include <cstdio>
-#include <vector>
-#include <string.h>
-#include <sys/stat.h>
-
-#include <utility>
 #include <algorithm>
-#include <functional>
+#include <format>
 
-#include <map>
+using namespace std;
 
-bool CompileContent(ifstream& stream, Map& vData)
+CTextFile::CTextFile(const string& fileName) :
+	CTextFile(fileName, ios::in)
 {
-	string line;
+} // ::CTextFile(const string& fileName)
 
-	while (getline(stream, line))
+CTextFile::CTextFile(const string& fileName, int openFlags)
+{
+	Reset();
+	m_File.open(fileName, openFlags);
+
+	if (!m_File.is_open())
 	{
-		const string szHash = line.substr(0, 10);
-		const string szText = line.substr(13);
-		unsigned int uHash	= strtoul(szHash.c_str(), NULL, 16);
-
-		printf("szHash = %s\n", szHash.c_str());
-		printf("szHash = %s\n", szText.c_str());
-
-		vData.insert(make_pair(uHash, szText));
+		printf("The specified file could not be opened.\n");
 	}
 
-	return true;
-}
+} // ::CTextFile(const string& fileName, int openFlags)
 
-void SaveToGxt2(const Map& vData)
+CTextFile::~CTextFile()
 {
-	ofstream ofs("tmp.gxt2", std::ios::binary);
-	
-	unsigned int uCount					= static_cast<unsigned int>(vData.size());
-	//unsigned int uOffset				= 4 * (uCount * 2 + 4);	// ((Hash + Offset * uCount) + uMagic + uCount + uMagic + uOffset)
-	unsigned uOffset = (uCount * 2 + 4) * 4;
-	static const unsigned int uMagic	= 'GXT2';
-
-	printf("uCount = %u\n", uCount);
-
-	////vector<Map::value_type> v(vData.begin(), vData.end());
-
-	//vector items(vData.begin(), vData.end());
-
-	//std::sort(items.begin(), items.end(), [](const auto& a, const auto& b)
-	//{
-	//	return a.first < b.first;
-	//});
-
-	ofs.write((char*)&uMagic, sizeof(uMagic));	// Magic
-	ofs.write((char*)&uCount, sizeof(uCount));	// Count
-
-	for (const auto& [uHash, szText] : vData)
+	if (m_File.is_open())
 	{
-		ofs.write((char*)&uHash,	sizeof(uHash));		// GXT Hash
-		ofs.write((char*)&uOffset,	sizeof(uOffset));	// Offset
-
-		uOffset += static_cast<unsigned int>(strlen(szText.c_str())) + 1;	// Next Offset
+		m_File.close();
 	}
+	Reset();
+} // ::~CTextFile()
 
-	ofs.write((char*)&uMagic,	sizeof(uMagic));	// Magic
-	ofs.write((char*)&uOffset,	sizeof(uOffset));	// File size
-
-	for (const auto& [uHash, szText] : vData)
-	{
-		ofs.write(szText.c_str(), szText.size());	// String
-		ofs.put('\0');								// Null terminator
-	}
-
-	ofs.close();
-}
-
-bool DecompileContent(ifstream& stream, GxtEntry** pData, unsigned int& entryCount)
+void CTextFile::Reset()
 {
-	if (!pData) {
-		printf("Output for GXT data is invalid.\n");
+	m_Entries.clear();
+} // void ::Reset()
+
+void CTextFile::Head()
+{
+	m_File.seekg(0, ios::beg);
+} // void ::Head()
+
+void CTextFile::End()
+{
+	m_File.seekg(0, ios::end);
+} // void ::End()
+
+void CTextFile::Seek(int cursor)
+{
+	m_File.seekg(cursor);
+} // void ::Seek(int cursor)
+
+unsigned int CTextFile::GetPosition()
+{
+	return static_cast<unsigned int>(m_File.tellg());
+} // unsigned int ::GetPosition()
+
+void CTextFile::Dump() const
+{
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		cout << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
+	}
+} // void ::Dump() const
+
+
+CGxtFile::CGxtFile(const string& fileName) :
+	CTextFile(fileName, ios::in | ios::binary)
+{
+} // ::CGxtFile(const string& fileName)
+
+bool CGxtFile::ReadEntries()
+{
+	unsigned int uMagic = 0, uNumEntries = 0, uDataLength = 0;
+
+	Head();
+	Read(&uMagic);
+	Read(&uNumEntries);
+
+	if (uMagic != CGxtFile::GXT2_MAGIC)
+	{
+		cerr << "Error: Not GXT2 file format." << endl;
 		return false;
 	}
 
-	unsigned int magic = 0, numEntries = 0, dataLength = 0;
-
-	stream.setstate(stream.rdstate() | ios::binary);
-	stream.read((char*)&magic,		sizeof(magic));			// Magic
-	stream.read((char*)&numEntries, sizeof(numEntries));	// Count
-
-	if (magic != 'GXT2') {
-		printf("Not GXT2 file format.\n");
-		return false;
-	}
-	
-	entryCount = numEntries;
-	*pData = system_new GxtEntry[numEntries];
-
-	for (unsigned int c = 0; c < numEntries; c++)
+	Entry* pEntries = new Entry[uNumEntries];
+	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)
 	{
-		stream.read((char*)&(*pData)[c].m_Hash,		sizeof(unsigned int));	// GXT Hash
-		stream.read((char*)&(*pData)[c].m_Offset,	sizeof(unsigned int));	// Offset
+		Read(&pEntries[uEntry].m_Hash);
+		Read(&pEntries[uEntry].m_Offset);
 	}
+	Read(&uMagic);
+	Read(&uDataLength);
 
-	stream.read((char*)&magic,		sizeof(magic));			// Magic
-	stream.read((char*)&dataLength, sizeof(dataLength));	// File size
+	const unsigned int uHeapStart	= GetPosition();
+	const unsigned int uHeapLength	= uDataLength - uHeapStart;
 
-	unsigned int stringHeapStart	= static_cast<unsigned int>(stream.tellg());
-	unsigned int stringHeapSize		= dataLength - stringHeapStart;
+	char* pStringHeap = new char[uHeapLength];
+	Read(pStringHeap, uHeapLength);
 
-	char* pStringHeap = system_new char[stringHeapSize];
-	stream.read(pStringHeap, stringHeapSize);
-
-	for (unsigned int c = 0; c < numEntries; c++)
+	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)
 	{
-		const char* szEntry = (pStringHeap + ((*pData)[c].m_Offset - stringHeapStart));
-		//printf("0x%08x = %s\n", (*pData)[c].m_Hash, szEntry);
-		(*pData)[c].m_Data = szEntry;
+		const char* szTextEntry = pStringHeap + (pEntries[uEntry].m_Offset - uHeapStart);
+		m_Entries[pEntries[uEntry].m_Hash] = szTextEntry;
 	}
 
-	system_delete_array(pStringHeap);
+	delete[] pEntries;
+	delete[] pStringHeap;
+
 	return true;
-}
 
-bool SaveDecompiledContent(const char* szFileName, GxtEntry* pData, unsigned int entryCount)
+} // bool ::ReadEntries()
+
+bool CGxtFile::WriteEntries() const
 {
-	ofstream ofs(szFileName);
+	return false;
+} // bool ::WriteEntries() const
 
-	if (!ofs.is_open()) {
-		printf("The output file could not be opened.\n");
-		return false;
-	}
 
-	for (unsigned int c = 0; c < entryCount; c++)
-	{
-		ofs << std::format("0x{:08X} = {}", pData[c].m_Hash, pData[c].m_Data) << std::endl;
-	}
+CTxtFile::CTxtFile(const string& fileName) :
+	CTextFile(fileName, ios::in | ios::binary)
+{
+} // ::CTxtFile(const string& fileName)
 
-	return true;
-}
+bool CTxtFile::ReadEntries()
+{
+	return false;
+} // bool ::ReadEntries()
+
+bool CTxtFile::WriteEntries() const
+{
+	return false;
+} // bool ::WriteEntries() const
