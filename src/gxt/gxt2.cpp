@@ -8,12 +8,7 @@
 
 using namespace std;
 
-CTextFile::CTextFile(const string& fileName) :
-	CTextFile(fileName, fstream::in | fstream::out)
-{
-} // ::CTextFile(const string& fileName)
-
-CTextFile::CTextFile(const string& fileName, int openFlags)
+CTextFile::CTextFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {
 	Reset();
 	m_File.open(fileName, openFlags);
@@ -68,8 +63,8 @@ void CTextFile::Dump() const
 } // void ::Dump() const
 
 
-CGxtFile::CGxtFile(const string& fileName) :
-	CTextFile(fileName, fstream::in | fstream::out | fstream::binary)
+CGxtFile::CGxtFile(const string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
+	CTextFile(fileName, openFlags)
 {
 } // ::CGxtFile(const string& fileName)
 
@@ -121,8 +116,8 @@ bool CGxtFile::WriteEntries()
 } // bool ::WriteEntries() const
 
 
-CTxtFile::CTxtFile(const string& fileName) :
-	CTextFile(fileName)
+CTxtFile::CTxtFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CTextFile(fileName, openFlags)
 {
 } // ::CTxtFile(const string& fileName)
 

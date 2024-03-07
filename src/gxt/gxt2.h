@@ -21,10 +21,24 @@ using namespace std;
 class CTextFile
 {
 public:
+	enum
+	{
+		// reading
+		FLAGS_READ_COMPILED = (fstream::in | fstream::binary),
+		FLAGS_READ_DECOMPILED = (fstream::in),
+
+		// writing
+		FLAGS_WRITE_COMPILED = (fstream::out | fstream::binary),
+		FLAGS_WRITE_DECOMPILED = (fstream::out),
+
+		// default
+		FLAGS_DEFAULT = (fstream::in | fstream::out)
+	};
+
+public:
 	using Map = map<unsigned int, string>;
 
-	CTextFile(const string& fileName);
-	CTextFile(const string& fileName, int openFlags);
+	CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
 	virtual ~CTextFile();
 
 	void Reset();
@@ -62,7 +76,7 @@ public:
 		unsigned int m_Offset;
 	};
 public:
-	CGxtFile(const string& fileName);
+	CGxtFile(const string& fileName, int openFlags = FLAGS_READ_COMPILED);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;
@@ -73,7 +87,7 @@ public:
 class CTxtFile : public CTextFile
 {
 public:
-	CTxtFile(const string& fileName);
+	CTxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;
