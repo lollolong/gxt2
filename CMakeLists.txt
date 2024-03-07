@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.6)
 
 # Global
 set(PROJECT_NAME gxt2)
+set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 project(${PROJECT_NAME} VERSION 1.0)
 
 # Configurations
