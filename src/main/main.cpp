@@ -18,9 +18,9 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	const char* szFilePath			= argv[1];
-	const char* szFileName			= strrchr(szFilePath, '\\') ? strrchr(szFilePath, '\\') + 1 : szFilePath;
-	const char* szFileExtension		= strrchr(szFileName, '.');
+	const char* szFilePath = argv[1];
+	const char* szFileName = strrchr(szFilePath, '\\') ? strrchr(szFilePath, '\\') + 1 : szFilePath;
+	const char* szFileExtension = strrchr(szFileName, '.');
 
 	if (!szFileExtension) {
 		puts("No file extension.\n");

@@ -134,5 +134,4 @@ private:
 	rapidjson::Document m_Document;
 };
 
-
 #endif // _GXT2_H_

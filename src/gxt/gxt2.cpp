@@ -123,8 +123,8 @@ bool CGxt2File::ReadEntries()
 	Read(&uMagic);
 	Read(&uDataLength);
 
-	const unsigned int uHeapStart	= GetPosition();
-	const unsigned int uHeapLength	= uDataLength - uHeapStart;
+	const unsigned int uHeapStart = GetPosition();
+	const unsigned int uHeapLength = uDataLength - uHeapStart;
 
 	char* pStringHeap = new char[uHeapLength];
 	Read(pStringHeap, uHeapLength);
@@ -139,7 +139,6 @@ bool CGxt2File::ReadEntries()
 	delete[] pStringHeap;
 
 	return true;
-
 } // bool ::ReadEntries()
 
 bool CGxt2File::WriteEntries()
