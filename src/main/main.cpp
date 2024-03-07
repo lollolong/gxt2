@@ -3,7 +3,6 @@
 //
 
 // Project
-#include "main.h"
 #include "gxt/gxt2.h"
 #include "gxt/convert.h"
 
