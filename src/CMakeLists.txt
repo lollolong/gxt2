@@ -9,6 +9,9 @@ set(SOURCES
 
     gxt/gxt2.cpp
     gxt/gxt2.h
+	
+    gxt/convert.cpp
+    gxt/convert.h
 )
 
 # Executable
