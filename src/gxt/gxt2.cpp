@@ -161,7 +161,24 @@ CTxtFile::CTxtFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPIL
 
 bool CTxtFile::ReadEntries()
 {
-	return false;
+	if (!m_File.is_open())
+	{
+		return false;
+	}
+
+	std::string line;
+
+	while (getline(m_File, line))
+	{
+		const string szHash = line.substr(0, 10);
+		const string szText = line.substr(13);
+		unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
+
+		printf("%s\n", szHash.c_str());
+
+		m_Entries[uHash] = szText;
+	}
+	return true;
 } // bool ::ReadEntries()
 
 bool CTxtFile::WriteEntries()
