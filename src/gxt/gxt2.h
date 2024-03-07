@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <rapidjson/document.h>
+
 using namespace std;
 
 class CFile
@@ -112,5 +114,20 @@ public:
 	bool ReadEntries() override;
 	bool WriteEntries() override;
 };
+
+//-----------------------------------------------------------------------------------------
+//
+
+class CJsonFile : public CFile
+{
+public:
+	CJsonFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
+
+	bool ReadEntries() override;
+	bool WriteEntries() override;
+private:
+	rapidjson::Document m_Document;
+};
+
 
 #endif // _GXT2_H_

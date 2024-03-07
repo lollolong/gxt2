@@ -57,6 +57,10 @@ void CConverter::CreateInputInterface(const string& filePath)
 	{
 		m_Input = new CTextFile(filePath, CFile::FLAGS_READ_DECOMPILED);
 	}
+	else if (szFileExtension == ".json")
+	{
+		m_Input = new CJsonFile(filePath, CFile::FLAGS_READ_DECOMPILED);
+	}
 	else
 	{
 		throw std::invalid_argument("Unknown input file format.");
@@ -74,6 +78,11 @@ void CConverter::CreateOutputInterface(const string& filePath)
 		m_Output = new CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
 	}
 	else if (szInputExtension == ".txt")
+	{
+		szOutputPath += ".gxt2";
+		m_Output = new CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
+	}
+	else if (szInputExtension == ".json")
 	{
 		szOutputPath += ".gxt2";
 		m_Output = new CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);

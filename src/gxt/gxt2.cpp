@@ -5,6 +5,10 @@
 #include "gxt2.h"
 #include <format>
 
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+
 
 CFile::CFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {
@@ -202,5 +206,60 @@ bool CTextFile::WriteEntries()
 	{
 		m_File << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
 	}
+	return true;
+} // bool ::WriteEntries()
+
+//-----------------------------------------------------------------------------------------
+//
+
+CJsonFile::CJsonFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CFile(fileName, openFlags)
+{
+} // ::CJsonFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
+
+bool CJsonFile::ReadEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	rapidjson::IStreamWrapper isw(m_File);
+	m_Document.ParseStream(isw);
+
+	for (auto it = m_Document.MemberBegin(); it != m_Document.MemberEnd(); it++)
+	{
+		unsigned int uHash = strtoul(it->name.GetString(), NULL, 16);
+		m_Entries[uHash] = it->value.GetString();
+	}
+
+	return true;
+} // bool ::ReadEntries()
+
+bool CJsonFile::WriteEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	m_Document.SetObject();
+
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		const string szHash = std::format("0x{:08X}", uHash);
+
+		rapidjson::Value key(szHash.c_str(), m_Document.GetAllocator());
+		rapidjson::Value value(szTextEntry.c_str(), m_Document.GetAllocator());
+
+		m_Document.AddMember(key, value, m_Document.GetAllocator());
+	}
+
+	rapidjson::StringBuffer buffer;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+	m_Document.Accept(writer);
+
+	m_File << buffer.GetString();
+
 	return true;
 } // bool ::WriteEntries()
