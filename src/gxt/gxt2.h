@@ -30,7 +30,7 @@ public:
 	void Reset();
 	void Dump() const;
 	virtual bool ReadEntries() = 0;
-	virtual bool WriteEntries() const = 0;
+	virtual bool WriteEntries() = 0;
 protected:
 	void Head();
 	void End();
@@ -65,7 +65,7 @@ public:
 	CGxtFile(const string& fileName);
 
 	bool ReadEntries() override;
-	bool WriteEntries() const override;
+	bool WriteEntries() override;
 
 	static constexpr unsigned int GXT2_MAGIC = 'GXT2';
 };
@@ -76,7 +76,7 @@ public:
 	CTxtFile(const string& fileName);
 
 	bool ReadEntries() override;
-	bool WriteEntries() const override;
+	bool WriteEntries() override;
 };
 
 

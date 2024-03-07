@@ -115,7 +115,7 @@ bool CGxtFile::ReadEntries()
 
 } // bool ::ReadEntries()
 
-bool CGxtFile::WriteEntries() const
+bool CGxtFile::WriteEntries()
 {
 	return false;
 } // bool ::WriteEntries() const
@@ -131,7 +131,7 @@ bool CTxtFile::ReadEntries()
 	return false;
 } // bool ::ReadEntries()
 
-bool CTxtFile::WriteEntries() const
+bool CTxtFile::WriteEntries()
 {
 	return false;
 } // bool ::WriteEntries() const
