@@ -122,7 +122,35 @@ bool CGxtFile::ReadEntries()
 
 bool CGxtFile::WriteEntries()
 {
-	return false;
+	if (!m_File.is_open()) {
+		return false;
+	}
+
+	unsigned int uCount = static_cast<unsigned int>(m_Entries.size());
+	unsigned int uOffset = (uCount * 2 + 4) * 4;
+
+	//sort(m_Entries.begin(), m_Entries.end());
+
+	Write(&CGxtFile::GXT2_MAGIC);
+	Write(&uCount);
+
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		Write(&uHash);
+		Write(&uOffset);
+
+		uOffset += static_cast<unsigned int>(szTextEntry.size()) + 1;
+	}
+
+	Write(&CGxtFile::GXT2_MAGIC);
+	Write(&uOffset);
+
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		WriteStr(szTextEntry.c_str());
+	}
+
+	return true;
 } // bool ::WriteEntries() const
 
 
