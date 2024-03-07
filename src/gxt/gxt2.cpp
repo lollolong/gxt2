@@ -30,6 +30,12 @@ CFile::~CFile()
 	Reset();
 } // ::~CFile()
 
+CFile& CFile::operator=(const CFile& other)
+{
+	this->m_Entries = other.m_Entries;
+	return *this;
+} // CFile& ::operator=(const CFile& other)
+
 void CFile::Reset()
 {
 	m_Entries.clear();

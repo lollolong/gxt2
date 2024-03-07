@@ -35,6 +35,9 @@ public:
 	CFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
 	virtual ~CFile();
 
+	CFile(const CFile&) = delete;
+	CFile& operator=(const CFile& other);
+
 	void Reset();
 	void Dump() const;
 	bool IsOpen() const;
