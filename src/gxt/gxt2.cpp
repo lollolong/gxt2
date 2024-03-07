@@ -20,7 +20,7 @@ CFile::CFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 
 	if (!IsOpen())
 	{
-		printf("The specified file could not be opened.\n");
+		throw runtime_error(format("The specified file {} could not be opened.", fileName));
 	}
 } // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
 
