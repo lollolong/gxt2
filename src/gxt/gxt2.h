@@ -66,6 +66,23 @@ protected:
 	{
 		m_File.read(reinterpret_cast<char*>(pData), static_cast<size_t>(size));
 	}
+
+	template<typename T>
+	void Write(const T* pData)
+	{
+		m_File.write(reinterpret_cast<const char*>(pData), sizeof(T));
+	}
+
+	template<typename T>
+	void Write(const T* pData, unsigned int size)
+	{
+		m_File.write(reinterpret_cast<const char*>(pData), static_cast<size_t>(size));
+	}
+
+	void WriteStr(const char* pData)
+	{
+		m_File.write(pData, strlen(pData) + 1);
+	}
 protected:
 	fstream m_File;
 	Map m_Entries;
