@@ -36,13 +36,15 @@ void CConverter::Convert()
 {
 	if (!GetInput()->ReadEntries())
 	{
-		throw std::runtime_error("Failed to read content.");
+		throw runtime_error("Failed to read content.");
 	}
 
+	//GetInput()->Dump();
 	GetOutput()->SetData(GetInput()->GetData());
+
 	if (!GetOutput()->WriteEntries())
 	{
-		throw std::runtime_error("Failed to save content.");
+		throw runtime_error("Failed to save content.");
 	}
 } // void ::Convert()
 
@@ -64,7 +66,7 @@ void CConverter::CreateInputInterface(const string& filePath)
 	}
 	else
 	{
-		throw std::invalid_argument("Unknown input file format.");
+		throw invalid_argument("Unknown input file format.");
 	}
 } // void ::CreateInputInterface(const string& filePath)
 
@@ -93,6 +95,6 @@ void CConverter::CreateOutputInterface(const string& filePath)
 	}
 	else
 	{
-		throw std::invalid_argument("Unknown output file format.");
+		throw invalid_argument("Unknown output file format.");
 	}
 } // void ::CreateOutputInterface(const string& filePath)

@@ -48,7 +48,7 @@ void CFile::Dump() const
 {
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
-		cout << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
+		cout << format("0x{:08X} = {}", uHash, szTextEntry) << endl;
 	}
 } // void ::Dump() const
 
@@ -188,15 +188,12 @@ bool CTextFile::ReadEntries()
 		return false;
 	}
 
-	std::string line;
-
+	string line;
 	while (getline(m_File, line))
 	{
 		const string szHash = line.substr(0, 10);
 		const string szText = line.substr(13);
 		unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
-
-		printf("%s\n", szHash.c_str());
 
 		m_Entries[uHash] = szText;
 	}
@@ -212,7 +209,7 @@ bool CTextFile::WriteEntries()
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
-		m_File << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
+		m_File << format("0x{:08X} = {}", uHash, szTextEntry) << endl;
 	}
 	return true;
 } // bool ::WriteEntries()
@@ -240,7 +237,6 @@ bool CJsonFile::ReadEntries()
 		unsigned int uHash = strtoul(it->name.GetString(), NULL, 16);
 		m_Entries[uHash] = it->value.GetString();
 	}
-
 	return true;
 } // bool ::ReadEntries()
 
@@ -255,7 +251,7 @@ bool CJsonFile::WriteEntries()
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
-		const string szHash = std::format("0x{:08X}", uHash);
+		const string szHash = format("0x{:08X}", uHash);
 
 		rapidjson::Value key(szHash.c_str(), m_Document.GetAllocator());
 		rapidjson::Value value(szTextEntry.c_str(), m_Document.GetAllocator());
