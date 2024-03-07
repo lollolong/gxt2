@@ -7,8 +7,6 @@
 
 #include "gxt2.h"
 
-namespace fs = std::filesystem;
-
 class CConverter
 {
 public:
@@ -19,8 +17,8 @@ public:
 	void Convert();
 
 private:
-	void CreateInputInterface(const string& inputPath);
-	void CreateOutputInterface(const string& outputPath);
+	void CreateInputInterface(const string& filePath);
+	void CreateOutputInterface(const string& filePath);
 
 private:
 	CTextFile* m_Input;

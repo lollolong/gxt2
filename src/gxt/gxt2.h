@@ -6,15 +6,9 @@
 #define _GXT2_H_
 
 #include <map>
-#include <fstream>
 #include <string>
-#include <cstdio>
-
-#include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <unordered_map>
-#include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -34,21 +28,20 @@ public:
 		// default
 		FLAGS_DEFAULT = (fstream::in | fstream::out)
 	};
-
-public:
 	using Map = map<unsigned int, string, less<unsigned int>>; // do not touch
-
+public:
 	CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
 	virtual ~CTextFile();
 
 	void Reset();
 	void Dump() const;
-
-	virtual bool ReadEntries() = 0;
-	virtual bool WriteEntries() = 0;
+	bool IsOpen() const;
 
 	const Map& GetData() const;
 	void SetData(const Map& data);
+
+	virtual bool ReadEntries() = 0;
+	virtual bool WriteEntries() = 0;
 protected:
 	void Head();
 	void End();
@@ -88,6 +81,9 @@ protected:
 	Map m_Entries;
 };
 
+//-----------------------------------------------------------------------------------------
+//
+
 class CGxtFile : public CTextFile
 {
 public:
@@ -105,6 +101,9 @@ public:
 	static constexpr unsigned int GXT2_MAGIC = 'GXT2';
 };
 
+//-----------------------------------------------------------------------------------------
+//
+
 class CTxtFile : public CTextFile
 {
 public:
@@ -113,6 +112,5 @@ public:
 	bool ReadEntries() override;
 	bool WriteEntries() override;
 };
-
 
 #endif // _GXT2_H_

@@ -3,26 +3,23 @@
 //
 
 #include "gxt2.h"
-#include <algorithm>
 #include <format>
 
-using namespace std;
 
 CTextFile::CTextFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {
 	Reset();
 	m_File.open(fileName, openFlags);
 
-	if (!m_File.is_open())
+	if (!IsOpen())
 	{
 		printf("The specified file could not be opened.\n");
 	}
-
-} // ::CTextFile(const string& fileName, int openFlags)
+} // ::CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
 
 CTextFile::~CTextFile()
 {
-	if (m_File.is_open())
+	if (IsOpen())
 	{
 		m_File.close();
 	}
@@ -33,6 +30,19 @@ void CTextFile::Reset()
 {
 	m_Entries.clear();
 } // void ::Reset()
+
+void CTextFile::Dump() const
+{
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		cout << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
+	}
+} // void ::Dump() const
+
+bool CTextFile::IsOpen() const
+{
+	return m_File.is_open();
+} // bool ::IsOpen() const
 
 void CTextFile::Head()
 {
@@ -54,14 +64,6 @@ unsigned int CTextFile::GetPosition()
 	return static_cast<unsigned int>(m_File.tellg());
 } // unsigned int ::GetPosition()
 
-void CTextFile::Dump() const
-{
-	for (const auto& [uHash, szTextEntry] : m_Entries)
-	{
-		cout << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
-	}
-} // void ::Dump() const
-
 const CTextFile::Map& CTextFile::GetData() const
 {
 	return m_Entries;
@@ -72,14 +74,21 @@ void CTextFile::SetData(const Map& data)
 	m_Entries = data;
 } // void ::SetData()
 
+//-----------------------------------------------------------------------------------------
+//
 
 CGxtFile::CGxtFile(const string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
 	CTextFile(fileName, openFlags)
 {
-} // ::CGxtFile(const string& fileName)
+} // ::CGxtFile(const string& fileName, int openFlags = FLAGS_READ_COMPILED)
 
 bool CGxtFile::ReadEntries()
 {
+	if (!IsOpen())
+	{
+		return false;
+	}
+
 	unsigned int uMagic = 0, uNumEntries = 0, uDataLength = 0;
 
 	Head();
@@ -122,14 +131,13 @@ bool CGxtFile::ReadEntries()
 
 bool CGxtFile::WriteEntries()
 {
-	if (!m_File.is_open()) {
+	if (!IsOpen())
+	{
 		return false;
 	}
 
 	unsigned int uCount = static_cast<unsigned int>(m_Entries.size());
 	unsigned int uOffset = (uCount * 2 + 4) * 4;
-
-	//sort(m_Entries.begin(), m_Entries.end());
 
 	Write(&CGxtFile::GXT2_MAGIC);
 	Write(&uCount);
@@ -151,17 +159,19 @@ bool CGxtFile::WriteEntries()
 	}
 
 	return true;
-} // bool ::WriteEntries() const
+} // bool ::WriteEntries()
 
+//-----------------------------------------------------------------------------------------
+//
 
 CTxtFile::CTxtFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
 	CTextFile(fileName, openFlags)
 {
-} // ::CTxtFile(const string& fileName)
+} // ::CTxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
 
 bool CTxtFile::ReadEntries()
 {
-	if (!m_File.is_open())
+	if (!IsOpen())
 	{
 		return false;
 	}
@@ -183,7 +193,8 @@ bool CTxtFile::ReadEntries()
 
 bool CTxtFile::WriteEntries()
 {
-	if (!m_File.is_open()) {
+	if (!IsOpen())
+	{
 		return false;
 	}
 
@@ -192,4 +203,4 @@ bool CTxtFile::WriteEntries()
 		m_File << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
 	}
 	return true;
-} // bool ::WriteEntries() const
+} // bool ::WriteEntries()
