@@ -13,32 +13,28 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 2) {
+	if (argc != 2)
+	{
 		printf("Usage: %s global.gxt2\n\t", argv[0]);
-		return 1;
-	}
-
-	const char* szFilePath = argv[1];
-	const char* szFileName = strrchr(szFilePath, '\\') ? strrchr(szFilePath, '\\') + 1 : szFilePath;
-	const char* szFileExtension = strrchr(szFileName, '.');
-
-	if (!szFileExtension) {
-		puts("No file extension.\n");
 		return 1;
 	}
 
 	try
 	{
-		CConverter gxtConverter(szFilePath);
+		CConverter gxtConverter(argv[1]);
 		gxtConverter.Convert();
 
-		printf("Successfully saved content.\n");
+		printf("Successfully converted content.\n");
 	}
-	catch (const exception& e)
+	catch (const exception& ex)
 	{
-		printf("Error: %s\n", e.what());
+		printf("Error: %s\n", ex.what());
 		return 1;
 	}
-
+	catch (...)
+	{
+		printf("Unknown error occurred!\n");
+		return 1;
+	}
 	return 0;
 }
