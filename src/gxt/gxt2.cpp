@@ -183,5 +183,13 @@ bool CTxtFile::ReadEntries()
 
 bool CTxtFile::WriteEntries()
 {
-	return false;
+	if (!m_File.is_open()) {
+		return false;
+	}
+
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		m_File << std::format("0x{:08X} = {}", uHash, szTextEntry) << std::endl;
+	}
+	return true;
 } // bool ::WriteEntries() const
