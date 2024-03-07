@@ -74,8 +74,11 @@ void CConverter::CreateOutputInterface(const string& filePath)
 
 	if (szInputExtension == ".gxt2")
 	{
-		szOutputPath += ".txt";
-		m_Output = new CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
+		//szOutputPath += ".txt";
+		//m_Output = new CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
+
+		szOutputPath += ".json";
+		m_Output = new CJsonFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
 	}
 	else if (szInputExtension == ".txt")
 	{
