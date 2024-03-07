@@ -51,11 +51,11 @@ void CConverter::CreateInputInterface(const string& filePath)
 
 	if (szFileExtension == ".gxt2")
 	{
-		m_Input = new CGxtFile(filePath, CTextFile::FLAGS_READ_COMPILED);
+		m_Input = new CGxt2File(filePath, CFile::FLAGS_READ_COMPILED);
 	}
 	else if (szFileExtension == ".txt")
 	{
-		m_Input = new CTxtFile(filePath, CTextFile::FLAGS_READ_DECOMPILED);
+		m_Input = new CTextFile(filePath, CFile::FLAGS_READ_DECOMPILED);
 	}
 	else
 	{
@@ -71,12 +71,12 @@ void CConverter::CreateOutputInterface(const string& filePath)
 	if (szInputExtension == ".gxt2")
 	{
 		szOutputPath += ".txt";
-		m_Output = new CTxtFile(szOutputPath, CTextFile::FLAGS_WRITE_DECOMPILED);
+		m_Output = new CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
 	}
 	else if (szInputExtension == ".txt")
 	{
 		szOutputPath += ".gxt2";
-		m_Output = new CGxtFile(szOutputPath, CTextFile::FLAGS_WRITE_COMPILED);
+		m_Output = new CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
 	}
 	else
 	{

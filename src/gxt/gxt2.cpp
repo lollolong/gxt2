@@ -6,7 +6,7 @@
 #include <format>
 
 
-CTextFile::CTextFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
+CFile::CFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {
 	Reset();
 	m_File.open(fileName, openFlags);
@@ -15,23 +15,23 @@ CTextFile::CTextFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 	{
 		printf("The specified file could not be opened.\n");
 	}
-} // ::CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
+} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
 
-CTextFile::~CTextFile()
+CFile::~CFile()
 {
 	if (IsOpen())
 	{
 		m_File.close();
 	}
 	Reset();
-} // ::~CTextFile()
+} // ::~CFile()
 
-void CTextFile::Reset()
+void CFile::Reset()
 {
 	m_Entries.clear();
 } // void ::Reset()
 
-void CTextFile::Dump() const
+void CFile::Dump() const
 {
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
@@ -39,37 +39,37 @@ void CTextFile::Dump() const
 	}
 } // void ::Dump() const
 
-bool CTextFile::IsOpen() const
+bool CFile::IsOpen() const
 {
 	return m_File.is_open();
 } // bool ::IsOpen() const
 
-void CTextFile::Head()
+void CFile::Head()
 {
 	m_File.seekg(0, ios::beg);
 } // void ::Head()
 
-void CTextFile::End()
+void CFile::End()
 {
 	m_File.seekg(0, ios::end);
 } // void ::End()
 
-void CTextFile::Seek(int cursor)
+void CFile::Seek(int cursor)
 {
 	m_File.seekg(cursor);
 } // void ::Seek(int cursor)
 
-unsigned int CTextFile::GetPosition()
+unsigned int CFile::GetPosition()
 {
 	return static_cast<unsigned int>(m_File.tellg());
 } // unsigned int ::GetPosition()
 
-const CTextFile::Map& CTextFile::GetData() const
+const CFile::Map& CFile::GetData() const
 {
 	return m_Entries;
-} // const CTextFile::Map& ::GetData() const
+} // const CFile::Map& ::GetData() const
 
-void CTextFile::SetData(const Map& data)
+void CFile::SetData(const Map& data)
 {
 	m_Entries = data;
 } // void ::SetData()
@@ -77,12 +77,12 @@ void CTextFile::SetData(const Map& data)
 //-----------------------------------------------------------------------------------------
 //
 
-CGxtFile::CGxtFile(const string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
-	CTextFile(fileName, openFlags)
+CGxt2File::CGxt2File(const string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
+	CFile(fileName, openFlags)
 {
-} // ::CGxtFile(const string& fileName, int openFlags = FLAGS_READ_COMPILED)
+} // ::CGxt2File(const string& fileName, int openFlags = FLAGS_READ_COMPILED)
 
-bool CGxtFile::ReadEntries()
+bool CGxt2File::ReadEntries()
 {
 	if (!IsOpen())
 	{
@@ -95,7 +95,7 @@ bool CGxtFile::ReadEntries()
 	Read(&uMagic);
 	Read(&uNumEntries);
 
-	if (uMagic != CGxtFile::GXT2_MAGIC)
+	if (uMagic != CGxt2File::GXT2_MAGIC)
 	{
 		cerr << "Error: Not GXT2 file format." << endl;
 		return false;
@@ -129,7 +129,7 @@ bool CGxtFile::ReadEntries()
 
 } // bool ::ReadEntries()
 
-bool CGxtFile::WriteEntries()
+bool CGxt2File::WriteEntries()
 {
 	if (!IsOpen())
 	{
@@ -139,7 +139,7 @@ bool CGxtFile::WriteEntries()
 	unsigned int uCount = static_cast<unsigned int>(m_Entries.size());
 	unsigned int uOffset = (uCount * 2 + 4) * 4;
 
-	Write(&CGxtFile::GXT2_MAGIC);
+	Write(&CGxt2File::GXT2_MAGIC);
 	Write(&uCount);
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
@@ -150,7 +150,7 @@ bool CGxtFile::WriteEntries()
 		uOffset += static_cast<unsigned int>(szTextEntry.size()) + 1;
 	}
 
-	Write(&CGxtFile::GXT2_MAGIC);
+	Write(&CGxt2File::GXT2_MAGIC);
 	Write(&uOffset);
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
@@ -164,12 +164,12 @@ bool CGxtFile::WriteEntries()
 //-----------------------------------------------------------------------------------------
 //
 
-CTxtFile::CTxtFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
-	CTextFile(fileName, openFlags)
+CTextFile::CTextFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CFile(fileName, openFlags)
 {
-} // ::CTxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
+} // ::CTextFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
 
-bool CTxtFile::ReadEntries()
+bool CTextFile::ReadEntries()
 {
 	if (!IsOpen())
 	{
@@ -191,7 +191,7 @@ bool CTxtFile::ReadEntries()
 	return true;
 } // bool ::ReadEntries()
 
-bool CTxtFile::WriteEntries()
+bool CTextFile::WriteEntries()
 {
 	if (!IsOpen())
 	{

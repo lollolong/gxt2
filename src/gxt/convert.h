@@ -21,14 +21,14 @@ private:
 	void CreateOutputInterface(const string& filePath);
 
 private:
-	CTextFile* m_Input;
-	CTextFile* m_Output;
+	CFile* m_Input;
+	CFile* m_Output;
 
-	CTextFile* GetInput() { return m_Input; }
-	const CTextFile* GetInput() const { return m_Input; }
+	CFile* GetInput() { return m_Input; }
+	const CFile* GetInput() const { return m_Input; }
 
-	CTextFile* GetOutput() { return m_Output; }
-	const CTextFile* GetOutput() const { return m_Output; }
+	CFile* GetOutput() { return m_Output; }
+	const CFile* GetOutput() const { return m_Output; }
 };
 
 #endif // _CONVERT_H_

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class CTextFile
+class CFile
 {
 public:
 	enum
@@ -30,8 +30,8 @@ public:
 	};
 	using Map = map<unsigned int, string, less<unsigned int>>; // do not touch
 public:
-	CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
-	virtual ~CTextFile();
+	CFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
+	virtual ~CFile();
 
 	void Reset();
 	void Dump() const;
@@ -84,7 +84,7 @@ protected:
 //-----------------------------------------------------------------------------------------
 //
 
-class CGxtFile : public CTextFile
+class CGxt2File : public CFile
 {
 public:
 	struct Entry
@@ -93,7 +93,7 @@ public:
 		unsigned int m_Offset;
 	};
 public:
-	CGxtFile(const string& fileName, int openFlags = FLAGS_READ_COMPILED);
+	CGxt2File(const string& fileName, int openFlags = FLAGS_READ_COMPILED);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;
@@ -104,10 +104,10 @@ public:
 //-----------------------------------------------------------------------------------------
 //
 
-class CTxtFile : public CTextFile
+class CTextFile : public CFile
 {
 public:
-	CTxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
+	CTextFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;
