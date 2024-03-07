@@ -62,6 +62,16 @@ void CTextFile::Dump() const
 	}
 } // void ::Dump() const
 
+const CTextFile::Map& CTextFile::GetData() const
+{
+	return m_Entries;
+} // const CTextFile::Map& ::GetData() const
+
+void CTextFile::SetData(const Map& data)
+{
+	m_Entries = data;
+} // void ::SetData()
+
 
 CGxtFile::CGxtFile(const string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
 	CTextFile(fileName, openFlags)

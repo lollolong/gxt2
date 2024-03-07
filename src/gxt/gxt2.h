@@ -43,8 +43,12 @@ public:
 
 	void Reset();
 	void Dump() const;
+
 	virtual bool ReadEntries() = 0;
 	virtual bool WriteEntries() = 0;
+
+	const Map& GetData() const;
+	void SetData(const Map& data);
 protected:
 	void Head();
 	void End();
