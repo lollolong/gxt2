@@ -92,6 +92,6 @@ void CConverter::CreateOutputInterface(const string& filePath)
 	}
 	else
 	{
-		throw std::invalid_argument("Unknown input file format.");
+		throw std::invalid_argument("Unknown output file format.");
 	}
 } // void ::CreateOutputInterface(const string& filePath)
