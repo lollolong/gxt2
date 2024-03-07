@@ -2,13 +2,16 @@
 //	gxt/gxt2.cpp
 //
 
+// Project
 #include "gxt2.h"
-#include <format>
 
+// vendor
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/prettywriter.h>
 
+// C/C++
+#include <format>
 
 CFile::CFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {

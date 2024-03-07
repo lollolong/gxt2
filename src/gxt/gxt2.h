@@ -5,12 +5,14 @@
 #ifndef _GXT2_H_
 #define _GXT2_H_
 
+// vendor
+#include <rapidjson/document.h>
+
+// C/C++
 #include <map>
 #include <string>
 #include <fstream>
 #include <iostream>
-
-#include <rapidjson/document.h>
 
 using namespace std;
 
