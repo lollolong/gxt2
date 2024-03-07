@@ -28,14 +28,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	const bool bAllowedType			= !_stricmp(szFileExtension, ".gxt2") ||
-										!_stricmp(szFileExtension, ".txt");
-
-	if (!bAllowedType) {
-		puts("Unknown input file format.\n");
-		return 1;
-	}
-
 	try
 	{
 		CConverter gxtConverter(szFilePath);
