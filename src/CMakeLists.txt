@@ -5,13 +5,15 @@
 # Source files
 set(SOURCES
     main/main.cpp
-    main/main.h
 
     gxt/gxt2.cpp
     gxt/gxt2.h
 	
     gxt/convert.cpp
     gxt/convert.h
+	
+    resources/resource.rc
+    resources/resource.h
 )
 
 # Executable
