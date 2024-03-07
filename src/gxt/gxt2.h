@@ -36,7 +36,7 @@ public:
 	};
 
 public:
-	using Map = map<unsigned int, string>;
+	using Map = map<unsigned int, string, less<unsigned int>>; // do not touch
 
 	CTextFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
 	virtual ~CTextFile();
