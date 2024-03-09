@@ -77,6 +77,11 @@ unsigned int CFile::GetPosition()
 	return static_cast<unsigned int>(m_File.tellg());
 } // unsigned int ::GetPosition()
 
+CFile::Map& CFile::GetData()
+{
+	return m_Entries;
+} // CFile::Map& ::GetData()
+
 const CFile::Map& CFile::GetData() const
 {
 	return m_Entries;

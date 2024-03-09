@@ -44,6 +44,7 @@ public:
 	void Dump() const;
 	bool IsOpen() const;
 
+	Map& GetData();
 	const Map& GetData() const;
 	void SetData(const Map& data);
 
