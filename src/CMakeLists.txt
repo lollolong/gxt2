@@ -2,48 +2,86 @@
 # src/CMakeLists.txt
 #
 
-# Source files
-set(SOURCES
-    main/main.cpp
+#------------------ gxt2conv ------------------
 
-    gxt/gxt2.cpp
-    gxt/gxt2.h
+set(gxt2conv "gxt2conv")
+
+set(SOURCES
+	main/gxt2conv.cpp
 	
-    gxt/convert.cpp
-    gxt/convert.h
+	gxt/gxt2.cpp
+	gxt/gxt2.h
 	
-    resources/resource.rc
-    resources/resource.h
+	gxt/convert.cpp
+	gxt/convert.h
+	
+	resources/resource.rc
+	resources/resource.h
 )
 
-# Executable
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+add_executable(${gxt2conv} ${SOURCES})
 
-# Includes
-target_include_directories(${PROJECT_NAME} PRIVATE
-    # project
-    ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(${gxt2conv} PRIVATE
+	# project
+	${CMAKE_CURRENT_SOURCE_DIR}
 	
-    # vendor
+	# rapidjson
+	${VENDOR_DIR}/rapidjson/include
+)
+target_compile_features(${gxt2conv} PRIVATE 
+	cxx_std_20
+)
+target_compile_options(${gxt2conv} PRIVATE
+	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
+
+#------------------ gxt2edit ------------------
+
+set(gxt2edit "gxt2edit")
+
+set(SOURCES
+	main/gxt2edit.cpp
+	
+	gxt/gxt2.cpp
+	gxt/gxt2.h
+	
+	gxt/convert.cpp
+	gxt/convert.h
+	
+	resources/resource.rc
+	resources/resource.h
+)
+
+add_executable(${gxt2edit} ${SOURCES})
+
+target_include_directories(${gxt2edit} PRIVATE
+	# project
+	${CMAKE_CURRENT_SOURCE_DIR}
+	
+	# imgui
 	${VENDOR_DIR}/imgui
 	${VENDOR_DIR}/imgui/backends
+	
+	# glfw
 	${VENDOR_DIR}/glfw/include
+	
+	# rapidjson
 	${VENDOR_DIR}/rapidjson/include
 	
 	# Vulkan
 	${Vulkan_INCLUDE_DIRS}
 )
-
-# Libs
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_compile_features(${gxt2edit} PRIVATE 
+	cxx_std_20
+)
+target_link_libraries(${gxt2edit} PRIVATE
 	glfw
 	ImGui
 	${Vulkan_LIBRARIES}
 )
-
-# Warnings
-target_compile_options(${PROJECT_NAME} PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+target_compile_options(${gxt2edit} PRIVATE
+	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )

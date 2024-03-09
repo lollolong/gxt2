@@ -4,8 +4,9 @@
 
 # CMake
 cmake_minimum_required(VERSION 3.6)
+set(CMAKE_SYSTEM_VERSION 10.0)
 
-# Global
+# Project
 set(PROJECT_NAME gxt2)
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 project(${PROJECT_NAME} VERSION 1.0)
@@ -18,7 +19,7 @@ set(BUILD_SHARED_LIBS OFF)
 
 # Properties
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT gxt2edit)
 
 # Vulkan
 find_package(Vulkan)
