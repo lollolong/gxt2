@@ -22,10 +22,24 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 # Includes
 target_include_directories(${PROJECT_NAME} PRIVATE
+    # project
     ${CMAKE_CURRENT_SOURCE_DIR}
 	
     # vendor
-    ${VENDOR_DIR}/rapidjson/include
+	${VENDOR_DIR}/imgui
+	${VENDOR_DIR}/imgui/backends
+	${VENDOR_DIR}/glfw/include
+	${VENDOR_DIR}/rapidjson/include
+	
+	# Vulkan
+	${Vulkan_INCLUDE_DIRS}
+)
+
+# Libs
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	glfw
+	ImGui
+	${Vulkan_LIBRARIES}
 )
 
 # Warnings
