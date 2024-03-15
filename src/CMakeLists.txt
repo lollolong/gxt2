@@ -8,6 +8,7 @@ set(gxt2conv "gxt2conv")
 
 set(SOURCES
 	main/gxt2conv.cpp
+	main/gxt2conv.h
 	
 	gxt/gxt2.cpp
 	gxt/gxt2.h

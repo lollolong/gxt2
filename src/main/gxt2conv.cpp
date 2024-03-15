@@ -3,6 +3,8 @@
 //
 
 // Project
+#include "gxt2conv.h"
+
 #include "gxt/gxt2.h"
 #include "gxt/convert.h"
 
@@ -11,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char* argv[])
+int gxt2conv::Run(int argc, char* argv[])
 {
 	if (argc != 2)
 	{
@@ -19,12 +21,17 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	CConverter gxtConverter(argv[1]);
+	gxtConverter.Convert();
+	return 0;
+}
+
+int main(int argc, char* argv[])
+{
 	try
 	{
-		CConverter gxtConverter(argv[1]);
-		gxtConverter.Convert();
-
-		printf("Successfully converted content.\n");
+		gxt2conv gxt2conv;
+		return gxt2conv.Run(argc, argv);
 	}
 	catch (const exception& ex)
 	{
@@ -36,5 +43,5 @@ int main(int argc, char* argv[])
 		printf("Unknown error occurred!\n");
 		return 1;
 	}
-	return 0;
+//	return 0;
 }
