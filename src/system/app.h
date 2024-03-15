@@ -4,13 +4,6 @@
 
 #ifndef _APP_H_
 #define _APP_H_
-//
-//#include "imgui.h"
-//
-//// Project
-//#include "grc/glfw_vulkan.h"
-
-
 
 // C/C++
 #include <string>
