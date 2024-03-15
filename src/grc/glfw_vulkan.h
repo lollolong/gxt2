@@ -19,9 +19,23 @@
 // vulkan
 #include <vulkan/vulkan.h>
 
+// C/C++
+#include <string>
+
+using namespace std;
+
 class CGraphics
 {
 public:
+	static bool Init(const string& windowTitle, int width, int height);
+	static void Shutdown();
+
+	static void PreRender();
+	static void Render();
+
+	static bool IsRunning();
+
+private:
 	// Callbacks
 	static void glfw_error_callback(int error, const char* description);
 	static void check_vk_result(VkResult err);
@@ -58,6 +72,7 @@ private:
 	static bool IsExtensionAvailable(const ImVector<VkExtensionProperties>& properties, const char* extension);
 	static VkPhysicalDevice SetupVulkan_SelectPhysicalDevice();
 public:
+	static GLFWwindow* sm_Window;
 	static VkAllocationCallbacks* sm_Allocator;
 	static VkInstance sm_Instance;
 	static VkPhysicalDevice sm_PhysicalDevice;

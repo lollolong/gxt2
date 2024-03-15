@@ -27,14 +27,11 @@ public:
 public:
 	int Run(int argc, char* argv[]) override;
 private:
-	virtual int Init();
+	virtual bool Init();
 	virtual void OnTick() = 0;
 	virtual void OnTickInternal();
 	virtual void Shutdown();
-protected:
-	bool IsRunning() const;
 private:
-	void* m_Window;
 	string m_WindowTitle;
 };
 
