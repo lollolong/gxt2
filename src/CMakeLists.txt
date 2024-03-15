@@ -47,6 +47,7 @@ set(gxt2edit "gxt2edit")
 
 set(SOURCES
 	main/gxt2edit.cpp
+	main/gxt2edit.h
 	
 	gxt/gxt2.cpp
 	gxt/gxt2.h
