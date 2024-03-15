@@ -51,6 +51,9 @@ set(SOURCES
 	gxt/gxt2.cpp
 	gxt/gxt2.h
 	
+	grc/glfw_vulkan.cpp
+	grc/glfw_vulkan.h
+	
 	gxt/convert.cpp
 	gxt/convert.h
 	
