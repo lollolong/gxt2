@@ -17,6 +17,9 @@ set(SOURCES
 	
 	resources/resource.rc
 	resources/resource.h
+	
+	system/app.cpp
+	system/app.h
 )
 
 add_executable(${gxt2conv} ${SOURCES})
@@ -52,6 +55,9 @@ set(SOURCES
 	
 	resources/resource.rc
 	resources/resource.h
+	
+	system/app.cpp
+	system/app.h
 )
 
 add_executable(${gxt2edit} ${SOURCES})
