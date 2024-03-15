@@ -34,6 +34,7 @@ public:
 	};
 	using Map = map<unsigned int, string, less<unsigned int>>; // do not touch
 public:
+	CFile();
 	CFile(const string& fileName, int openFlags = FLAGS_DEFAULT);
 	virtual ~CFile();
 
@@ -48,8 +49,8 @@ public:
 	const Map& GetData() const;
 	void SetData(const Map& data);
 
-	virtual bool ReadEntries() = 0;
-	virtual bool WriteEntries() = 0;
+	virtual bool ReadEntries() { return false; };
+	virtual bool WriteEntries() { return false; };
 protected:
 	void Head();
 	void End();

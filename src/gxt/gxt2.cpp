@@ -13,6 +13,11 @@
 // C/C++
 #include <format>
 
+CFile::CFile()
+{
+	Reset();
+} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
+
 CFile::CFile(const string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 {
 	Reset();
