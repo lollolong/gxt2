@@ -6,7 +6,7 @@
 
 // Project
 #include "glfw_vulkan.h"
-
+#include "fonts/Nunito-Regular.cpp"
 
 // Data
 GLFWwindow*					CGraphics::sm_Window				= nullptr;
@@ -101,6 +101,12 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	init_info.Allocator = CGraphics::sm_Allocator;
 	init_info.CheckVkResultFn = CGraphics::check_vk_result;
 	ImGui_ImplVulkan_Init(&init_info);
+
+	ImFontConfig imFontConfig;
+	imFontConfig.FontDataOwnedByAtlas = false;
+	ImFont* pFontNunito = io.Fonts->AddFontFromMemoryTTF((void*)g_NunitoRegular, sizeof(g_NunitoRegular), 18.f, &imFontConfig);
+	IM_ASSERT(pFontNunito != nullptr);
+	io.FontDefault = pFontNunito;
 
 	return true;
 }
