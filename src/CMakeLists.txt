@@ -92,3 +92,9 @@ target_compile_options(${gxt2edit} PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
 	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
+target_compile_definitions(${gxt2edit} PRIVATE
+	GLFW_INCLUDE_NONE 
+	GLFW_INCLUDE_VULKAN
+	UI_BACKEND
+	$<$<CONFIG:Debug>:USE_VULKAN_DEBUG_REPORT>
+)
