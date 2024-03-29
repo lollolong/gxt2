@@ -65,7 +65,7 @@ void gxt2edit::OnTick()
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, ImGui::GetStyle().FramePadding.y));
 
 				ImGuiListClipper clipper;
-				clipper.Begin(static_cast<int>(m_Input->GetData().size()), ImGui::GetTextLineHeightWithSpacing());
+				clipper.Begin(static_cast<int>(m_Input->GetData().size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
 
 				while (clipper.Step())
 				{
