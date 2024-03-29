@@ -81,6 +81,9 @@ target_include_directories(${gxt2edit} PRIVATE
 	# rapidjson
 	${VENDOR_DIR}/rapidjson/include
 	
+	# Icon Font
+	${VENDOR_DIR}/IconFontCppHeaders
+	
 	# Vulkan
 	${Vulkan_INCLUDE_DIRS}
 )
