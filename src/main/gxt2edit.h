@@ -9,6 +9,8 @@
 #include "gxt/gxt2.h"
 #include "system/app.h"
 
+#include <vector>
+
 class gxt2edit : public CAppUI
 {
 public:
@@ -19,7 +21,12 @@ public:
 private:
 	void OnTick() override;
 
+	// Delete Entries
+	void UpdateEntries();
+	void FlagForDeletion(unsigned int uHash);
+
 	CFile* m_Input;
+	vector<unsigned int> m_EntriesToRemove;
 };
 
 #endif // _GXT2EDIT_H_
