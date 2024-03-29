@@ -130,6 +130,7 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	icons_config.FontDataOwnedByAtlas = false;
 	ImFont* pFontAwesome = io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &icons_config, icons_ranges);
 	IM_ASSERT(pFontAwesome != nullptr);
+	(void)pFontAwesome;
 
 	return true;
 }
