@@ -6,7 +6,12 @@
 
 // Project
 #include "glfw_vulkan.h"
+#include "fonts/fa-solid-900.cpp"
+#include "fonts/Roboto-Regular.cpp"
 #include "fonts/Nunito-Regular.cpp"
+
+// vendor
+#include <IconsFontAwesome6.h>
 
 // Data
 GLFWwindow*					CGraphics::sm_Window				= nullptr;
@@ -77,7 +82,7 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
@@ -102,11 +107,29 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	init_info.CheckVkResultFn = CGraphics::check_vk_result;
 	ImGui_ImplVulkan_Init(&init_info);
 
-	ImFontConfig imFontConfig;
-	imFontConfig.FontDataOwnedByAtlas = false;
-	ImFont* pFontNunito = io.Fonts->AddFontFromMemoryTTF((void*)g_NunitoRegular, sizeof(g_NunitoRegular), 18.f, &imFontConfig);
-	IM_ASSERT(pFontNunito != nullptr);
-	io.FontDefault = pFontNunito;
+
+	// Roboto
+	ImFontConfig robotoConfig;
+	robotoConfig.FontDataOwnedByAtlas = false;
+
+	ImFont* pRobotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRobotoRegular, sizeof(g_FontRobotoRegular), 16.f, &robotoConfig);
+	io.FontDefault = pRobotoFont;
+	IM_ASSERT(pRobotoFont != nullptr);
+
+
+	// Font Awesome
+	float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
+	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+	// merge in icons from Font Awesome
+	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	ImFontConfig icons_config;
+	icons_config.MergeMode = true;
+	icons_config.PixelSnapH = true;
+	icons_config.GlyphMinAdvanceX = iconFontSize;
+	icons_config.FontDataOwnedByAtlas = false;
+	ImFont* pFontAwesome = io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &icons_config, icons_ranges);
+	IM_ASSERT(pFontAwesome != nullptr);
 
 	return true;
 }
