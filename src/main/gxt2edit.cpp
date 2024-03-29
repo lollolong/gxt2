@@ -44,7 +44,6 @@ void gxt2edit::OnTick()
 
 	{
 		ImGui::SetNextWindowPos(pViewport->Pos);
-		ImGui::SetNextWindowSize(pViewport->Size);
 		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x * 2 / 3, pViewport->Size.y));
 
 		ImGui::Begin("GXT Label Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
