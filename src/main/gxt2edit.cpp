@@ -187,6 +187,11 @@ void gxt2edit::UpdateEntries()
 
 int main(int argc, char* argv[])
 {
+#if _DEBUG
+	ShowWindow(GetConsoleWindow(), SW_SHOW);
+#else
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
 
 	try
 	{
