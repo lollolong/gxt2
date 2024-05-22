@@ -13,10 +13,20 @@
 // vendor
 #include <IconsFontAwesome6.h>
 
+#include <vector>
+
+
+#include <cassert>
+
+#define ASSERT_VULKAN(vkRes) assert(vkRes == VK_SUCCESS);
+
+#ifdef _DEBUG
+#define VULKAN_DEBUG
+#endif
+
 // Data
 GLFWwindow*					CGraphics::sm_Window				= nullptr;
-VkAllocationCallbacks*		CGraphics::sm_Allocator				= nullptr;
-VkInstance					CGraphics::sm_Instance				= VK_NULL_HANDLE;
+VkInstance					CGraphics::sm_VulkanInstance		= VK_NULL_HANDLE;
 VkPhysicalDevice			CGraphics::sm_PhysicalDevice		= VK_NULL_HANDLE;
 VkDevice					CGraphics::sm_Device				= VK_NULL_HANDLE;
 uint32_t					CGraphics::sm_QueueFamily			= (uint32_t)-1;
@@ -32,12 +42,12 @@ bool						CGraphics::sm_SwapChainRebuild		= false;
 
 bool CGraphics::Init(const string& windowTitle, int width, int height)
 {
-	glfwSetErrorCallback(CGraphics::glfw_error_callback);
 	if (!glfwInit())
 	{
 		return false;
 	}
 
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
@@ -46,13 +56,11 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	int xPos, yPos;
 	glfwGetMonitorPos(pPrimaryMonitor, &xPos, &yPos);
 
-	CGraphics::sm_Window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
+	sm_Window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 
-	glfwSetWindowPos(CGraphics::sm_Window,
-		(xPos + (pVideoMode->width - width)) >> 1,
-		(yPos + (pVideoMode->height - height)) >> 1);
-
-	glfwShowWindow(CGraphics::sm_Window);
+	glfwSetWindowPos(sm_Window,
+		(xPos + (pVideoMode->width - width)) / 2,
+		(yPos + (pVideoMode->height - height)) / 2);
 
 	if (!glfwVulkanSupported())
 	{
@@ -60,85 +68,29 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 		return false;
 	}
 
-	ImVector<const char*> extensions;
-	uint32_t extensions_count = 0;
-	const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&extensions_count);
-	for (uint32_t i = 0; i < extensions_count; i++)
-		extensions.push_back(glfw_extensions[i]);
 
-	CGraphics::SetupVulkan(extensions);
+	uint32_t extensionsCount = 0;
+	vector<const char*> extensions;
 
-	// Create Window Surface
-	VkSurfaceKHR surface;
-	VkResult err = glfwCreateWindowSurface(CGraphics::sm_Instance, CGraphics::sm_Window, CGraphics::sm_Allocator, &surface);
-	CGraphics::check_vk_result(err);
+	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&extensionsCount);
+	for (uint32_t i = 0; i < extensionsCount; i++)
+	{
+#ifdef VULKAN_DEBUG
+		printf("[glfw][required extension] %s\n", glfwExtensions[i]);
+#endif
+		extensions.push_back(glfwExtensions[i]);
+	}
 
-	// Create Framebuffers
-	int w, h;
-	glfwGetFramebufferSize(CGraphics::sm_Window, &w, &h);
-	ImGui_ImplVulkanH_Window* wd = &CGraphics::sm_MainWindowData;
-	CGraphics::SetupVulkanWindow(wd, surface, w, h);
+	CGraphics::InitVulkan(extensions);
+	CGraphics::InitVulkanWindow();
 
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-	CGraphics::SetupImGuiStyle();
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForVulkan(CGraphics::sm_Window, true);
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = CGraphics::sm_Instance;
-	init_info.PhysicalDevice = CGraphics::sm_PhysicalDevice;
-	init_info.Device = CGraphics::sm_Device;
-	init_info.QueueFamily = CGraphics::sm_QueueFamily;
-	init_info.Queue = CGraphics::sm_Queue;
-	init_info.PipelineCache = CGraphics::sm_PipelineCache;
-	init_info.DescriptorPool = CGraphics::sm_DescriptorPool;
-	init_info.RenderPass = wd->RenderPass;
-	init_info.Subpass = 0;
-	init_info.MinImageCount = CGraphics::sm_MinImageCount;
-	init_info.ImageCount = wd->ImageCount;
-	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.Allocator = CGraphics::sm_Allocator;
-	init_info.CheckVkResultFn = CGraphics::check_vk_result;
-	ImGui_ImplVulkan_Init(&init_info);
-
-
-	// Roboto
-	ImFontConfig robotoConfig;
-	robotoConfig.FontDataOwnedByAtlas = false;
-
-	ImFont* pRobotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRobotoRegular, sizeof(g_FontRobotoRegular), 16.f, &robotoConfig);
-	io.FontDefault = pRobotoFont;
-	IM_ASSERT(pRobotoFont != nullptr);
-
-
-	// Font Awesome
-	float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
-	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
-
-	// merge in icons from Font Awesome
-	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
-	ImFontConfig icons_config;
-	icons_config.MergeMode = true;
-	icons_config.PixelSnapH = true;
-	icons_config.GlyphMinAdvanceX = iconFontSize;
-	icons_config.FontDataOwnedByAtlas = false;
-	ImFont* pFontAwesome = io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &icons_config, icons_ranges);
-	IM_ASSERT(pFontAwesome != nullptr);
-	(void)pFontAwesome;
-
+	CGraphics::InitImGui();
 	return true;
 }
 
 void CGraphics::Shutdown()
 {
-	VkResult err = vkDeviceWaitIdle(CGraphics::sm_Device);
-	CGraphics::check_vk_result(err);
+	ASSERT_VULKAN(vkDeviceWaitIdle(CGraphics::sm_Device));
 
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -163,7 +115,7 @@ void CGraphics::PreRender()
 		if (width > 0 && height > 0)
 		{
 			ImGui_ImplVulkan_SetMinImageCount(CGraphics::sm_MinImageCount);
-			ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_Instance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, CGraphics::sm_QueueFamily, CGraphics::sm_Allocator, width, height, CGraphics::sm_MinImageCount);
+			ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, CGraphics::sm_QueueFamily, nullptr, width, height, CGraphics::sm_MinImageCount);
 			CGraphics::sm_MainWindowData.FrameIndex = 0;
 			CGraphics::sm_SwapChainRebuild = false;
 		}
@@ -191,6 +143,14 @@ void CGraphics::Render()
 		CGraphics::FrameRender(&CGraphics::sm_MainWindowData, draw_data);
 		CGraphics::FramePresent(&CGraphics::sm_MainWindowData);
 	}
+
+	static bool bShowInit = false;
+	if (!bShowInit)
+	{
+		bShowInit = true;
+		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+		glfwShowWindow(CGraphics::sm_Window);
+	}
 }
 
 bool CGraphics::IsRunning()
@@ -198,243 +158,284 @@ bool CGraphics::IsRunning()
 	return !glfwWindowShouldClose(CGraphics::sm_Window);
 }
 
-void CGraphics::glfw_error_callback(int error, const char* description)
+void CGraphics::InitPhysicalDevice()
 {
-	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
-void CGraphics::check_vk_result(VkResult err)
-{
-	if (err == 0)
-		return;
-	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-	if (err < 0)
-		abort();
-}
+	//---------------- Physical Device ----------------
+	//
+	uint32_t numDevices = 0;
+	vector<VkPhysicalDevice> physicalDevices;
+	ASSERT_VULKAN(vkEnumeratePhysicalDevices(CGraphics::sm_VulkanInstance, &numDevices, nullptr));
+	IM_ASSERT(numDevices > 0);
 
-#ifdef USE_VULKAN_DEBUG_REPORT
-VKAPI_ATTR VkBool32 VKAPI_CALL CGraphics::debug_report(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode, const char* pLayerPrefix, const char* pMessage, void* pUserData)
-{
-	(void)flags; (void)object; (void)location; (void)messageCode; (void)pUserData; (void)pLayerPrefix; // Unused arguments
-	fprintf(stderr, "[vulkan] Debug report from ObjectType: %i\nMessage: %s\n\n", objectType, pMessage);
-	return VK_FALSE;
-}
-#endif // USE_VULKAN_DEBUG_REPORT
+#ifdef VULKAN_DEBUG
+	printf("[vulkan] Found %i GPU(s)\n", numDevices);
+#endif
 
-bool CGraphics::IsExtensionAvailable(const ImVector<VkExtensionProperties>& properties, const char* extension)
-{
-	for (const VkExtensionProperties& p : properties)
-		if (strcmp(p.extensionName, extension) == 0)
-			return true;
-	return false;
-}
+	physicalDevices.resize(numDevices);
+	ASSERT_VULKAN(vkEnumeratePhysicalDevices(CGraphics::sm_VulkanInstance, &numDevices, physicalDevices.data()));
 
-VkPhysicalDevice CGraphics::SetupVulkan_SelectPhysicalDevice()
-{
-	uint32_t gpu_count;
-	VkResult err = vkEnumeratePhysicalDevices(CGraphics::sm_Instance, &gpu_count, nullptr);
-	check_vk_result(err);
-	IM_ASSERT(gpu_count > 0);
-
-	ImVector<VkPhysicalDevice> gpus;
-	gpus.resize(gpu_count);
-	err = vkEnumeratePhysicalDevices(CGraphics::sm_Instance, &gpu_count, gpus.Data);
-	check_vk_result(err);
-
-	// If a number >1 of GPUs got reported, find discrete GPU if present, or use first one available. This covers
-	// most common cases (multi-gpu/integrated+dedicated graphics). Handling more complicated setups (multiple
-	// dedicated GPUs) is out of scope of this sample.
-	for (VkPhysicalDevice& device : gpus)
+	for (VkPhysicalDevice& physicalDevice : physicalDevices)
 	{
-		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(device, &properties);
-		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-			return device;
-	}
+		VkPhysicalDeviceProperties deviceProperties = {};
+		vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 
-	// Use first GPU (Integrated) is a Discrete one is not available.
-	if (gpu_count > 0)
-		return gpus[0];
-	return VK_NULL_HANDLE;
-}
-
-void CGraphics::SetupVulkan(ImVector<const char*> instance_extensions)
-{
-	VkResult err;
-
-	// Create Vulkan Instance
-	{
-		VkInstanceCreateInfo create_info = {};
-		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-
-		// Enumerate available extensions
-		uint32_t properties_count;
-		ImVector<VkExtensionProperties> properties;
-		vkEnumerateInstanceExtensionProperties(nullptr, &properties_count, nullptr);
-		properties.resize(properties_count);
-		err = vkEnumerateInstanceExtensionProperties(nullptr, &properties_count, properties.Data);
-		check_vk_result(err);
-
-		// Enable required extensions
-		if (IsExtensionAvailable(properties, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
-			instance_extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-#ifdef VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
-		if (IsExtensionAvailable(properties, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		{
-			instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-			create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+			CGraphics::sm_PhysicalDevice = physicalDevice;
+			return;
 		}
-#endif
-
-		// Enabling validation layers
-#ifdef USE_VULKAN_DEBUG_REPORT
-		const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
-		create_info.enabledLayerCount = 1;
-		create_info.ppEnabledLayerNames = layers;
-		instance_extensions.push_back("VK_EXT_debug_report");
-#endif
-
-		// Create Vulkan Instance
-		create_info.enabledExtensionCount = (uint32_t)instance_extensions.Size;
-		create_info.ppEnabledExtensionNames = instance_extensions.Data;
-		err = vkCreateInstance(&create_info, CGraphics::sm_Allocator, &CGraphics::sm_Instance);
-		check_vk_result(err);
-
-		// Setup the debug report callback
-#ifdef USE_VULKAN_DEBUG_REPORT
-		auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(CGraphics::sm_Instance, "vkCreateDebugReportCallbackEXT");
-		IM_ASSERT(vkCreateDebugReportCallbackEXT != nullptr);
-		VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
-		debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-		debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-		debug_report_ci.pfnCallback = debug_report;
-		debug_report_ci.pUserData = nullptr;
-		err = vkCreateDebugReportCallbackEXT(CGraphics::sm_Instance, &debug_report_ci, CGraphics::sm_Allocator, &CGraphics::sm_DebugReport);
-		check_vk_result(err);
-#endif
 	}
 
-	// Select Physical Device (GPU)
-	CGraphics::sm_PhysicalDevice = SetupVulkan_SelectPhysicalDevice();
-
-	// Select graphics queue family
+	if (numDevices > 0)
 	{
-		uint32_t count;
-		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &count, nullptr);
-		VkQueueFamilyProperties* queues = (VkQueueFamilyProperties*)malloc(sizeof(VkQueueFamilyProperties) * count);
-		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &count, queues);
-		for (uint32_t i = 0; i < count; i++)
-			if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		CGraphics::sm_PhysicalDevice = physicalDevices[0];
+	}
+}
+
+void CGraphics::InitLogicalDevice()
+{
+	{
+		//---------------- Graphics Queue Family ----------------
+		//
+		uint32_t numQueueFamilies = 0;
+		vector<VkQueueFamilyProperties> queueFamilyProperties;
+
+		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &numQueueFamilies, nullptr);
+		queueFamilyProperties.resize(numQueueFamilies);
+		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &numQueueFamilies, queueFamilyProperties.data());
+
+		for (uint32_t i = 0; i < (uint32_t)queueFamilyProperties.size(); i++)
+		{
+			VkQueueFamilyProperties queueFamilyProps = queueFamilyProperties.at(i);
+			if (queueFamilyProps.queueCount > 0 && (queueFamilyProps.queueFlags & VK_QUEUE_GRAPHICS_BIT))
 			{
 				CGraphics::sm_QueueFamily = i;
 				break;
 			}
-		free(queues);
+		}
 		IM_ASSERT(CGraphics::sm_QueueFamily != (uint32_t)-1);
 	}
 
-	// Create Logical Device (with 1 queue)
 	{
-		ImVector<const char*> device_extensions;
-		device_extensions.push_back("VK_KHR_swapchain");
+		//---------------- Logical Device ----------------
+		//
 
-		// Enumerate physical device extension
-		uint32_t properties_count;
-		ImVector<VkExtensionProperties> properties;
-		vkEnumerateDeviceExtensionProperties(CGraphics::sm_PhysicalDevice, nullptr, &properties_count, nullptr);
-		properties.resize(properties_count);
-		vkEnumerateDeviceExtensionProperties(CGraphics::sm_PhysicalDevice, nullptr, &properties_count, properties.Data);
+		vector<const char*> enabledExtensions;
+		enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
 #ifdef VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
-		if (IsExtensionAvailable(properties, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
-			device_extensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+		uint32_t extensionPropertiesCount = 0;
+		vector<VkExtensionProperties> extensionProperties;
+		ASSERT_VULKAN(vkEnumerateDeviceExtensionProperties(CGraphics::sm_PhysicalDevice, nullptr, &extensionPropertiesCount, nullptr));
+
+		extensionProperties.resize(extensionPropertiesCount);
+		ASSERT_VULKAN(vkEnumerateDeviceExtensionProperties(CGraphics::sm_PhysicalDevice, nullptr, &extensionPropertiesCount, extensionProperties.data()));
+
+
+		for (const VkExtensionProperties extensionProperty : extensionProperties)
+		{
+			if (strcmp(extensionProperty.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) == 0)
+			{
+				enabledExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+			}
+		}
 #endif
 
-		const float queue_priority[] = { 1.0f };
-		VkDeviceQueueCreateInfo queue_info[1] = {};
-		queue_info[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queue_info[0].queueFamilyIndex = CGraphics::sm_QueueFamily;
-		queue_info[0].queueCount = 1;
-		queue_info[0].pQueuePriorities = queue_priority;
-		VkDeviceCreateInfo create_info = {};
-		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		create_info.queueCreateInfoCount = sizeof(queue_info) / sizeof(queue_info[0]);
-		create_info.pQueueCreateInfos = queue_info;
-		create_info.enabledExtensionCount = (uint32_t)device_extensions.Size;
-		create_info.ppEnabledExtensionNames = device_extensions.Data;
-		err = vkCreateDevice(CGraphics::sm_PhysicalDevice, &create_info, CGraphics::sm_Allocator, &CGraphics::sm_Device);
-		check_vk_result(err);
-		vkGetDeviceQueue(CGraphics::sm_Device, CGraphics::sm_QueueFamily, 0, &CGraphics::sm_Queue);
-	}
+		//---------------- Device Queue Create Info ----------------
+		//
+		const float queuePriorities[] = { 1.0f };
 
-	// Create Descriptor Pool
-	// The example only requires a single combined image sampler descriptor for the font image and only uses one descriptor set (for that)
-	// If you wish to load e.g. additional textures you may need to alter pools sizes.
-	{
-		VkDescriptorPoolSize pool_sizes[] =
-		{
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
-		};
-		VkDescriptorPoolCreateInfo pool_info = {};
-		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		pool_info.maxSets = 1;
-		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-		pool_info.pPoolSizes = pool_sizes;
-		err = vkCreateDescriptorPool(CGraphics::sm_Device, &pool_info, CGraphics::sm_Allocator, &CGraphics::sm_DescriptorPool);
-		check_vk_result(err);
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = CGraphics::sm_QueueFamily;
+		queueCreateInfo.queueCount = (uint32_t)std::size(queuePriorities);
+		queueCreateInfo.pQueuePriorities = queuePriorities;
+
+		//---------------- Device Create Info ----------------
+		//
+		VkDeviceCreateInfo deviceCreateInfo = {};
+		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		deviceCreateInfo.queueCreateInfoCount = 1;
+		deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+		deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
+		deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
+
+		ASSERT_VULKAN(vkCreateDevice(CGraphics::sm_PhysicalDevice, &deviceCreateInfo, nullptr, &CGraphics::sm_Device));
+		vkGetDeviceQueue(CGraphics::sm_Device, CGraphics::sm_QueueFamily, 0, &CGraphics::sm_Queue);
 	}
 }
 
-// All the ImGui_ImplVulkanH_XXX structures/functions are optional helpers used by the demo.
-// Your real engine/app may not use them.
-void CGraphics::SetupVulkanWindow(ImGui_ImplVulkanH_Window* wd, VkSurfaceKHR surface, int width, int height)
+void CGraphics::InitDescriptorPool()
 {
-	wd->Surface = surface;
+	//---------------- Descriptor Pool ----------------
+	//
+	VkDescriptorPoolSize poolSizes[] =
+	{
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
+	};
 
-	// Check for WSI support
-	VkBool32 res;
-	vkGetPhysicalDeviceSurfaceSupportKHR(CGraphics::sm_PhysicalDevice, CGraphics::sm_QueueFamily, wd->Surface, &res);
-	if (res != VK_TRUE)
+	VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
+	descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	descriptorPoolCreateInfo.maxSets = 1;
+	descriptorPoolCreateInfo.poolSizeCount = (uint32_t)std::size(poolSizes);
+	descriptorPoolCreateInfo.pPoolSizes = poolSizes;
+
+	ASSERT_VULKAN(vkCreateDescriptorPool(CGraphics::sm_Device, &descriptorPoolCreateInfo, nullptr, &CGraphics::sm_DescriptorPool));
+}
+
+void CGraphics::InitVulkan(vector<const char*>& extensions)
+{
+	{
+		//---------------- Application Info ----------------
+		//
+		VkApplicationInfo applicationInfo = {};
+		applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		applicationInfo.pApplicationName = "gxt2edit";
+		applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		applicationInfo.apiVersion = VK_API_VERSION_1_3;
+
+
+		//---------------- Create Info ----------------
+		//
+		VkInstanceCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		createInfo.pApplicationInfo = &applicationInfo;
+
+
+#ifdef VULKAN_DEBUG
+		//---------------- Instance Layer Properties ----------------
+		//
+		uint32_t layerPropertyCount = 0;
+		vector<VkLayerProperties> layerProperties;
+		ASSERT_VULKAN(vkEnumerateInstanceLayerProperties(&layerPropertyCount, nullptr));
+
+		layerProperties.resize(layerPropertyCount);
+		ASSERT_VULKAN(vkEnumerateInstanceLayerProperties(&layerPropertyCount, layerProperties.data()));
+
+		for (const VkLayerProperties& vkLayerProperty : layerProperties)
+		{
+			printf("[vulkan][layer property] %s (%s)\n", vkLayerProperty.layerName, vkLayerProperty.description);
+		}
+#endif
+
+
+		//---------------- Instance Extension Properties ----------------
+		//
+		uint32_t instanceExtensionCount = 0;
+		vector<VkExtensionProperties> extensionProperties;
+		ASSERT_VULKAN(vkEnumerateInstanceExtensionProperties(nullptr, &instanceExtensionCount, nullptr));
+
+		extensionProperties.resize(instanceExtensionCount);
+		ASSERT_VULKAN(vkEnumerateInstanceExtensionProperties(nullptr, &instanceExtensionCount, extensionProperties.data()));
+
+		for (const VkExtensionProperties& vkExtensionProperty : extensionProperties)
+		{
+			if (strcmp(vkExtensionProperty.extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
+			{
+				extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+			}
+
+#ifdef VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+			if (strcmp(vkExtensionProperty.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
+			{
+				extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+				createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+			}
+#endif
+
+#ifdef VULKAN_DEBUG
+			printf("[vulkan][extension property] %s\n", vkExtensionProperty.extensionName);
+#endif
+		}
+
+
+#ifdef VULKAN_DEBUG
+		//---------------- Validation layers ----------------
+		//
+		const char* enabledLayers[] = {
+			"VK_LAYER_KHRONOS_validation"
+		};
+		createInfo.enabledLayerCount = (uint32_t)std::size(enabledLayers);
+		createInfo.ppEnabledLayerNames = enabledLayers;
+		extensions.push_back("VK_EXT_debug_report");
+#endif
+
+
+		//---------------- Create Vulkan Instance ----------------
+		//
+		createInfo.enabledExtensionCount = (uint32_t)extensions.size();
+		createInfo.ppEnabledExtensionNames = extensions.data();
+		ASSERT_VULKAN(vkCreateInstance(&createInfo, nullptr, &CGraphics::sm_VulkanInstance));
+	}
+
+	CGraphics::InitPhysicalDevice();
+	CGraphics::InitLogicalDevice();
+	CGraphics::InitDescriptorPool();
+}
+
+void CGraphics::InitVulkanWindow()
+{
+	//---------------- Surface ----------------
+	//
+	VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
+	ASSERT_VULKAN(glfwCreateWindowSurface(CGraphics::sm_VulkanInstance, CGraphics::sm_Window, nullptr, &vkSurface));
+
+
+	//---------------- Framebuffers ----------------
+	//
+	int width, height;
+	glfwGetFramebufferSize(CGraphics::sm_Window, &width, &height);
+
+
+	ImGui_ImplVulkanH_Window* pWindowImpl = &CGraphics::sm_MainWindowData;
+	pWindowImpl->Surface = vkSurface;
+
+
+	//---------------- Window System Integration ----------------
+	//
+	VkBool32 bWindowSystemIntegration = VK_FALSE;
+	ASSERT_VULKAN(vkGetPhysicalDeviceSurfaceSupportKHR(CGraphics::sm_PhysicalDevice, CGraphics::sm_QueueFamily, pWindowImpl->Surface, &bWindowSystemIntegration));
+
+	if (bWindowSystemIntegration != VK_TRUE)
 	{
 		fprintf(stderr, "Error no WSI support on physical device 0\n");
 		exit(-1);
 	}
 
-	// Select Surface Format
+
+	//---------------- Surface Format ----------------
+	//
 	const VkFormat requestSurfaceImageFormat[] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM };
 	const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-	wd->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(CGraphics::sm_PhysicalDevice, wd->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
+	pWindowImpl->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(CGraphics::sm_PhysicalDevice, pWindowImpl->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
 
-	// Select Present Mode
+
+	//---------------- Select Present Mode ----------------
+	//
 #ifdef APP_USE_UNLIMITED_FRAME_RATE
-	VkPresentModeKHR present_modes[] = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR };
+	VkPresentModeKHR presentModes[] = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR };
 #else
-	VkPresentModeKHR present_modes[] = { VK_PRESENT_MODE_FIFO_KHR };
+	VkPresentModeKHR presentModes[] = { VK_PRESENT_MODE_FIFO_KHR };
 #endif
-	wd->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(CGraphics::sm_PhysicalDevice, wd->Surface, &present_modes[0], IM_ARRAYSIZE(present_modes));
-	//printf("[vulkan] Selected PresentMode = %d\n", wd->PresentMode);
+	pWindowImpl->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(CGraphics::sm_PhysicalDevice, pWindowImpl->Surface, &presentModes[0], IM_ARRAYSIZE(presentModes));
 
-	// Create SwapChain, RenderPass, Framebuffer, etc.
-	IM_ASSERT(CGraphics::sm_MinImageCount >= 2);
-	ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_Instance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, wd, CGraphics::sm_QueueFamily, CGraphics::sm_Allocator, width, height, CGraphics::sm_MinImageCount);
+
+	//---------------- SwapChain, RenderPass, Framebuffer ----------------
+	//
+	ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, pWindowImpl, CGraphics::sm_QueueFamily, nullptr, width, height, CGraphics::sm_MinImageCount);
 }
 
 void CGraphics::CleanupVulkan()
 {
-	vkDestroyDescriptorPool(CGraphics::sm_Device, CGraphics::sm_DescriptorPool, CGraphics::sm_Allocator);
-
-#ifdef USE_VULKAN_DEBUG_REPORT
-	// Remove the debug report callback
-	auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(CGraphics::sm_Instance, "vkDestroyDebugReportCallbackEXT");
-	vkDestroyDebugReportCallbackEXT(CGraphics::sm_Instance, CGraphics::sm_DebugReport, CGraphics::sm_Allocator);
-#endif // USE_VULKAN_DEBUG_REPORT
-
-	vkDestroyDevice(CGraphics::sm_Device, CGraphics::sm_Allocator);
-	vkDestroyInstance(CGraphics::sm_Instance, CGraphics::sm_Allocator);
+	vkDestroyDescriptorPool(CGraphics::sm_Device, CGraphics::sm_DescriptorPool, nullptr);
+	vkDestroyDevice(CGraphics::sm_Device, nullptr);
+	vkDestroyInstance(CGraphics::sm_VulkanInstance, nullptr);
 }
 
 void CGraphics::CleanupVulkanWindow()
 {
-	ImGui_ImplVulkanH_DestroyWindow(CGraphics::sm_Instance, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, CGraphics::sm_Allocator);
+	ImGui_ImplVulkanH_DestroyWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, nullptr);
 }
 
 void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
@@ -449,24 +450,19 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
 		CGraphics::sm_SwapChainRebuild = true;
 		return;
 	}
-	check_vk_result(err);
 
 	ImGui_ImplVulkanH_Frame* fd = &wd->Frames[wd->FrameIndex];
 	{
 		err = vkWaitForFences(CGraphics::sm_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
-		check_vk_result(err);
 
 		err = vkResetFences(CGraphics::sm_Device, 1, &fd->Fence);
-		check_vk_result(err);
 	}
 	{
 		err = vkResetCommandPool(CGraphics::sm_Device, fd->CommandPool, 0);
-		check_vk_result(err);
 		VkCommandBufferBeginInfo info = {};
 		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
-		check_vk_result(err);
 	}
 	{
 		VkRenderPassBeginInfo info = {};
@@ -498,9 +494,7 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
 		info.pSignalSemaphores = &render_complete_semaphore;
 
 		err = vkEndCommandBuffer(fd->CommandBuffer);
-		check_vk_result(err);
 		err = vkQueueSubmit(CGraphics::sm_Queue, 1, &info, fd->Fence);
-		check_vk_result(err);
 	}
 }
 
@@ -522,11 +516,76 @@ void CGraphics::FramePresent(ImGui_ImplVulkanH_Window* wd)
 		CGraphics::sm_SwapChainRebuild = true;
 		return;
 	}
-	check_vk_result(err);
 	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount; // Now we can use the next set of semaphores
 }
 
-void CGraphics::SetupImGuiStyle()
+void CGraphics::InitImGui()
+{
+	//---------------- Dear ImGui Context ----------------
+	//
+	IM_ASSERT(IMGUI_CHECKVERSION());
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+
+	//---------------- Platform & Renderer Backends ----------------
+	//
+	ImGui_ImplVulkan_InitInfo initInfo = {};
+	initInfo.Instance = CGraphics::sm_VulkanInstance;
+	initInfo.PhysicalDevice = CGraphics::sm_PhysicalDevice;
+	initInfo.Device = CGraphics::sm_Device;
+	initInfo.QueueFamily = CGraphics::sm_QueueFamily;
+	initInfo.Queue = CGraphics::sm_Queue;
+	initInfo.PipelineCache = CGraphics::sm_PipelineCache;
+	initInfo.DescriptorPool = CGraphics::sm_DescriptorPool;
+	initInfo.RenderPass = CGraphics::sm_MainWindowData.RenderPass;
+	initInfo.Subpass = 0;
+	initInfo.MinImageCount = CGraphics::sm_MinImageCount;
+	initInfo.ImageCount = CGraphics::sm_MainWindowData.ImageCount;
+	initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	ImGui_ImplGlfw_InitForVulkan(CGraphics::sm_Window, false);
+	ImGui_ImplVulkan_Init(&initInfo);
+
+
+	//---------------- Fonts & Theme ----------------
+	//
+	CGraphics::SetupFonts();
+	CGraphics::SetupTheme();
+}
+
+void CGraphics::SetupFonts()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	// Roboto
+	ImFontConfig robotoConfig;
+	robotoConfig.FontDataOwnedByAtlas = false;
+
+	ImFont* pRobotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRobotoRegular, sizeof(g_FontRobotoRegular), 16.f, &robotoConfig);
+	io.FontDefault = pRobotoFont;
+	IM_ASSERT(pRobotoFont != nullptr);
+
+
+	// Font Awesome
+	float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
+	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+	// merge in icons from Font Awesome
+	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	ImFontConfig icons_config;
+	icons_config.MergeMode = true;
+	icons_config.PixelSnapH = true;
+	icons_config.GlyphMinAdvanceX = iconFontSize;
+	icons_config.FontDataOwnedByAtlas = false;
+	ImFont* pFontAwesome = io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &icons_config, icons_ranges);
+	IM_ASSERT(pFontAwesome != nullptr);
+	(void)pFontAwesome;
+}
+
+void CGraphics::SetupTheme()
 {
 	// Future Dark style by rewrking from ImThemes
 	ImGuiStyle& style = ImGui::GetStyle();

@@ -21,6 +21,7 @@
 
 // C/C++
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -36,13 +37,13 @@ public:
 	static bool IsRunning();
 
 private:
-	// Callbacks
-	static void glfw_error_callback(int error, const char* description);
-	static void check_vk_result(VkResult err);
 
 	// Init
-	static void SetupVulkan(ImVector<const char*> instance_extensions);
-	static void SetupVulkanWindow(ImGui_ImplVulkanH_Window* wd, VkSurfaceKHR surface, int width, int height);
+	static void InitVulkan(vector<const char*>& extensions);
+	static void InitVulkanWindow();
+	static void InitPhysicalDevice();
+	static void InitLogicalDevice();
+	static void InitDescriptorPool();
 
 	// Cleanup
 	static void CleanupVulkan();
@@ -52,29 +53,13 @@ private:
 	static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data);
 	static void FramePresent(ImGui_ImplVulkanH_Window* wd);
 
-	// Style
-	static void SetupImGuiStyle();
-
-private:
-
-#ifdef USE_VULKAN_DEBUG_REPORT
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(
-		VkDebugReportFlagsEXT flags, 
-		VkDebugReportObjectTypeEXT objectType, 
-		uint64_t object, 
-		size_t location, 
-		int32_t messageCode, 
-		const char* pLayerPrefix, 
-		const char* pMessage, 
-		void* pUserData);
-#endif // USE_VULKAN_DEBUG_REPORT
-
-	static bool IsExtensionAvailable(const ImVector<VkExtensionProperties>& properties, const char* extension);
-	static VkPhysicalDevice SetupVulkan_SelectPhysicalDevice();
+	// ImGui
+	static void InitImGui();
+	static void SetupFonts();
+	static void SetupTheme();
 public:
 	static GLFWwindow* sm_Window;
-	static VkAllocationCallbacks* sm_Allocator;
-	static VkInstance sm_Instance;
+	static VkInstance sm_VulkanInstance;
 	static VkPhysicalDevice sm_PhysicalDevice;
 	static VkDevice sm_Device;
 	static uint32_t sm_QueueFamily;
