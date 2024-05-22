@@ -578,6 +578,8 @@ void CGraphics::InitImGui()
 void CGraphics::SetupFonts()
 {
 	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = nullptr;
+	io.LogFilename = nullptr;
 
 	//---------------- Roboto ----------------
 	//

@@ -9,6 +9,7 @@
 #include "gxt/gxt2.h"
 #include "system/app.h"
 
+// C/C++
 #include <vector>
 
 class gxt2edit : public CAppUI
