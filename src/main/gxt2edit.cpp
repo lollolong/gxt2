@@ -23,6 +23,15 @@ gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
 
 }
 
+gxt2edit::~gxt2edit()
+{
+	if (m_Input)
+	{
+		delete m_Input;
+		m_Input = nullptr;
+	}
+}
+
 int gxt2edit::Run(int argc, char* argv[])
 {
 	if (argc == 2)

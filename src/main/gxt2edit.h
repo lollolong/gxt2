@@ -16,7 +16,7 @@ class gxt2edit : public CAppUI
 {
 public:
 	gxt2edit(const string& windowTitle, int width, int height);
-	virtual ~gxt2edit() = default;
+	virtual ~gxt2edit();
 public:
 	int Run(int argc, char* argv[]) override;
 private:
