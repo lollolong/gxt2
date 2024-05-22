@@ -37,15 +37,8 @@ int gxt2edit::Run(int argc, char* argv[])
 	if (argc == 2)
 	{
 		m_Input = new CGxt2File(argv[1]);
+		m_Input->ReadEntries();
 	}
-	else
-	{
-		m_Input = new CFile();
-	}
-
-
-	m_Input->ReadEntries();
-
 	return CAppUI::Run(argc, argv);
 }
 
@@ -106,51 +99,54 @@ void gxt2edit::OnTick()
 				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.f, 0.f));
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, ImGui::GetStyle().FramePadding.y));
 
-				ImGuiListClipper clipper;
-				clipper.Begin(static_cast<int>(m_Input->GetData().size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
-
-				while (clipper.Step())
+				if (m_Input)
 				{
-					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
+					ImGuiListClipper clipper;
+					clipper.Begin(static_cast<int>(m_Input->GetData().size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
+
+					while (clipper.Step())
 					{
-						auto it = std::next(m_Input->GetData().begin(), i);
-
-						const unsigned int& uHash = it->first;
-						string& text = it->second;
-
-						string szHash = format("0x{:08X}", uHash);
-
-						ImGui::TableNextRow();
-
-						// Delete column
-						ImGui::TableSetColumnIndex(0);
-						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ICON_FA_TRASH).x) * 0.5f);
-						if (ImGui::Button((ICON_FA_TRASH "##" + to_string(uHash)).c_str()))
+						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 						{
-							FlagForDeletion(uHash);
-						}
-						ImGui::PopStyleColor();
+							auto it = std::next(m_Input->GetData().begin(), i);
 
-						// Hash column
-						ImGui::TableSetColumnIndex(1);
-						ImGui::PushItemWidth(90.f);
-						ImGui::InputText(("##Hash" + szHash).c_str(), &szHash, ImGuiInputTextFlags_ReadOnly);
-						ImGui::PopItemWidth();
+							const unsigned int& uHash = it->first;
+							string& text = it->second;
 
-						// Text column
-						ImGui::TableSetColumnIndex(2);
-						ImGui::PushItemWidth(-FLT_EPSILON);
-						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
-						{
-							if (text.empty())
+							string szHash = format("0x{:08X}", uHash);
+
+							ImGui::TableNextRow();
+
+							// Delete column
+							ImGui::TableSetColumnIndex(0);
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ICON_FA_TRASH).x) * 0.5f);
+							if (ImGui::Button((ICON_FA_TRASH "##" + to_string(uHash)).c_str()))
 							{
 								FlagForDeletion(uHash);
 							}
+							ImGui::PopStyleColor();
+
+							// Hash column
+							ImGui::TableSetColumnIndex(1);
+							ImGui::PushItemWidth(90.f);
+							ImGui::InputText(("##Hash" + szHash).c_str(), &szHash, ImGuiInputTextFlags_ReadOnly);
+							ImGui::PopItemWidth();
+
+							// Text column
+							ImGui::TableSetColumnIndex(2);
+							ImGui::PushItemWidth(-FLT_EPSILON);
+							if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+							{
+								if (text.empty())
+								{
+									FlagForDeletion(uHash);
+								}
+							}
+							ImGui::PopItemWidth();
 						}
-						ImGui::PopItemWidth();
+						Sleep(15);
 					}
-					Sleep(15);
 				}
 
 				ImGui::PopStyleColor();
