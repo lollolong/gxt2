@@ -22,6 +22,15 @@
 // C/C++
 #include <string>
 #include <vector>
+#include <cassert>
+
+// Debug and Assert
+#ifdef _DEBUG
+	#define VULKAN_DEBUG
+	#define ASSERT_VULKAN(vkRes) assert(vkRes == VK_SUCCESS);
+#else
+	#define ASSERT_VULKAN(vkRes) (void)vkRes;
+#endif
 
 using namespace std;
 

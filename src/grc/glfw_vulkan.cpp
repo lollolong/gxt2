@@ -13,16 +13,6 @@
 // vendor
 #include <IconsFontAwesome6.h>
 
-#include <vector>
-
-
-#include <cassert>
-
-#define ASSERT_VULKAN(vkRes) assert(vkRes == VK_SUCCESS);
-
-#ifdef _DEBUG
-#define VULKAN_DEBUG
-#endif
 
 // Data
 GLFWwindow*					CGraphics::sm_Window				= nullptr;
