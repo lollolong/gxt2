@@ -106,27 +106,28 @@ void CGraphics::PreRender()
 
 void CGraphics::Render()
 {
-	// Rendering
 	ImGui::Render();
-	ImDrawData* draw_data = ImGui::GetDrawData();
-	const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
+	ImDrawData* drawData = ImGui::GetDrawData();
+	const bool isMinimized = (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f);
 
-	ImVec4 clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
-	if (!is_minimized)
+	ImVec4 clearColor = ImVec4(0.f, 0.f, 0.f, 1.00f);
+	if (!isMinimized)
 	{
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[0] = clear_color.x * clear_color.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[1] = clear_color.y * clear_color.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[2] = clear_color.z * clear_color.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[3] = clear_color.w;
-		CGraphics::FrameRender(&CGraphics::sm_MainWindowData, draw_data);
+		CGraphics::sm_MainWindowData.ClearValue.color.float32[0] = clearColor.x * clearColor.w;
+		CGraphics::sm_MainWindowData.ClearValue.color.float32[1] = clearColor.y * clearColor.w;
+		CGraphics::sm_MainWindowData.ClearValue.color.float32[2] = clearColor.z * clearColor.w;
+		CGraphics::sm_MainWindowData.ClearValue.color.float32[3] = clearColor.w;
+		CGraphics::FrameRender(&CGraphics::sm_MainWindowData, drawData);
 		CGraphics::FramePresent(&CGraphics::sm_MainWindowData);
 	}
 
-	static bool bShowInit = false;
-	if (!bShowInit)
+	//---------------- Avoid Blank Screen ----------------
+	//-------------------- on Startup --------------------
+	//
+	static bool bMakeWindowVisible = false;
+	if (!bMakeWindowVisible)
 	{
-		bShowInit = true;
-		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+		bMakeWindowVisible = true;
 		glfwShowWindow(CGraphics::sm_Window);
 	}
 }
@@ -449,13 +450,12 @@ void CGraphics::CleanupVulkanWindow()
 //---------------- Render ----------------
 //
 
-void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
+void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData)
 {
-	VkResult err;
+	VkSemaphore imageAcquiredSemaphore = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
+	VkSemaphore renderCompleteSemaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
 
-	VkSemaphore image_acquired_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
-	VkSemaphore render_complete_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
-	err = vkAcquireNextImageKHR(CGraphics::sm_Device, wd->Swapchain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &wd->FrameIndex);
+	VkResult err = vkAcquireNextImageKHR(CGraphics::sm_Device, wd->Swapchain, UINT64_MAX, imageAcquiredSemaphore, VK_NULL_HANDLE, &wd->FrameIndex);
 	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
 	{
 		CGraphics::sm_SwapChainRebuild = true;
@@ -463,71 +463,76 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data)
 	}
 
 	ImGui_ImplVulkanH_Frame* fd = &wd->Frames[wd->FrameIndex];
-	{
-		err = vkWaitForFences(CGraphics::sm_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
 
-		err = vkResetFences(CGraphics::sm_Device, 1, &fd->Fence);
-	}
-	{
-		err = vkResetCommandPool(CGraphics::sm_Device, fd->CommandPool, 0);
-		VkCommandBufferBeginInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
-	}
-	{
-		VkRenderPassBeginInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		info.renderPass = wd->RenderPass;
-		info.framebuffer = fd->Framebuffer;
-		info.renderArea.extent.width = wd->Width;
-		info.renderArea.extent.height = wd->Height;
-		info.clearValueCount = 1;
-		info.pClearValues = &wd->ClearValue;
-		vkCmdBeginRenderPass(fd->CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-	}
+	ASSERT_VULKAN(vkWaitForFences(CGraphics::sm_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX));
+	ASSERT_VULKAN(vkResetFences(CGraphics::sm_Device, 1, &fd->Fence));
+	ASSERT_VULKAN(vkResetCommandPool(CGraphics::sm_Device, fd->CommandPool, 0));
 
-	// Record dear imgui primitives into command buffer
-	ImGui_ImplVulkan_RenderDrawData(draw_data, fd->CommandBuffer);
 
-	// Submit command buffer
+	//---------------- Command Buffer ----------------
+	//
+	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	commandBufferBeginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	ASSERT_VULKAN(vkBeginCommandBuffer(fd->CommandBuffer, &commandBufferBeginInfo));
+
+
+	//---------------- Render Pass ----------------
+	//
+	VkRenderPassBeginInfo renderPassBeginInfo = {};
+	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBeginInfo.renderPass = wd->RenderPass;
+	renderPassBeginInfo.framebuffer = fd->Framebuffer;
+	renderPassBeginInfo.renderArea.extent.width = wd->Width;
+	renderPassBeginInfo.renderArea.extent.height = wd->Height;
+	renderPassBeginInfo.clearValueCount = 1;
+	renderPassBeginInfo.pClearValues = &wd->ClearValue;
+	vkCmdBeginRenderPass(fd->CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	ImGui_ImplVulkan_RenderDrawData(drawData, fd->CommandBuffer);
 	vkCmdEndRenderPass(fd->CommandBuffer);
-	{
-		VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		VkSubmitInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		info.waitSemaphoreCount = 1;
-		info.pWaitSemaphores = &image_acquired_semaphore;
-		info.pWaitDstStageMask = &wait_stage;
-		info.commandBufferCount = 1;
-		info.pCommandBuffers = &fd->CommandBuffer;
-		info.signalSemaphoreCount = 1;
-		info.pSignalSemaphores = &render_complete_semaphore;
+	
 
-		err = vkEndCommandBuffer(fd->CommandBuffer);
-		err = vkQueueSubmit(CGraphics::sm_Queue, 1, &info, fd->Fence);
-	}
+	//---------------- Queue Submit ----------------
+	//
+	VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = &imageAcquiredSemaphore;
+	submitInfo.pWaitDstStageMask = &waitStage;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &fd->CommandBuffer;
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = &renderCompleteSemaphore;
+
+	ASSERT_VULKAN(vkEndCommandBuffer(fd->CommandBuffer));
+	ASSERT_VULKAN(vkQueueSubmit(CGraphics::sm_Queue, 1, &submitInfo, fd->Fence));
 }
 
 void CGraphics::FramePresent(ImGui_ImplVulkanH_Window* wd)
 {
 	if (CGraphics::sm_SwapChainRebuild)
+	{
 		return;
-	VkSemaphore render_complete_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
-	VkPresentInfoKHR info = {};
-	info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	info.waitSemaphoreCount = 1;
-	info.pWaitSemaphores = &render_complete_semaphore;
-	info.swapchainCount = 1;
-	info.pSwapchains = &wd->Swapchain;
-	info.pImageIndices = &wd->FrameIndex;
-	VkResult err = vkQueuePresentKHR(CGraphics::sm_Queue, &info);
+	}
+
+	VkSemaphore vkSemaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &vkSemaphore;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &wd->Swapchain;
+	presentInfo.pImageIndices = &wd->FrameIndex;
+
+	VkResult err = vkQueuePresentKHR(CGraphics::sm_Queue, &presentInfo);
 	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
 	{
 		CGraphics::sm_SwapChainRebuild = true;
 		return;
 	}
-	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount; // Now we can use the next set of semaphores
+	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount;
 }
 
 

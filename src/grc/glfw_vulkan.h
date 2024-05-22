@@ -59,7 +59,7 @@ private:
 	static void CleanupVulkanWindow();
 
 	// Render
-	static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data);
+	static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData);
 	static void FramePresent(ImGui_ImplVulkanH_Window* wd);
 
 	// ImGui
