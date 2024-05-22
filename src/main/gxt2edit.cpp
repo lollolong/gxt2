@@ -54,7 +54,7 @@ void gxt2edit::OnTick()
 		{
 			if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY))
 			{
-				ImGui::TableSetupColumn("Delete", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder);
 				ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
 				ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 				ImGui::TableSetupScrollFreeze(0, 1);
@@ -108,6 +108,7 @@ void gxt2edit::OnTick()
 						}
 						ImGui::PopItemWidth();
 					}
+					Sleep(15);
 				}
 
 				ImGui::PopStyleColor();
@@ -129,44 +130,41 @@ void gxt2edit::OnTick()
 		if (ImGui::Begin("##Options", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(imStyle.FramePadding.x * 6, imStyle.FramePadding.y));
-			if (ImGui::BeginTabBar("##TabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyResizeDown))
+
+			ImGui::Text("File");
+			if (ImGui::Button(ICON_FA_FOLDER_OPEN " Open File", ImVec2(150.f, 32.f)))
 			{
-				if (ImGui::BeginTabItem(ICON_FA_FILE_LINES " File", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-				{
-					if (ImGui::Button(ICON_FA_FOLDER_OPEN " Open File", ImVec2(150.f, 32.f)))
-					{
 
-					}
-
-					ImGui::SameLine();
-					if (ImGui::Button(ICON_FA_FILE " New File", ImVec2(150.f, 32.f)))
-					{
-
-					}
-
-					if (ImGui::Button(ICON_FA_FLOPPY_DISK " Save File", ImVec2(150.f, 32.f)))
-					{
-
-					}
-
-					ImGui::SameLine();
-					if (ImGui::Button(ICON_FA_COPY " Save As", ImVec2(150.f, 32.f)))
-					{
-
-					}
-
-					ImGui::EndTabItem();
-				}
-
-				if (ImGui::BeginTabItem(ICON_FA_PENCIL " Editor", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton))
-				{
-
-					ImGui::EndTabItem();
-				}
-
-				ImGui::EndTabBar();
 			}
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_FILE " New File", ImVec2(150.f, 32.f)))
+			{
+
+			}
+			if (ImGui::Button(ICON_FA_FLOPPY_DISK " Save File", ImVec2(150.f, 32.f)))
+			{
+
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_COPY " Save As", ImVec2(150.f, 32.f)))
+			{
+
+			}
+
 			ImGui::PopStyleVar();
+
+			ImGui::Separator();
+
+			ImGui::Text("Editor");
+
+			static char inputText[256] = "";
+			ImGui::InputText("Input", inputText, IM_ARRAYSIZE(inputText));
+
+			if (ImGui::Button("Insert", ImVec2(-1, 32.f)))
+			{
+
+			}
+			
 			ImGui::End();
 		}
 	}
@@ -189,11 +187,6 @@ void gxt2edit::UpdateEntries()
 
 int main(int argc, char* argv[])
 {
-#if !_DEBUG
-	ShowWindow(GetConsoleWindow(), SW_SHOW);
-#else
-	ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif
 
 	try
 	{
