@@ -8,8 +8,10 @@
 
 #include "grc/glfw_vulkan.h"
 
-CAppUI::CAppUI(const string& windowTitle) : 
-	m_WindowTitle(windowTitle)
+CAppUI::CAppUI(const string& windowTitle, int width, int height) :
+	m_WindowTitle(windowTitle),
+	m_Width(width),
+	m_Height(height)
 {
 
 }
@@ -32,7 +34,7 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 
 bool CAppUI::Init()
 {
-	return CGraphics::Init(m_WindowTitle, 1225, 640);
+	return CGraphics::Init(m_WindowTitle, m_Width, m_Height);
 }
 
 void CAppUI::OnTickInternal()

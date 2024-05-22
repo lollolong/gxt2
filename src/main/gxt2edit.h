@@ -14,14 +14,13 @@
 class gxt2edit : public CAppUI
 {
 public:
-	gxt2edit(const string& windowTitle);
+	gxt2edit(const string& windowTitle, int width, int height);
 	virtual ~gxt2edit() = default;
 public:
 	int Run(int argc, char* argv[]) override;
 private:
 	void OnTick() override;
 
-	// Delete Entries
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 

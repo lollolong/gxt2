@@ -16,8 +16,8 @@
 // vendor
 #include <IconsFontAwesome6.h>
 
-gxt2edit::gxt2edit(const string& windowTitle) :
-	CAppUI(windowTitle),
+gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
+	CAppUI(windowTitle, width, height),
 	m_Input(nullptr)
 {
 
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		gxt2edit gxt2edit("GXT2 Editor");
+		gxt2edit gxt2edit("GXT2 Editor", 1500, 850);
 		gxt2edit.Run(argc, argv);
 	}
 	catch (const exception& ex)
