@@ -567,7 +567,7 @@ void CGraphics::InitImGui()
 	initInfo.ImageCount = CGraphics::sm_MainWindowData.ImageCount;
 	initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-	ImGui_ImplGlfw_InitForVulkan(CGraphics::sm_Window, false);
+	ImGui_ImplGlfw_InitForVulkan(CGraphics::sm_Window, true);
 	ImGui_ImplVulkan_Init(&initInfo);
 
 
