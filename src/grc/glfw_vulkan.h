@@ -48,7 +48,7 @@ public:
 private:
 
 	// Init
-	static void InitVulkan(vector<const char*>& extensions);
+	static void InitVulkan();
 	static void InitVulkanWindow();
 	static void InitPhysicalDevice();
 	static void InitLogicalDevice();
@@ -73,8 +73,6 @@ public:
 	static VkDevice sm_Device;
 	static uint32_t sm_QueueFamily;
 	static VkQueue sm_Queue;
-	static VkDebugReportCallbackEXT sm_DebugReport;
-	static VkPipelineCache sm_PipelineCache;
 	static VkDescriptorPool sm_DescriptorPool;
 
 	static ImGui_ImplVulkanH_Window sm_MainWindowData;
