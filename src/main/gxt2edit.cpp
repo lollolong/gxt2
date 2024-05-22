@@ -130,54 +130,6 @@ void gxt2edit::OnTick()
 		}
 	}
 
-	{
-		const ImGuiStyle& imStyle = ImGui::GetStyle();
-
-		ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x + pViewport->Size.x * 2 / 3, pViewport->Pos.y));
-		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x * 1 / 3, pViewport->Size.y));
-
-		if (ImGui::Begin("##Options", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(imStyle.FramePadding.x * 6, imStyle.FramePadding.y));
-
-			ImGui::Text("File");
-			if (ImGui::Button(ICON_FA_FOLDER_OPEN " Open File", ImVec2(150.f, 32.f)))
-			{
-
-			}
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_FILE " New File", ImVec2(150.f, 32.f)))
-			{
-
-			}
-			if (ImGui::Button(ICON_FA_FLOPPY_DISK " Save File", ImVec2(150.f, 32.f)))
-			{
-
-			}
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_COPY " Save As", ImVec2(150.f, 32.f)))
-			{
-
-			}
-
-			ImGui::PopStyleVar();
-
-			ImGui::Separator();
-
-			ImGui::Text("Editor");
-
-			static char inputText[256] = "";
-			ImGui::InputText("Input", inputText, IM_ARRAYSIZE(inputText));
-
-			if (ImGui::Button("Insert", ImVec2(-1, 32.f)))
-			{
-
-			}
-			
-			ImGui::End();
-		}
-	}
-
 	UpdateEntries();
 }
 
