@@ -548,6 +548,8 @@ void CGraphics::InitImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	io.IniFilename = nullptr;
+	io.LogFilename = nullptr;
 
 
 	//---------------- Platform & Renderer Backends ----------------
@@ -578,8 +580,6 @@ void CGraphics::InitImGui()
 void CGraphics::SetupFonts()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.IniFilename = nullptr;
-	io.LogFilename = nullptr;
 
 	//---------------- Roboto ----------------
 	//
