@@ -9,6 +9,9 @@
 #include "gxt/gxt2.h"
 #include "system/app.h"
 
+// vendor
+#include <imgui.h>
+
 // C/C++
 #include <vector>
 
@@ -27,6 +30,8 @@ private:
 
 	CFile* m_Input;
 	vector<unsigned int> m_EntriesToRemove;
+
+	ImVec2 m_BarSize;
 };
 
 #endif // _GXT2EDIT_H_

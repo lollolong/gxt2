@@ -53,11 +53,44 @@ void gxt2edit::OnTick()
 {
 	m_EntriesToRemove.clear();
 
-	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File"))
+			{
+			}
+			if (ImGui::MenuItem(ICON_FA_FILE "  New File"))
+			{
+
+			}
+			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save"))
+			{
+
+			}
+			if (ImGui::MenuItem(ICON_FA_COPY "  Save As"))
+			{
+
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Settings"))
+		{
+			if (ImGui::MenuItem("Exit"))
+			{
+				exit(0);
+			}
+			ImGui::EndMenu();
+		}
+
+		m_BarSize = ImGui::GetWindowSize();
+		ImGui::EndMainMenuBar();
+	}
 
 	{
-		ImGui::SetNextWindowPos(pViewport->Pos);
-		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x * 2 / 3, pViewport->Size.y));
+		const ImGuiViewport* pViewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
+		ImGui::SetNextWindowSize(pViewport->Size);
 
 		if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
