@@ -25,11 +25,7 @@ gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
 
 gxt2edit::~gxt2edit()
 {
-	if (m_Input)
-	{
-		delete m_Input;
-		m_Input = nullptr;
-	}
+	Reset();
 }
 
 int gxt2edit::Run(int argc, char* argv[])
@@ -40,6 +36,15 @@ int gxt2edit::Run(int argc, char* argv[])
 		m_Input->ReadEntries();
 	}
 	return CAppUI::Run(argc, argv);
+}
+
+void gxt2edit::Reset()
+{
+	if (m_Input)
+	{
+		delete m_Input;
+		m_Input = nullptr;
+	}
 }
 
 void gxt2edit::OnTick()

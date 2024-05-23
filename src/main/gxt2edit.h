@@ -25,6 +25,7 @@ public:
 private:
 	void OnTick() override;
 
+	void Reset();
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 
