@@ -34,18 +34,26 @@ public:
 public:
 	int Run(int argc, char* argv[]) override;
 private:
-	void OnTick() override;
-
 	void Reset();
-	void SaveToFile(const string& path, eFileType fileType);
-	void LoadFromFile(const string& path, eFileType fileType);
 
-	//---------------- Dialogs ----------------
+	//---------------- UI ----------------
+	//
+	void OnTick() override;
+	void RenderBar();
+	void RenderTable();
+	void RenderEditor();
+	void ProcessShortcuts();
+
+	//---------------- IO ----------------
 	//
 	void OpenFile();
 	void SaveFile();
 	void SaveFileAs();
+	void SaveToFile(const string& path, eFileType fileType);
+	void LoadFromFile(const string& path, eFileType fileType);
 
+	//---------------- Editing ----------------
+	//
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 
@@ -62,6 +70,8 @@ private:
 	string m_LabelInput;
 	string m_TextInput;
 
+	//---------------- Editing ----------------
+	//
 	vector<unsigned int> m_EntriesToRemove;
 };
 
