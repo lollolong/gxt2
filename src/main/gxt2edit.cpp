@@ -88,7 +88,7 @@ void gxt2edit::OnTick()
 	{
 		const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
-		ImGui::SetNextWindowSize(pViewport->Size);
+		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y));
 
 		if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
