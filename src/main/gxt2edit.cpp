@@ -335,8 +335,8 @@ void gxt2edit::OpenFile()
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
-		m_RequestOpenFile = false;
 	}
+	m_RequestOpenFile = false;
 }
 
 void gxt2edit::ImportFile()
@@ -346,6 +346,7 @@ void gxt2edit::ImportFile()
 		return;
 	}
 
+	const string backupPath = m_Path;
 	if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
 		{
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
@@ -373,13 +374,15 @@ void gxt2edit::ImportFile()
 		{
 			Reset();
 			LoadFromFile(m_Path, fileType);
-			m_RequestImportFile = false;
+			m_Path = backupPath;
 		}
 	}
+	m_RequestImportFile = false;
 }
 
 void gxt2edit::ExportFile()
 {
+	const string backupPath = m_Path;
 	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
 		{
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
@@ -406,6 +409,7 @@ void gxt2edit::ExportFile()
 		if (fileType != FILETYPE_UNKNOWN)
 		{
 			SaveToFile(m_Path, fileType);
+			m_Path = backupPath;
 		}
 	}
 }
