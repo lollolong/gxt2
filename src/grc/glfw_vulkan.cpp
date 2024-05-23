@@ -8,8 +8,7 @@
 #include "glfw_vulkan.h"
 #include "resources/resource.h"
 #include "fonts/fa-solid-900.cpp"
-#include "fonts/Roboto-Regular.cpp"
-#include "fonts/Nunito-Regular.cpp"
+#include "fonts/NotoSans-Regular.cpp"
 
 // vendor
 #include <IconsFontAwesome6.h>
@@ -584,31 +583,50 @@ void CGraphics::SetupFonts()
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	//---------------- Roboto ----------------
+	//---------------- Noto ----------------
 	//
-	ImFontConfig robotoConfig;
-	robotoConfig.FontDataOwnedByAtlas = false;
+	ImFontConfig notoConfig;
+	notoConfig.FontDataOwnedByAtlas = false;
 
-	ImFont* pRobotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_FontRobotoRegular, sizeof(g_FontRobotoRegular), 16.f, &robotoConfig);
-	io.FontDefault = pRobotoFont;
-	IM_ASSERT(pRobotoFont != nullptr);
+	static const ImWchar ranges[] = { 0x0020, 0x00FF, 0x0100, 0x017F, 0x0400, 0x052F, 0 };
+	io.Fonts->AddFontFromMemoryTTF((void*)g_FontNotoRegular, sizeof(g_FontNotoRegular), 18.f, &notoConfig, ranges);
+
+
+	//---------------- Noto CJK ----------------
+	//
+	ImFontConfig notoConfigCJK;
+	notoConfigCJK.MergeMode = true;
+	notoConfigCJK.PixelSnapH = true;
+
+	static const ImWchar rangesJP[] = { 0x3040, 0x30FF, 0x31F0, 0x31FF, 0x4E00, 0x9FAF, 0 };
+	static const ImWchar rangesKR[] = { 0x1100, 0x11FF, 0x3130, 0x318F, 0xAC00, 0xD7AF, 0 };
+	static const ImWchar rangesSC[] = { 0x4E00, 0x9FFF, 0 };
+	static const ImWchar rangesTC[] = { 0x4E00, 0x9FFF, 0 };
+
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansJP-Regular.ttf", 18.f, &notoConfigCJK, rangesJP);
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansKR-Regular.ttf", 18.f, &notoConfigCJK, rangesKR);
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, rangesSC);
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, rangesTC);
 
 
 	//---------------- Font Awesome ----------------
 	//
 	const float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
 	const float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
-
-	static const ImWchar iconsRanges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	
 	ImFontConfig iconsConfig;
 	iconsConfig.MergeMode = true;
 	iconsConfig.PixelSnapH = true;
 	iconsConfig.GlyphMinAdvanceX = iconFontSize;
 	iconsConfig.FontDataOwnedByAtlas = false;
 
-	ImFont* pFontAwesome = io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &iconsConfig, iconsRanges);
-	IM_ASSERT(pFontAwesome != nullptr);
-	IM_UNUSED(pFontAwesome);
+	static const ImWchar rangesFA[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &iconsConfig, rangesFA);
+
+
+	//---------------- Build Atlas ----------------
+	//
+	io.Fonts->Build();
 }
 
 void CGraphics::SetupTheme()
