@@ -136,4 +136,16 @@ private:
 	rapidjson::Document m_Document;
 };
 
+//-----------------------------------------------------------------------------------------
+//
+
+class CCsvFile : public CFile
+{
+public:
+	CCsvFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
+
+	bool ReadEntries() override;
+	bool WriteEntries() override;
+};
+
 #endif // _GXT2_H_

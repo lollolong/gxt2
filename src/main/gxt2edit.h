@@ -18,9 +18,11 @@
 // Descriptions
 #define FILEDESC_GXT2 L"GTA Text Table (*.gxt2)"
 #define FILEDESC_JSON L"JSON File (*.json)"
+#define FILEDESC_CSV  L"CSV File (*.csv)"
 #define FILEDESC_TEXT L"Text File (*.txt)"
 #define FILTERSPEC_GXT2 L"*.gxt2"
 #define FILTERSPEC_JSON L"*.json"
+#define FILTERSPEC_CSV  L"*.csv"
 #define FILTERSPEC_TEXT L"*.txt"
 
 class gxt2edit : public CAppUI
@@ -33,6 +35,7 @@ private:
 		FILETYPE_GXT2,
 		FILETYPE_TXT,
 		FILETYPE_JSON,
+		FILETYPE_CSV,
 
 		FILETYPE_MAX
 	};

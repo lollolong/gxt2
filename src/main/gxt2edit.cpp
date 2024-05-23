@@ -350,6 +350,7 @@ void gxt2edit::ImportFile()
 	if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
 		{
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
+			{ FILEDESC_CSV, FILTERSPEC_CSV },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 		}
 		))
@@ -368,6 +369,10 @@ void gxt2edit::ImportFile()
 		else if (szInputExtension == ".json")
 		{
 			fileType = FILETYPE_JSON;
+		}
+		else if (szInputExtension == ".csv")
+		{
+			fileType = FILETYPE_CSV;
 		}
 
 		if (fileType != FILETYPE_UNKNOWN)
@@ -386,6 +391,7 @@ void gxt2edit::ExportFile()
 	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
 		{
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
+			{ FILEDESC_CSV, FILTERSPEC_CSV },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 		}
 		))
@@ -404,6 +410,10 @@ void gxt2edit::ExportFile()
 		else if (szInputExtension == ".json")
 		{
 			fileType = FILETYPE_JSON;
+		}
+		else if (szInputExtension == ".csv")
+		{
+			fileType = FILETYPE_CSV;
 		}
 
 		if (fileType != FILETYPE_UNKNOWN)
@@ -459,6 +469,9 @@ void gxt2edit::SaveToFile(const string& path, eFileType fileType)
 	case FILETYPE_JSON:
 		pOutputDevice = new CJsonFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
+	case FILETYPE_CSV:
+		pOutputDevice = new CCsvFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		break;
 	default:
 		break;
 	}
@@ -489,6 +502,9 @@ void gxt2edit::LoadFromFile(const string& path, eFileType fileType)
 		break;
 	case FILETYPE_JSON:
 		pInputDevice = new CJsonFile(path, CFile::FLAGS_READ_DECOMPILED);
+		break;
+	case FILETYPE_CSV:
+		pInputDevice = new CCsvFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	default:
 		break;

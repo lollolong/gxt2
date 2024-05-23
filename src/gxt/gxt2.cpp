@@ -277,3 +277,44 @@ bool CJsonFile::WriteEntries()
 
 	return true;
 } // bool ::WriteEntries()
+
+//-----------------------------------------------------------------------------------------
+//
+
+CCsvFile::CCsvFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CFile(fileName, openFlags)
+{
+} // ::CCsvFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
+
+bool CCsvFile::ReadEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	string line;
+	while (getline(m_File, line))
+	{
+		const string szHash = line.substr(0, 10);
+		const string szText = line.substr(11);
+		unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
+
+		m_Entries[uHash] = szText;
+	}
+	return true;
+} // bool ::ReadEntries()
+
+bool CCsvFile::WriteEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		m_File << format("0x{:08X},{}", uHash, szTextEntry) << endl;
+	}
+	return true;
+} // bool ::WriteEntries()
