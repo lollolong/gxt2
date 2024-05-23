@@ -26,13 +26,31 @@ private:
 	void OnTick() override;
 
 	void Reset();
+	void SaveToFile(const string& path);
+	void LoadFromFile(const string& path);
+
+	//---------------- Dialogs ----------------
+	//
+	void OpenFile();
+	void SaveFile();
+	void SaveFileAs();
+
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 
+private:
+	//---------------- IO ----------------
+	//
 	CFile* m_Input;
-	vector<unsigned int> m_EntriesToRemove;
+	CFile* m_Output;
+	CFile::Map m_Data;
+	string m_Path;
 
+	//---------------- UI ----------------
+	//
 	ImVec2 m_BarSize;
+
+	vector<unsigned int> m_EntriesToRemove;
 };
 
 #endif // _GXT2EDIT_H_

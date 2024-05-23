@@ -7,6 +7,7 @@
 
 // Project
 #include "gxt2edit.h"
+#include "data/util.h"
 #include "grc/glfw_vulkan.h"
 
 // C/C++
@@ -18,7 +19,8 @@
 
 gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
-	m_Input(nullptr)
+	m_Input(nullptr),
+	m_Output(nullptr)
 {
 
 }
@@ -32,8 +34,7 @@ int gxt2edit::Run(int argc, char* argv[])
 {
 	if (argc == 2)
 	{
-		m_Input = new CGxt2File(argv[1]);
-		m_Input->ReadEntries();
+		LoadFromFile(argv[1]);
 	}
 	return CAppUI::Run(argc, argv);
 }
@@ -44,6 +45,38 @@ void gxt2edit::Reset()
 	{
 		delete m_Input;
 		m_Input = nullptr;
+	}
+	if (m_Output)
+	{
+		delete m_Output;
+		m_Output = nullptr;
+	}
+	m_Data.clear();
+}
+
+void gxt2edit::SaveToFile(const string& path)
+{
+	if (m_Output)
+	{
+		delete m_Output;
+		m_Output = nullptr;
+	}
+
+	m_Output = new CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
+	m_Output->SetData(m_Data);
+	if (m_Output->WriteEntries())
+	{
+		m_Path = path;
+	}
+}
+
+void gxt2edit::LoadFromFile(const string& path)
+{
+	m_Input = new CGxt2File(path, CFile::FLAGS_READ_COMPILED);
+	if (m_Input->ReadEntries())
+	{
+		m_Data = m_Input->GetData();
+		m_Path = path;
 	}
 }
 
@@ -57,18 +90,19 @@ void gxt2edit::OnTick()
 		{
 			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File"))
 			{
+				OpenFile();
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE "  New File"))
 			{
-
+				Reset();
 			}
 			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save"))
 			{
-
+				SaveFile();
 			}
 			if (ImGui::MenuItem(ICON_FA_COPY "  Save As"))
 			{
-
+				SaveFileAs();
 			}
 			ImGui::EndMenu();
 		}
@@ -104,16 +138,16 @@ void gxt2edit::OnTick()
 				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.f, 0.f));
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, ImGui::GetStyle().FramePadding.y));
 
-				if (m_Input)
+				if (!m_Data.empty())
 				{
 					ImGuiListClipper clipper;
-					clipper.Begin(static_cast<int>(m_Input->GetData().size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
+					clipper.Begin(static_cast<int>(m_Data.size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
 
 					while (clipper.Step())
 					{
 						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 						{
-							auto it = std::next(m_Input->GetData().begin(), i);
+							auto it = std::next(m_Data.begin(), i);
 
 							const unsigned int& uHash = it->first;
 							string& text = it->second;
@@ -167,6 +201,35 @@ void gxt2edit::OnTick()
 	UpdateEntries();
 }
 
+void gxt2edit::OpenFile()
+{
+	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
+	{
+		Reset();
+		LoadFromFile(m_Path);
+	}
+}
+
+void gxt2edit::SaveFile()
+{
+	if (!m_Path.empty())
+	{
+		SaveToFile(m_Path);
+	}
+	else
+	{
+		SaveFileAs();
+	}
+}
+
+void gxt2edit::SaveFileAs()
+{
+	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
+	{
+		SaveToFile(m_Path);
+	}
+}
+
 void gxt2edit::FlagForDeletion(unsigned int uHash)
 {
 	m_EntriesToRemove.push_back(uHash);
@@ -176,7 +239,7 @@ void gxt2edit::UpdateEntries()
 {
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
-		m_Input->GetData().erase(uHash);
+		m_Data.erase(uHash);
 	}
 }
 
