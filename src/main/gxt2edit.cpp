@@ -86,8 +86,8 @@ void gxt2edit::RenderBar()
 			{
 				if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
 					{
-						{ L"JSON File (*.json)", L"*.json" },
-						{ L"Text File (*.txt)", L"*.txt" },
+						{ FILEDESC_JSON, FILTERSPEC_JSON },
+						{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 					}
 					))
 				{
@@ -118,8 +118,8 @@ void gxt2edit::RenderBar()
 			{
 				if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
 					{
-						{ L"JSON File (*.json)", L"*.json" },
-						{ L"Text File (*.txt)", L"*.txt" },
+						{ FILEDESC_JSON, FILTERSPEC_JSON },
+						{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 					}
 					))
 				{
@@ -322,7 +322,7 @@ void gxt2edit::ProcessShortcuts()
 
 void gxt2edit::OpenFile()
 {
-	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
+	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
@@ -343,7 +343,7 @@ void gxt2edit::SaveFile()
 
 void gxt2edit::SaveFileAs()
 {
-	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
+	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
