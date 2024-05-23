@@ -58,6 +58,9 @@ set(SOURCES
 	data/stringhash.cpp
 	data/stringhash.h
 	
+	data/util.cpp
+	data/util.h
+	
 	grc/glfw_vulkan.cpp
 	grc/glfw_vulkan.h
 	
