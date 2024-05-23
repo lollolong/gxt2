@@ -52,6 +52,9 @@ void gxt2edit::Reset()
 void gxt2edit::OnTick()
 {
 	m_EntriesToRemove.clear();
+#if !_DEBUG
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
 
 	RenderPopups();
 	RenderBar();
