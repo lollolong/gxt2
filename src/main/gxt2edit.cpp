@@ -186,7 +186,6 @@ void gxt2edit::OnTick()
 							}
 							ImGui::PopItemWidth();
 						}
-						Sleep(15);
 					}
 				}
 
