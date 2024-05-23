@@ -6,6 +6,7 @@
 
 // Project
 #include "glfw_vulkan.h"
+#include "resources/resource.h"
 #include "fonts/fa-solid-900.cpp"
 #include "fonts/Roboto-Regular.cpp"
 #include "fonts/Nunito-Regular.cpp"
@@ -49,6 +50,8 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	glfwSetWindowPos(sm_Window,
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
+
+	SetClassLongPtr(glfwGetWin32Window(sm_Window), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 
 	if (!glfwVulkanSupported())
 	{

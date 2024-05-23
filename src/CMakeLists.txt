@@ -19,7 +19,7 @@ set(SOURCES
 	gxt/convert.cpp
 	gxt/convert.h
 	
-	resources/resource.rc
+	resources/gxt2conv.rc
 	resources/resource.h
 	
 	system/app.cpp
@@ -64,7 +64,7 @@ set(SOURCES
 	grc/glfw_vulkan.cpp
 	grc/glfw_vulkan.h
 	
-	resources/resource.rc
+	resources/gxt2edit.rc
 	resources/resource.h
 	
 	system/app.cpp

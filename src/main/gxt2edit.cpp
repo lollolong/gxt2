@@ -10,6 +10,7 @@
 #include "data/util.h"
 #include "data/stringhash.h"
 #include "grc/glfw_vulkan.h"
+#include "resources/resource.h"
 
 // C/C++
 #include <vector>
@@ -554,7 +555,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		gxt2edit gxt2edit("GXT2 Editor", 1500, 850);
+		gxt2edit gxt2edit("Grand Theft Auto V - Text Editor", 1500, 850);
 		gxt2edit.Run(argc, argv);
 	}
 	catch (const exception& ex)
