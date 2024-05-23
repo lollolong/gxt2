@@ -8,6 +8,7 @@
 // Project
 #include "gxt2edit.h"
 #include "data/util.h"
+#include "data/stringhash.h"
 #include "grc/glfw_vulkan.h"
 
 // C/C++
@@ -122,7 +123,7 @@ void gxt2edit::OnTick()
 	{
 		const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
-		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y));
+		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y - 65.f));
 
 		if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 		{
@@ -198,6 +199,62 @@ void gxt2edit::OnTick()
 		}
 	}
 
+	{
+		const ImGuiViewport* pViewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 65.f));
+		ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, 65.f));
+
+		if (ImGui::Begin("Editor Bar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text(ICON_FA_CODE " Hash");
+			ImGui::SameLine();
+
+			ImGui::PushItemWidth(90.f);
+			ImGui::InputText("##HashInput", &m_HashInput, ImGuiInputTextFlags_CharsHexadecimal);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+			ImGui::Text(ICON_FA_TAGS " Label");
+			ImGui::SameLine();
+
+			ImGui::PushItemWidth(250.f);
+			if (ImGui::InputText("##LabelInput", &m_LabelInput))
+			{
+				m_HashInput = format("{:08X}", rage::atStringHash(m_LabelInput.c_str()));
+			}
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+			ImGui::Text(ICON_FA_PENCIL " Text");
+			ImGui::SameLine();
+
+			float remainingWidth = ImGui::GetContentRegionAvail().x - 50.f; // Adjusted to leave space for the Add button
+			ImGui::PushItemWidth(remainingWidth);
+			ImGui::InputText("##TextInput", &m_TextInput);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+			if (ImGui::Button("Add"))
+			{
+				if (!m_TextInput.empty())
+				{
+					const unsigned int uHash = strtoul(m_HashInput.c_str(), nullptr, 16);
+
+					if (uHash != 0x00000000)
+					{
+						m_Data[uHash] = m_TextInput;
+
+						m_HashInput.clear();
+						m_LabelInput.clear();
+						m_TextInput.clear();
+					}
+				}
+			}
+
+			ImGui::End();
+		}
+	}
 	UpdateEntries();
 }
 

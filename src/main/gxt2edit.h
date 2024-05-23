@@ -49,6 +49,9 @@ private:
 	//---------------- UI ----------------
 	//
 	ImVec2 m_BarSize;
+	string m_HashInput;
+	string m_LabelInput;
+	string m_TextInput;
 
 	vector<unsigned int> m_EntriesToRemove;
 };
