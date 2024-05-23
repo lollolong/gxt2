@@ -141,15 +141,16 @@ void gxt2edit::OnTick()
 
 				if (!m_Data.empty())
 				{
+					CFile::Map::iterator it = m_Data.begin();
+
 					ImGuiListClipper clipper;
 					clipper.Begin(static_cast<int>(m_Data.size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
 
 					while (clipper.Step())
 					{
-						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
+						advance(it, clipper.DisplayStart - std::distance(m_Data.begin(), it));
+						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i, ++it)
 						{
-							auto it = std::next(m_Data.begin(), i);
-
 							const unsigned int& uHash = it->first;
 							string& text = it->second;
 
