@@ -141,14 +141,14 @@ void gxt2edit::OnTick()
 
 				if (!m_Data.empty())
 				{
-					CFile::Map::iterator it = m_Data.begin();
-
 					ImGuiListClipper clipper;
 					clipper.Begin(static_cast<int>(m_Data.size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
 
+					const float trashIconWidth = ImGui::CalcTextSize(ICON_FA_TRASH).x;
+
 					while (clipper.Step())
 					{
-						advance(it, clipper.DisplayStart - std::distance(m_Data.begin(), it));
+						CFile::Map::iterator it = std::next(m_Data.begin(), clipper.DisplayStart);
 						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i, ++it)
 						{
 							const unsigned int& uHash = it->first;
@@ -161,7 +161,7 @@ void gxt2edit::OnTick()
 							// Delete column
 							ImGui::TableSetColumnIndex(0);
 							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(ICON_FA_TRASH).x) * 0.5f);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - trashIconWidth) * 0.5f);
 							if (ImGui::Button((ICON_FA_TRASH "##" + to_string(uHash)).c_str()))
 							{
 								FlagForDeletion(uHash);
