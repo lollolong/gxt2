@@ -17,6 +17,17 @@
 
 class gxt2edit : public CAppUI
 {
+private:
+	enum eFileType
+	{
+		FILETYPE_UNKNOWN,
+
+		FILETYPE_GXT2,
+		FILETYPE_TXT,
+		FILETYPE_JSON,
+
+		FILETYPE_MAX
+	};
 public:
 	gxt2edit(const string& windowTitle, int width, int height);
 	virtual ~gxt2edit();
@@ -26,8 +37,8 @@ private:
 	void OnTick() override;
 
 	void Reset();
-	void SaveToFile(const string& path);
-	void LoadFromFile(const string& path);
+	void SaveToFile(const string& path, eFileType fileType);
+	void LoadFromFile(const string& path, eFileType fileType);
 
 	//---------------- Dialogs ----------------
 	//
@@ -41,8 +52,6 @@ private:
 private:
 	//---------------- IO ----------------
 	//
-	CFile* m_Input;
-	CFile* m_Output;
 	CFile::Map m_Data;
 	string m_Path;
 

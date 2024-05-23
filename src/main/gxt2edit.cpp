@@ -19,9 +19,7 @@
 #include <IconsFontAwesome6.h>
 
 gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
-	CAppUI(windowTitle, width, height),
-	m_Input(nullptr),
-	m_Output(nullptr)
+	CAppUI(windowTitle, width, height)
 {
 
 }
@@ -35,49 +33,77 @@ int gxt2edit::Run(int argc, char* argv[])
 {
 	if (argc == 2)
 	{
-		LoadFromFile(argv[1]);
+		LoadFromFile(argv[1], FILETYPE_GXT2);
 	}
 	return CAppUI::Run(argc, argv);
 }
 
 void gxt2edit::Reset()
 {
-	if (m_Input)
-	{
-		delete m_Input;
-		m_Input = nullptr;
-	}
-	if (m_Output)
-	{
-		delete m_Output;
-		m_Output = nullptr;
-	}
 	m_Data.clear();
 }
 
-void gxt2edit::SaveToFile(const string& path)
+void gxt2edit::SaveToFile(const string& path, eFileType fileType)
 {
-	if (m_Output)
+	CFile* pOutputDevice = nullptr;
+
+	switch (fileType)
 	{
-		delete m_Output;
-		m_Output = nullptr;
+	case FILETYPE_GXT2:
+		pOutputDevice = new CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
+		break;
+	case FILETYPE_TXT:
+		pOutputDevice = new CTextFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		break;
+	case FILETYPE_JSON:
+		pOutputDevice = new CJsonFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		break;
+	default:
+		break;
 	}
 
-	m_Output = new CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
-	m_Output->SetData(m_Data);
-	if (m_Output->WriteEntries())
+	if (pOutputDevice)
 	{
-		m_Path = path;
+		pOutputDevice->SetData(m_Data);
+		if (pOutputDevice->WriteEntries() && fileType == FILETYPE_GXT2)
+		{
+			m_Path = path;
+		}
+		delete pOutputDevice;
 	}
 }
 
-void gxt2edit::LoadFromFile(const string& path)
+void gxt2edit::LoadFromFile(const string& path, eFileType fileType)
 {
-	m_Input = new CGxt2File(path, CFile::FLAGS_READ_COMPILED);
-	if (m_Input->ReadEntries())
+	CFile* pInputDevice = nullptr;
+
+	switch (fileType)
 	{
-		m_Data = m_Input->GetData();
-		m_Path = path;
+	case FILETYPE_GXT2:
+		pInputDevice = new CGxt2File(path, CFile::FLAGS_READ_COMPILED);
+		break;
+	case FILETYPE_TXT:
+		pInputDevice = new CTextFile(path, CFile::FLAGS_READ_DECOMPILED);
+		break;
+	case FILETYPE_JSON:
+		pInputDevice = new CJsonFile(path, CFile::FLAGS_READ_DECOMPILED);
+		break;
+	default:
+		break;
+	}
+
+	if (pInputDevice)
+	{
+		pInputDevice->SetData(m_Data);
+		if (pInputDevice->ReadEntries())
+		{
+			m_Data = pInputDevice->GetData();
+			if (fileType == FILETYPE_GXT2)
+			{
+				m_Path = path;
+			}
+		}
+		delete pInputDevice;
 	}
 }
 
@@ -91,7 +117,11 @@ void gxt2edit::OnTick()
 		{
 			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File"))
 			{
-				OpenFile();
+				if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
+				{
+					Reset();
+					LoadFromFile(m_Path, FILETYPE_GXT2);
+				}
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE "  New File"))
 			{
@@ -104,6 +134,73 @@ void gxt2edit::OnTick()
 			if (ImGui::MenuItem(ICON_FA_COPY "  Save As"))
 			{
 				SaveFileAs();
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Export and Import"))
+		{
+			if (ImGui::MenuItem(ICON_FA_FILE_EXPORT "Export"))
+			{
+				if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
+					{
+						{ L"JSON File (*.json)", L"*.json" },
+						{ L"Text File (*.txt)", L"*.txt" },
+					}
+				))
+				{
+					eFileType fileType = FILETYPE_UNKNOWN;
+					const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+
+					if (szInputExtension == ".gxt2")
+					{
+						fileType = FILETYPE_GXT2;
+					}
+					else if (szInputExtension == ".txt")
+					{
+						fileType = FILETYPE_TXT;
+					}
+					else if (szInputExtension == ".json")
+					{
+						fileType = FILETYPE_JSON;
+					}
+
+					if (fileType != FILETYPE_UNKNOWN)
+					{
+						SaveToFile(m_Path, fileType);
+					}
+				}
+			}
+			if (ImGui::MenuItem(ICON_FA_FILE_IMPORT "Import"))
+			{
+				if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false, 
+					{ 
+						{ L"JSON File (*.json)", L"*.json" },
+						{ L"Text File (*.txt)", L"*.txt" },
+					}
+				))
+				{
+					eFileType fileType = FILETYPE_UNKNOWN;
+					const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+
+					if (szInputExtension == ".gxt2")
+					{
+						fileType = FILETYPE_GXT2;
+					}
+					else if (szInputExtension == ".txt")
+					{
+						fileType = FILETYPE_TXT;
+					}
+					else if (szInputExtension == ".json")
+					{
+						fileType = FILETYPE_JSON;
+					}
+
+					if (fileType != FILETYPE_UNKNOWN)
+					{
+						Reset();
+						LoadFromFile(m_Path, fileType);
+					}
+				}
 			}
 			ImGui::EndMenu();
 		}
@@ -263,7 +360,7 @@ void gxt2edit::OpenFile()
 	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
 	{
 		Reset();
-		LoadFromFile(m_Path);
+		LoadFromFile(m_Path, FILETYPE_JSON);
 	}
 }
 
@@ -271,7 +368,7 @@ void gxt2edit::SaveFile()
 {
 	if (!m_Path.empty())
 	{
-		SaveToFile(m_Path);
+		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
 	else
 	{
@@ -283,7 +380,7 @@ void gxt2edit::SaveFileAs()
 {
 	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { L"GTA Text Table (*.gxt2)", L"*.gxt2" } }))
 	{
-		SaveToFile(m_Path);
+		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
 }
 
