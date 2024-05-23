@@ -50,18 +50,24 @@ private:
 	void RenderBar();
 	void RenderTable();
 	void RenderEditor();
+	void RenderPopups();
 	void ProcessShortcuts();
 
 	//---------------- IO ----------------
 	//
+	void NewFile();
 	void OpenFile();
-	void SaveFile();
-	void SaveFileAs();
+	void ImportFile();
+	void ExportFile();
+	void SaveFile(bool checkForChanges = true);
+	void SaveFileAs(bool checkForChanges = true);
 	void SaveToFile(const string& path, eFileType fileType);
 	void LoadFromFile(const string& path, eFileType fileType);
+	void ProcessFileRequests();
 
 	//---------------- Editing ----------------
 	//
+	bool CheckChanges();
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 
@@ -80,6 +86,11 @@ private:
 
 	//---------------- Editing ----------------
 	//
+	bool m_HasPendingChanges : 1;
+	bool m_RenderSaveChangesPopup : 1;
+	bool m_RequestNewFile : 1;
+	bool m_RequestOpenFile : 1;
+	bool m_RequestImportFile : 1;
 	vector<unsigned int> m_EntriesToRemove;
 };
 

@@ -19,7 +19,12 @@
 #include <IconsFontAwesome6.h>
 
 gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
-	CAppUI(windowTitle, width, height)
+	CAppUI(windowTitle, width, height),
+	m_HasPendingChanges(false),
+	m_RenderSaveChangesPopup(false),
+	m_RequestNewFile(false),
+	m_RequestOpenFile(false),
+	m_RequestImportFile(false)
 {
 
 }
@@ -47,10 +52,12 @@ void gxt2edit::OnTick()
 {
 	m_EntriesToRemove.clear();
 
+	RenderPopups();
 	RenderBar();
 	RenderTable();
 	RenderEditor();
 	ProcessShortcuts();
+	ProcessFileRequests();
 	UpdateEntries();
 }
 
@@ -62,13 +69,12 @@ void gxt2edit::RenderBar()
 		{
 			if (ImGui::MenuItem(ICON_FA_FILE "  New File", "CTRL + N"))
 			{
-				Reset();
+				m_RequestNewFile = true;
 			}
 			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File", "CTRL + O"))
 			{
-				OpenFile();
+				m_RequestOpenFile = true;
 			}
-			
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save", "CTRL + S", false, !m_Data.empty()))
 			{
@@ -84,66 +90,11 @@ void gxt2edit::RenderBar()
 		{
 			if (ImGui::MenuItem(ICON_FA_FILE_IMPORT " Import"))
 			{
-				if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
-					{
-						{ FILEDESC_JSON, FILTERSPEC_JSON },
-						{ FILEDESC_TEXT, FILTERSPEC_TEXT },
-					}
-					))
-				{
-					eFileType fileType = FILETYPE_UNKNOWN;
-					const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
-
-					if (szInputExtension == ".gxt2")
-					{
-						fileType = FILETYPE_GXT2;
-					}
-					else if (szInputExtension == ".txt")
-					{
-						fileType = FILETYPE_TXT;
-					}
-					else if (szInputExtension == ".json")
-					{
-						fileType = FILETYPE_JSON;
-					}
-
-					if (fileType != FILETYPE_UNKNOWN)
-					{
-						Reset();
-						LoadFromFile(m_Path, fileType);
-					}
-				}
+				m_RequestImportFile = true;
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE_EXPORT " Export", nullptr, false, !m_Data.empty()))
 			{
-				if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
-					{
-						{ FILEDESC_JSON, FILTERSPEC_JSON },
-						{ FILEDESC_TEXT, FILTERSPEC_TEXT },
-					}
-					))
-				{
-					eFileType fileType = FILETYPE_UNKNOWN;
-					const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
-
-					if (szInputExtension == ".gxt2")
-					{
-						fileType = FILETYPE_GXT2;
-					}
-					else if (szInputExtension == ".txt")
-					{
-						fileType = FILETYPE_TXT;
-					}
-					else if (szInputExtension == ".json")
-					{
-						fileType = FILETYPE_JSON;
-					}
-
-					if (fileType != FILETYPE_UNKNOWN)
-					{
-						SaveToFile(m_Path, fileType);
-					}
-				}
+				ExportFile();
 			}
 			ImGui::EndMenu();
 		}
@@ -219,12 +170,13 @@ void gxt2edit::RenderTable()
 						// Text column
 						ImGui::TableSetColumnIndex(2);
 						ImGui::PushItemWidth(-FLT_EPSILON);
-						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll))
 						{
 							if (text.empty())
 							{
 								FlagForDeletion(uHash);
 							}
+							m_HasPendingChanges = true;
 						}
 						ImGui::PopItemWidth();
 					}
@@ -290,11 +242,52 @@ void gxt2edit::RenderEditor()
 					m_HashInput.clear();
 					m_LabelInput.clear();
 					m_TextInput.clear();
+
+					m_HasPendingChanges = true;
 				}
 			}
 		}
 
 		ImGui::End();
+	}
+}
+
+void gxt2edit::RenderPopups()
+{
+	if (ImGui::BeginPopupModal("Unsaved Changes", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("You have unsaved changes. Do you want to save them now?");
+		ImGui::Separator();
+
+		if (ImGui::Button("Save", ImVec2(120, 0)))
+		{
+			SaveFile(false);
+			m_RenderSaveChangesPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Don't Save", ImVec2(120, 0)))
+		{
+			m_RenderSaveChangesPopup = false;
+			m_HasPendingChanges = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			m_RequestNewFile = false;
+			m_RequestOpenFile = false;
+			m_RequestImportFile = false;
+			m_RenderSaveChangesPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
+	if (m_RenderSaveChangesPopup)
+	{
+		ImGui::OpenPopup("Unsaved Changes");
 	}
 }
 
@@ -304,11 +297,11 @@ void gxt2edit::ProcessShortcuts()
 
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_N)))
 	{
-		Reset();
+		m_RequestNewFile = true;
 	}
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_O)))
 	{
-		OpenFile();
+		m_RequestOpenFile = true;
 	}
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)) && !m_Data.empty())
 	{
@@ -320,29 +313,126 @@ void gxt2edit::ProcessShortcuts()
 	}
 }
 
+void gxt2edit::NewFile()
+{
+	if (!CheckChanges())
+	{
+		return;
+	}
+	Reset();
+	m_RequestNewFile = false;
+}
+
 void gxt2edit::OpenFile()
 {
+	if (!CheckChanges())
+	{
+		return;
+	}
+
 	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
+		m_RequestOpenFile = false;
 	}
 }
 
-void gxt2edit::SaveFile()
+void gxt2edit::ImportFile()
 {
+	if (!CheckChanges())
+	{
+		return;
+	}
+
+	if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
+		{
+			{ FILEDESC_JSON, FILTERSPEC_JSON },
+			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
+		}
+		))
+	{
+		eFileType fileType = FILETYPE_UNKNOWN;
+		const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+
+		if (szInputExtension == ".gxt2")
+		{
+			fileType = FILETYPE_GXT2;
+		}
+		else if (szInputExtension == ".txt")
+		{
+			fileType = FILETYPE_TXT;
+		}
+		else if (szInputExtension == ".json")
+		{
+			fileType = FILETYPE_JSON;
+		}
+
+		if (fileType != FILETYPE_UNKNOWN)
+		{
+			Reset();
+			LoadFromFile(m_Path, fileType);
+			m_RequestImportFile = false;
+		}
+	}
+}
+
+void gxt2edit::ExportFile()
+{
+	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
+		{
+			{ FILEDESC_JSON, FILTERSPEC_JSON },
+			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
+		}
+		))
+	{
+		eFileType fileType = FILETYPE_UNKNOWN;
+		const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+
+		if (szInputExtension == ".gxt2")
+		{
+			fileType = FILETYPE_GXT2;
+		}
+		else if (szInputExtension == ".txt")
+		{
+			fileType = FILETYPE_TXT;
+		}
+		else if (szInputExtension == ".json")
+		{
+			fileType = FILETYPE_JSON;
+		}
+
+		if (fileType != FILETYPE_UNKNOWN)
+		{
+			SaveToFile(m_Path, fileType);
+		}
+	}
+}
+
+void gxt2edit::SaveFile(bool checkForChanges /*= true*/)
+{
+	if (checkForChanges && !CheckChanges())
+	{
+		return;
+	}
+
 	if (!m_Path.empty())
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
 	else
 	{
-		SaveFileAs();
+		SaveFileAs(checkForChanges);
 	}
 }
 
-void gxt2edit::SaveFileAs()
+void gxt2edit::SaveFileAs(bool checkForChanges /*= true*/)
 {
+	if (checkForChanges && !CheckChanges())
+	{
+		return;
+	}
+
 	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
@@ -375,6 +465,7 @@ void gxt2edit::SaveToFile(const string& path, eFileType fileType)
 		{
 			m_Path = path;
 		}
+		m_HasPendingChanges = false;
 		delete pOutputDevice;
 	}
 }
@@ -413,9 +504,36 @@ void gxt2edit::LoadFromFile(const string& path, eFileType fileType)
 	}
 }
 
+void gxt2edit::ProcessFileRequests()
+{
+	if (m_RequestNewFile)
+	{
+		NewFile();
+	}
+	if (m_RequestOpenFile)
+	{
+		OpenFile();
+	}
+	if (m_RequestImportFile)
+	{
+		ImportFile();
+	}
+}
+
 void gxt2edit::FlagForDeletion(unsigned int uHash)
 {
+	m_HasPendingChanges = true;
 	m_EntriesToRemove.push_back(uHash);
+}
+
+bool gxt2edit::CheckChanges()
+{
+	if (m_HasPendingChanges)
+	{
+		m_RenderSaveChangesPopup = true;
+		return false;
+	}
+	return true;
 }
 
 void gxt2edit::UpdateEntries()
