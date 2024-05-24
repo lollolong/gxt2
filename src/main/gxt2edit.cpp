@@ -353,6 +353,7 @@ void gxt2edit::ImportFile()
 			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
 			{ FILEDESC_CSV, FILTERSPEC_CSV },
+			{ FILEDESC_OXT, FILTERSPEC_OXT },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 		}
 		))
@@ -375,6 +376,10 @@ void gxt2edit::ImportFile()
 		else if (szInputExtension == ".csv")
 		{
 			fileType = FILETYPE_CSV;
+		}
+		else if (szInputExtension == ".oxt")
+		{
+			fileType = FILETYPE_OXT;
 		}
 
 		if (fileType != FILETYPE_UNKNOWN)
@@ -390,33 +395,43 @@ void gxt2edit::ImportFile()
 void gxt2edit::ExportFile()
 {
 	const string backupPath = m_Path;
-	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
+	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L".json", m_Path, true,
 		{
 			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
 			{ FILEDESC_CSV, FILTERSPEC_CSV },
+			{ FILEDESC_OXT, FILTERSPEC_OXT },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
 		}
 		))
 	{
-		eFileType fileType = FILETYPE_UNKNOWN;
-		const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+		eFileType fileType = FILETYPE_GXT2;
 
-		if (szInputExtension == ".gxt2")
+		const size_t n = m_Path.find_last_of(".");
+		if (n != string::npos)
 		{
-			fileType = FILETYPE_GXT2;
-		}
-		else if (szInputExtension == ".txt")
-		{
-			fileType = FILETYPE_TXT;
-		}
-		else if (szInputExtension == ".json")
-		{
-			fileType = FILETYPE_JSON;
-		}
-		else if (szInputExtension == ".csv")
-		{
-			fileType = FILETYPE_CSV;
+			const string szInputExtension = m_Path.substr(n);
+
+			if (szInputExtension == ".gxt2")
+			{
+				fileType = FILETYPE_GXT2;
+			}
+			else if (szInputExtension == ".txt")
+			{
+				fileType = FILETYPE_TXT;
+			}
+			else if (szInputExtension == ".json")
+			{
+				fileType = FILETYPE_JSON;
+			}
+			else if (szInputExtension == ".csv")
+			{
+				fileType = FILETYPE_CSV;
+			}
+			else if (szInputExtension == ".oxt")
+			{
+				fileType = FILETYPE_OXT;
+			}
 		}
 
 		if (fileType != FILETYPE_UNKNOWN)
@@ -475,6 +490,9 @@ void gxt2edit::SaveToFile(const string& path, eFileType fileType)
 	case FILETYPE_CSV:
 		pOutputDevice = new CCsvFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
+	case FILETYPE_OXT:
+		pOutputDevice = new COxtFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		break;
 	default:
 		break;
 	}
@@ -508,6 +526,9 @@ void gxt2edit::LoadFromFile(const string& path, eFileType fileType)
 		break;
 	case FILETYPE_CSV:
 		pInputDevice = new CCsvFile(path, CFile::FLAGS_READ_DECOMPILED);
+		break;
+	case FILETYPE_OXT:
+		pInputDevice = new COxtFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	default:
 		break;

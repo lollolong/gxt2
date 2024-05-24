@@ -4,6 +4,7 @@
 
 // Project
 #include "gxt2.h"
+#include "data/stringhash.h"
 
 // vendor
 #include <rapidjson/stringbuffer.h>
@@ -203,7 +204,7 @@ bool CTextFile::ReadEntries()
 	{
 		const string szHash = line.substr(0, 10);
 		const string szText = line.substr(13);
-		unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
+		const unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
 
 		m_Entries[uHash] = szText;
 	}
@@ -244,7 +245,7 @@ bool CJsonFile::ReadEntries()
 
 	for (auto it = m_Document.MemberBegin(); it != m_Document.MemberEnd(); it++)
 	{
-		unsigned int uHash = strtoul(it->name.GetString(), NULL, 16);
+		const unsigned int uHash = strtoul(it->name.GetString(), NULL, 16);
 		m_Entries[uHash] = it->value.GetString();
 	}
 	return true;
@@ -298,7 +299,7 @@ bool CCsvFile::ReadEntries()
 	{
 		const string szHash = line.substr(0, 10);
 		const string szText = line.substr(11);
-		unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
+		const unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
 
 		m_Entries[uHash] = szText;
 	}
@@ -316,5 +317,64 @@ bool CCsvFile::WriteEntries()
 	{
 		m_File << format("0x{:08X},{}", uHash, szTextEntry) << endl;
 	}
+	return true;
+} // bool ::WriteEntries()
+
+//-----------------------------------------------------------------------------------------
+//
+
+COxtFile::COxtFile(const string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CFile(fileName, openFlags)
+{
+} // ::COxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
+
+bool COxtFile::ReadEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	string line;
+	while (getline(m_File, line))
+	{
+		if (line == "Version 2 30" || line == "{" || line == "}")
+			continue;
+
+		const size_t n1 = line.find_first_of('\t');
+		const size_t n2 = line.find_first_of('=');
+		if (n1 != string::npos && n2 != string::npos)
+		{
+			const string szHash = line.substr(n1 + 1, n2 - 2);
+			const string szText = line.substr(n2 + 2);
+
+			if (szHash.starts_with("0x"))
+			{
+				const unsigned int uHash = strtoul(szHash.c_str(), NULL, 16);
+				m_Entries[uHash] = szText;
+			}
+			else
+			{
+				m_Entries[rage::atStringHash(szHash.c_str())] = szText;
+			}
+		}
+	}
+	return true;
+} // bool ::ReadEntries()
+
+bool COxtFile::WriteEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	m_File << "Version 2 30" << endl << "{" << endl;
+	for (const auto& [uHash, szTextEntry] : m_Entries)
+	{
+		m_File << format("\t0x{:08X} = {}", uHash, szTextEntry) << endl;
+	}
+	m_File << "}" << endl;
+
 	return true;
 } // bool ::WriteEntries()

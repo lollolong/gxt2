@@ -148,4 +148,16 @@ public:
 	bool WriteEntries() override;
 };
 
+//-----------------------------------------------------------------------------------------
+//
+
+class COxtFile : public CFile
+{
+public:
+	COxtFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
+
+	bool ReadEntries() override;
+	bool WriteEntries() override;
+};
+
 #endif // _GXT2_H_

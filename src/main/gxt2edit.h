@@ -19,11 +19,13 @@
 #define FILEDESC_GXT2 L"GTA Text Table (*.gxt2)"
 #define FILEDESC_JSON L"JSON File (*.json)"
 #define FILEDESC_CSV  L"CSV File (*.csv)"
+#define FILEDESC_OXT  L"Open Office (*.oxt)"
 #define FILEDESC_TEXT L"Text File (*.txt)"
 #define FILEDESC_ALL  L"All Files (*.*)"
 #define FILTERSPEC_GXT2 L"*.gxt2"
 #define FILTERSPEC_JSON L"*.json"
 #define FILTERSPEC_CSV  L"*.csv"
+#define FILTERSPEC_OXT  L"*.oxt"
 #define FILTERSPEC_TEXT L"*.txt"
 #define FILTERSPEC_ALL  L"*.*"
 
@@ -38,6 +40,7 @@ private:
 		FILETYPE_TXT,
 		FILETYPE_JSON,
 		FILETYPE_CSV,
+		FILETYPE_OXT,
 
 		FILETYPE_MAX
 	};
