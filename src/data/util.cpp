@@ -3,7 +3,7 @@
 //
 
 #include "util.h"
-#include "grc/glfw_vulkan.h"
+#include "grc/graphics.h"
 
 bool utils::OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters /* = {}*/)
 {

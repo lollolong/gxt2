@@ -61,8 +61,8 @@ set(SOURCES
 	data/util.cpp
 	data/util.h
 	
-	grc/glfw_vulkan.cpp
-	grc/glfw_vulkan.h
+	grc/graphics.cpp
+	grc/graphics.h
 	
 	resources/gxt2edit.rc
 	resources/resource.h

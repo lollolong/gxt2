@@ -1,5 +1,5 @@
 //
-//	grc/glfw_vulkan.h
+//	grc/graphics.h
 //
 
 #ifndef _GLFW_VULKAN_H_

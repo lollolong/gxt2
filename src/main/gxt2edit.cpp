@@ -9,7 +9,7 @@
 #include "gxt2edit.h"
 #include "data/util.h"
 #include "data/stringhash.h"
-#include "grc/glfw_vulkan.h"
+#include "grc/graphics.h"
 #include "resources/resource.h"
 
 // C/C++
