@@ -46,7 +46,8 @@ public:
 
 	void PreRender();
 	void Render();
-	bool IsRunning();
+	bool IsRunning() const;
+	bool IsMinimized() const;
 
 	HWND GetWin32Window() const;
 	static CGraphics& GetInstance() { return sm_Instance; }

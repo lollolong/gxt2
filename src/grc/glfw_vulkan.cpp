@@ -134,9 +134,14 @@ void CGraphics::Render()
 	}
 }
 
-bool CGraphics::IsRunning()
+bool CGraphics::IsRunning() const
 {
 	return !glfwWindowShouldClose(m_Window);
+}
+
+bool CGraphics::IsMinimized() const
+{
+	return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
 }
 
 HWND CGraphics::GetWin32Window() const

@@ -25,7 +25,15 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 	{
 		while (CGraphics::GetInstance().IsRunning())
 		{
-			OnTickInternal();
+			if (CGraphics::GetInstance().IsMinimized())
+			{
+				glfwPollEvents();
+				Sleep(100);
+			}
+			else
+			{
+				OnTickInternal();
+			}
 		}
 		Shutdown();
 	}
