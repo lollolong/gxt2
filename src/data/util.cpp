@@ -51,7 +51,7 @@ namespace utils
 					GetModuleFileName(NULL, szModule, ARRAYSIZE(szModule));
 
 					wchar_t szDefaultIcon[MAX_PATH] = {};
-					hr = StringCchPrintf(szDefaultIcon, ARRAYSIZE(szDefaultIcon), TEXT("%s,0"), szModule);
+					hr = StringCchPrintf(szDefaultIcon, ARRAYSIZE(szDefaultIcon), TEXT("%s,1"), szModule);
 					if (SUCCEEDED(hr))
 					{
 						hr = WriteRegistryValue(HKEY_CLASSES_ROOT, szSubkeyIcon, NULL, szDefaultIcon);
