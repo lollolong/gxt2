@@ -38,48 +38,51 @@ using namespace std;
 
 class CGraphics
 {
+private:
+	CGraphics();
 public:
-	static bool Init(const string& windowTitle, int width, int height);
-	static void Shutdown();
+	bool Init(const string& windowTitle, int width, int height);
+	void Shutdown();
 
-	static void PreRender();
-	static void Render();
+	void PreRender();
+	void Render();
+	bool IsRunning();
 
-	static bool IsRunning();
-
+	static CGraphics& GetInstance() { return sm_Instance; };
 private:
 
 	// Init
-	static void InitVulkan();
-	static void InitVulkanWindow();
-	static void InitPhysicalDevice();
-	static void InitLogicalDevice();
-	static void InitDescriptorPool();
+	void InitVulkan();
+	void InitVulkanWindow();
+	void InitPhysicalDevice();
+	void InitLogicalDevice();
+	void InitDescriptorPool();
 
 	// Cleanup
-	static void CleanupVulkan();
-	static void CleanupVulkanWindow();
+	void CleanupVulkan();
+	void CleanupVulkanWindow();
 
 	// Render
-	static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData);
-	static void FramePresent(ImGui_ImplVulkanH_Window* wd);
+	void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData);
+	void FramePresent(ImGui_ImplVulkanH_Window* wd);
 
 	// ImGui
-	static void InitImGui();
-	static void SetupFonts();
-	static void SetupTheme();
+	void InitImGui();
+	void SetupFonts();
+	void SetupTheme();
 public:
-	static GLFWwindow* sm_Window;
-	static VkInstance sm_VulkanInstance;
-	static VkPhysicalDevice sm_PhysicalDevice;
-	static VkDevice sm_Device;
-	static uint32_t sm_QueueFamily;
-	static VkQueue sm_Queue;
-	static VkDescriptorPool sm_DescriptorPool;
+	GLFWwindow* m_Window;
+	VkInstance m_VulkanInstance;
+	VkPhysicalDevice m_PhysicalDevice;
+	VkDevice m_Device;
+	uint32_t m_QueueFamily;
+	VkQueue m_Queue;
+	VkDescriptorPool m_DescriptorPool;
+	ImGui_ImplVulkanH_Window m_MainWindowData;
+	int m_MinImageCount;
+	bool m_SwapChainRebuild;
 
-	static ImGui_ImplVulkanH_Window sm_MainWindowData;
-	static int sm_MinImageCount;
-	static bool sm_SwapChainRebuild;
+	static CGraphics sm_Instance;
 };
 
 #endif // UI_BACKEND

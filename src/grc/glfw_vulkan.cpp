@@ -13,20 +13,21 @@
 // vendor
 #include <IconsFontAwesome6.h>
 
+CGraphics CGraphics::sm_Instance;
 
-// Data
-GLFWwindow*					CGraphics::sm_Window				= nullptr;
-VkInstance					CGraphics::sm_VulkanInstance		= VK_NULL_HANDLE;
-VkPhysicalDevice			CGraphics::sm_PhysicalDevice		= VK_NULL_HANDLE;
-VkDevice					CGraphics::sm_Device				= VK_NULL_HANDLE;
-uint32_t					CGraphics::sm_QueueFamily			= (uint32_t)-1;
-VkQueue						CGraphics::sm_Queue					= VK_NULL_HANDLE;
-VkDescriptorPool			CGraphics::sm_DescriptorPool		= VK_NULL_HANDLE;
+CGraphics::CGraphics() : 
+	m_Window(nullptr), 
+	m_VulkanInstance(VK_NULL_HANDLE),
+	m_PhysicalDevice(VK_NULL_HANDLE),
+	m_Device(VK_NULL_HANDLE),
+	m_QueueFamily((uint32_t)-1),
+	m_Queue(VK_NULL_HANDLE),
+	m_DescriptorPool(VK_NULL_HANDLE),
+	m_MinImageCount(2),
+	m_SwapChainRebuild(false)
+{
 
-ImGui_ImplVulkanH_Window	CGraphics::sm_MainWindowData;
-int							CGraphics::sm_MinImageCount			= 2;
-bool						CGraphics::sm_SwapChainRebuild		= false;
-
+}
 
 bool CGraphics::Init(const string& windowTitle, int width, int height)
 {
@@ -44,13 +45,13 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 	int xPos, yPos;
 	glfwGetMonitorPos(pPrimaryMonitor, &xPos, &yPos);
 
-	sm_Window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
+	m_Window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 
-	glfwSetWindowPos(sm_Window,
+	glfwSetWindowPos(m_Window,
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
 
-	SetClassLongPtr(glfwGetWin32Window(sm_Window), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
+	SetClassLongPtr(glfwGetWin32Window(m_Window), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 
 	if (!glfwVulkanSupported())
 	{
@@ -65,7 +66,7 @@ bool CGraphics::Init(const string& windowTitle, int width, int height)
 
 void CGraphics::Shutdown()
 {
-	ASSERT_VULKAN(vkDeviceWaitIdle(CGraphics::sm_Device));
+	ASSERT_VULKAN(vkDeviceWaitIdle(m_Device));
 
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -74,30 +75,30 @@ void CGraphics::Shutdown()
 	CGraphics::CleanupVulkanWindow();
 	CGraphics::CleanupVulkan();
 
-	glfwDestroyWindow(CGraphics::sm_Window);
+	glfwDestroyWindow(m_Window);
 	glfwTerminate();
 
-	CGraphics::sm_Window = nullptr;
-	CGraphics::sm_Queue = VK_NULL_HANDLE;
-	CGraphics::sm_PhysicalDevice = VK_NULL_HANDLE;
-	CGraphics::sm_QueueFamily = (uint32_t)-1;
+	m_Window = nullptr;
+	m_Queue = VK_NULL_HANDLE;
+	m_PhysicalDevice = VK_NULL_HANDLE;
+	m_QueueFamily = (uint32_t)-1;
 }
 
 void CGraphics::PreRender()
 {
 	glfwPollEvents();
 
-	if (CGraphics::sm_SwapChainRebuild)
+	if (m_SwapChainRebuild)
 	{
 		int width, height;
-		glfwGetFramebufferSize(CGraphics::sm_Window, &width, &height);
+		glfwGetFramebufferSize(m_Window, &width, &height);
 
 		if (width > 0 && height > 0)
 		{
-			ImGui_ImplVulkan_SetMinImageCount(CGraphics::sm_MinImageCount);
-			ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, CGraphics::sm_QueueFamily, nullptr, width, height, CGraphics::sm_MinImageCount);
-			CGraphics::sm_MainWindowData.FrameIndex = 0;
-			CGraphics::sm_SwapChainRebuild = false;
+			ImGui_ImplVulkan_SetMinImageCount(m_MinImageCount);
+			ImGui_ImplVulkanH_CreateOrResizeWindow(m_VulkanInstance, m_PhysicalDevice, m_Device, &m_MainWindowData, m_QueueFamily, nullptr, width, height, m_MinImageCount);
+			m_MainWindowData.FrameIndex = 0;
+			m_SwapChainRebuild = false;
 		}
 	}
 
@@ -115,12 +116,12 @@ void CGraphics::Render()
 	ImVec4 clearColor = ImVec4(0.f, 0.f, 0.f, 1.00f);
 	if (!isMinimized)
 	{
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[0] = clearColor.x * clearColor.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[1] = clearColor.y * clearColor.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[2] = clearColor.z * clearColor.w;
-		CGraphics::sm_MainWindowData.ClearValue.color.float32[3] = clearColor.w;
-		CGraphics::FrameRender(&CGraphics::sm_MainWindowData, drawData);
-		CGraphics::FramePresent(&CGraphics::sm_MainWindowData);
+		m_MainWindowData.ClearValue.color.float32[0] = clearColor.x * clearColor.w;
+		m_MainWindowData.ClearValue.color.float32[1] = clearColor.y * clearColor.w;
+		m_MainWindowData.ClearValue.color.float32[2] = clearColor.z * clearColor.w;
+		m_MainWindowData.ClearValue.color.float32[3] = clearColor.w;
+		FrameRender(&m_MainWindowData, drawData);
+		FramePresent(&m_MainWindowData);
 	}
 
 	//---------------- Avoid Blank Screen ----------------
@@ -130,13 +131,13 @@ void CGraphics::Render()
 	if (!bMakeWindowVisible)
 	{
 		bMakeWindowVisible = true;
-		glfwShowWindow(CGraphics::sm_Window);
+		glfwShowWindow(m_Window);
 	}
 }
 
 bool CGraphics::IsRunning()
 {
-	return !glfwWindowShouldClose(CGraphics::sm_Window);
+	return !glfwWindowShouldClose(m_Window);
 }
 
 
@@ -240,7 +241,7 @@ void CGraphics::InitVulkan()
 		//
 		createInfo.enabledExtensionCount = (uint32_t)extensions.size();
 		createInfo.ppEnabledExtensionNames = extensions.data();
-		ASSERT_VULKAN(vkCreateInstance(&createInfo, nullptr, &CGraphics::sm_VulkanInstance));
+		ASSERT_VULKAN(vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance));
 	}
 
 	CGraphics::InitPhysicalDevice();
@@ -255,23 +256,23 @@ void CGraphics::InitVulkanWindow()
 	//---------------- Surface ----------------
 	//
 	VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
-	ASSERT_VULKAN(glfwCreateWindowSurface(CGraphics::sm_VulkanInstance, CGraphics::sm_Window, nullptr, &vkSurface));
+	ASSERT_VULKAN(glfwCreateWindowSurface(m_VulkanInstance, m_Window, nullptr, &vkSurface));
 
 
 	//---------------- Framebuffers ----------------
 	//
 	int width, height;
-	glfwGetFramebufferSize(CGraphics::sm_Window, &width, &height);
+	glfwGetFramebufferSize(m_Window, &width, &height);
 
 
-	ImGui_ImplVulkanH_Window* pWindowImpl = &CGraphics::sm_MainWindowData;
+	ImGui_ImplVulkanH_Window* pWindowImpl = &m_MainWindowData;
 	pWindowImpl->Surface = vkSurface;
 
 
 	//---------------- Window System Integration ----------------
 	//
 	VkBool32 bWindowSystemIntegration = VK_FALSE;
-	ASSERT_VULKAN(vkGetPhysicalDeviceSurfaceSupportKHR(CGraphics::sm_PhysicalDevice, CGraphics::sm_QueueFamily, pWindowImpl->Surface, &bWindowSystemIntegration));
+	ASSERT_VULKAN(vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, m_QueueFamily, pWindowImpl->Surface, &bWindowSystemIntegration));
 
 	if (bWindowSystemIntegration != VK_TRUE)
 	{
@@ -284,7 +285,7 @@ void CGraphics::InitVulkanWindow()
 	//
 	const VkFormat requestSurfaceImageFormat[] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM };
 	const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-	pWindowImpl->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(CGraphics::sm_PhysicalDevice, pWindowImpl->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
+	pWindowImpl->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(m_PhysicalDevice, pWindowImpl->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
 
 
 	//---------------- Select Present Mode ----------------
@@ -294,12 +295,12 @@ void CGraphics::InitVulkanWindow()
 #else
 	VkPresentModeKHR presentModes[] = { VK_PRESENT_MODE_FIFO_KHR };
 #endif
-	pWindowImpl->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(CGraphics::sm_PhysicalDevice, pWindowImpl->Surface, &presentModes[0], IM_ARRAYSIZE(presentModes));
+	pWindowImpl->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(m_PhysicalDevice, pWindowImpl->Surface, &presentModes[0], IM_ARRAYSIZE(presentModes));
 
 
 	//---------------- SwapChain, RenderPass, Framebuffer ----------------
 	//
-	ImGui_ImplVulkanH_CreateOrResizeWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_PhysicalDevice, CGraphics::sm_Device, pWindowImpl, CGraphics::sm_QueueFamily, nullptr, width, height, CGraphics::sm_MinImageCount);
+	ImGui_ImplVulkanH_CreateOrResizeWindow(m_VulkanInstance, m_PhysicalDevice, m_Device, pWindowImpl, m_QueueFamily, nullptr, width, height, m_MinImageCount);
 }
 
 void CGraphics::InitPhysicalDevice()
@@ -308,7 +309,7 @@ void CGraphics::InitPhysicalDevice()
 	//
 	uint32_t numDevices = 0;
 	vector<VkPhysicalDevice> physicalDevices;
-	ASSERT_VULKAN(vkEnumeratePhysicalDevices(CGraphics::sm_VulkanInstance, &numDevices, nullptr));
+	ASSERT_VULKAN(vkEnumeratePhysicalDevices(m_VulkanInstance, &numDevices, nullptr));
 	IM_ASSERT(numDevices > 0);
 
 #ifdef VULKAN_DEBUG
@@ -316,7 +317,7 @@ void CGraphics::InitPhysicalDevice()
 #endif
 
 	physicalDevices.resize(numDevices);
-	ASSERT_VULKAN(vkEnumeratePhysicalDevices(CGraphics::sm_VulkanInstance, &numDevices, physicalDevices.data()));
+	ASSERT_VULKAN(vkEnumeratePhysicalDevices(m_VulkanInstance, &numDevices, physicalDevices.data()));
 
 	for (VkPhysicalDevice& physicalDevice : physicalDevices)
 	{
@@ -325,14 +326,14 @@ void CGraphics::InitPhysicalDevice()
 
 		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		{
-			CGraphics::sm_PhysicalDevice = physicalDevice;
+			m_PhysicalDevice = physicalDevice;
 			return;
 		}
 	}
 
 	if (numDevices > 0)
 	{
-		CGraphics::sm_PhysicalDevice = physicalDevices[0];
+		m_PhysicalDevice = physicalDevices[0];
 	}
 }
 
@@ -344,20 +345,20 @@ void CGraphics::InitLogicalDevice()
 		uint32_t numQueueFamilies = 0;
 		vector<VkQueueFamilyProperties> queueFamilyProperties;
 
-		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &numQueueFamilies, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &numQueueFamilies, nullptr);
 		queueFamilyProperties.resize(numQueueFamilies);
-		vkGetPhysicalDeviceQueueFamilyProperties(CGraphics::sm_PhysicalDevice, &numQueueFamilies, queueFamilyProperties.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &numQueueFamilies, queueFamilyProperties.data());
 
 		for (uint32_t i = 0; i < (uint32_t)queueFamilyProperties.size(); i++)
 		{
 			VkQueueFamilyProperties queueFamilyProps = queueFamilyProperties.at(i);
 			if (queueFamilyProps.queueCount > 0 && (queueFamilyProps.queueFlags & VK_QUEUE_GRAPHICS_BIT))
 			{
-				CGraphics::sm_QueueFamily = i;
+				m_QueueFamily = i;
 				break;
 			}
 		}
-		IM_ASSERT(CGraphics::sm_QueueFamily != (uint32_t)-1);
+		IM_ASSERT(m_QueueFamily != (uint32_t)-1);
 	}
 
 	{
@@ -391,7 +392,7 @@ void CGraphics::InitLogicalDevice()
 
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = CGraphics::sm_QueueFamily;
+		queueCreateInfo.queueFamilyIndex = m_QueueFamily;
 		queueCreateInfo.queueCount = (uint32_t)std::size(queuePriorities);
 		queueCreateInfo.pQueuePriorities = queuePriorities;
 
@@ -404,8 +405,8 @@ void CGraphics::InitLogicalDevice()
 		deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
 		deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-		ASSERT_VULKAN(vkCreateDevice(CGraphics::sm_PhysicalDevice, &deviceCreateInfo, nullptr, &CGraphics::sm_Device));
-		vkGetDeviceQueue(CGraphics::sm_Device, CGraphics::sm_QueueFamily, 0, &CGraphics::sm_Queue);
+		ASSERT_VULKAN(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device));
+		vkGetDeviceQueue(m_Device, m_QueueFamily, 0, &m_Queue);
 	}
 }
 
@@ -425,7 +426,7 @@ void CGraphics::InitDescriptorPool()
 	descriptorPoolCreateInfo.poolSizeCount = (uint32_t)std::size(poolSizes);
 	descriptorPoolCreateInfo.pPoolSizes = poolSizes;
 
-	ASSERT_VULKAN(vkCreateDescriptorPool(CGraphics::sm_Device, &descriptorPoolCreateInfo, nullptr, &CGraphics::sm_DescriptorPool));
+	ASSERT_VULKAN(vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &m_DescriptorPool));
 }
 
 
@@ -434,18 +435,18 @@ void CGraphics::InitDescriptorPool()
 
 void CGraphics::CleanupVulkan()
 {
-	vkDestroyDescriptorPool(CGraphics::sm_Device, CGraphics::sm_DescriptorPool, nullptr);
-	vkDestroyDevice(CGraphics::sm_Device, nullptr);
-	vkDestroyInstance(CGraphics::sm_VulkanInstance, nullptr);
+	vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
+	vkDestroyDevice(m_Device, nullptr);
+	vkDestroyInstance(m_VulkanInstance, nullptr);
 
-	CGraphics::sm_Device = VK_NULL_HANDLE;
-	CGraphics::sm_DescriptorPool = VK_NULL_HANDLE;
-	CGraphics::sm_VulkanInstance = VK_NULL_HANDLE;
+	m_Device = VK_NULL_HANDLE;
+	m_DescriptorPool = VK_NULL_HANDLE;
+	m_VulkanInstance = VK_NULL_HANDLE;
 }
 
 void CGraphics::CleanupVulkanWindow()
 {
-	ImGui_ImplVulkanH_DestroyWindow(CGraphics::sm_VulkanInstance, CGraphics::sm_Device, &CGraphics::sm_MainWindowData, nullptr);
+	ImGui_ImplVulkanH_DestroyWindow(m_VulkanInstance, m_Device, &m_MainWindowData, nullptr);
 }
 
 
@@ -457,18 +458,18 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData)
 	VkSemaphore imageAcquiredSemaphore = wd->FrameSemaphores[wd->SemaphoreIndex].ImageAcquiredSemaphore;
 	VkSemaphore renderCompleteSemaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
 
-	VkResult err = vkAcquireNextImageKHR(CGraphics::sm_Device, wd->Swapchain, UINT64_MAX, imageAcquiredSemaphore, VK_NULL_HANDLE, &wd->FrameIndex);
+	VkResult err = vkAcquireNextImageKHR(m_Device, wd->Swapchain, UINT64_MAX, imageAcquiredSemaphore, VK_NULL_HANDLE, &wd->FrameIndex);
 	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
 	{
-		CGraphics::sm_SwapChainRebuild = true;
+		m_SwapChainRebuild = true;
 		return;
 	}
 
 	ImGui_ImplVulkanH_Frame* fd = &wd->Frames[wd->FrameIndex];
 
-	ASSERT_VULKAN(vkWaitForFences(CGraphics::sm_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX));
-	ASSERT_VULKAN(vkResetFences(CGraphics::sm_Device, 1, &fd->Fence));
-	ASSERT_VULKAN(vkResetCommandPool(CGraphics::sm_Device, fd->CommandPool, 0));
+	ASSERT_VULKAN(vkWaitForFences(m_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX));
+	ASSERT_VULKAN(vkResetFences(m_Device, 1, &fd->Fence));
+	ASSERT_VULKAN(vkResetCommandPool(m_Device, fd->CommandPool, 0));
 
 
 	//---------------- Command Buffer ----------------
@@ -508,12 +509,12 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData)
 	submitInfo.pSignalSemaphores = &renderCompleteSemaphore;
 
 	ASSERT_VULKAN(vkEndCommandBuffer(fd->CommandBuffer));
-	ASSERT_VULKAN(vkQueueSubmit(CGraphics::sm_Queue, 1, &submitInfo, fd->Fence));
+	ASSERT_VULKAN(vkQueueSubmit(m_Queue, 1, &submitInfo, fd->Fence));
 }
 
 void CGraphics::FramePresent(ImGui_ImplVulkanH_Window* wd)
 {
-	if (CGraphics::sm_SwapChainRebuild)
+	if (m_SwapChainRebuild)
 	{
 		return;
 	}
@@ -528,10 +529,10 @@ void CGraphics::FramePresent(ImGui_ImplVulkanH_Window* wd)
 	presentInfo.pSwapchains = &wd->Swapchain;
 	presentInfo.pImageIndices = &wd->FrameIndex;
 
-	VkResult err = vkQueuePresentKHR(CGraphics::sm_Queue, &presentInfo);
+	VkResult err = vkQueuePresentKHR(m_Queue, &presentInfo);
 	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR)
 	{
-		CGraphics::sm_SwapChainRebuild = true;
+		m_SwapChainRebuild = true;
 		return;
 	}
 	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount;
@@ -557,19 +558,19 @@ void CGraphics::InitImGui()
 	//---------------- Platform & Renderer Backends ----------------
 	//
 	ImGui_ImplVulkan_InitInfo initInfo = {};
-	initInfo.Instance = CGraphics::sm_VulkanInstance;
-	initInfo.PhysicalDevice = CGraphics::sm_PhysicalDevice;
-	initInfo.Device = CGraphics::sm_Device;
-	initInfo.QueueFamily = CGraphics::sm_QueueFamily;
-	initInfo.Queue = CGraphics::sm_Queue;
-	initInfo.DescriptorPool = CGraphics::sm_DescriptorPool;
-	initInfo.RenderPass = CGraphics::sm_MainWindowData.RenderPass;
+	initInfo.Instance = m_VulkanInstance;
+	initInfo.PhysicalDevice = m_PhysicalDevice;
+	initInfo.Device = m_Device;
+	initInfo.QueueFamily = m_QueueFamily;
+	initInfo.Queue = m_Queue;
+	initInfo.DescriptorPool = m_DescriptorPool;
+	initInfo.RenderPass = m_MainWindowData.RenderPass;
 	initInfo.Subpass = 0;
-	initInfo.MinImageCount = CGraphics::sm_MinImageCount;
-	initInfo.ImageCount = CGraphics::sm_MainWindowData.ImageCount;
+	initInfo.MinImageCount = m_MinImageCount;
+	initInfo.ImageCount = m_MainWindowData.ImageCount;
 	initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-	ImGui_ImplGlfw_InitForVulkan(CGraphics::sm_Window, true);
+	ImGui_ImplGlfw_InitForVulkan(m_Window, true);
 	ImGui_ImplVulkan_Init(&initInfo);
 
 

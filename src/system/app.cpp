@@ -24,7 +24,7 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 	
 	if (bSuccess)
 	{
-		while (CGraphics::IsRunning())
+		while (CGraphics::GetInstance().IsRunning())
 		{
 			OnTickInternal();
 		}
@@ -36,19 +36,19 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 
 bool CAppUI::Init()
 {
-	return CGraphics::Init(m_WindowTitle, m_Width, m_Height);
+	return CGraphics::GetInstance().Init(m_WindowTitle, m_Width, m_Height);
 }
 
 void CAppUI::OnTickInternal()
 {
-	CGraphics::PreRender();
+	CGraphics::GetInstance().PreRender();
 	OnTick();
-	CGraphics::Render();
+	CGraphics::GetInstance().Render();
 }
 
 void CAppUI::Shutdown()
 {
-	CGraphics::Shutdown();
+	CGraphics::GetInstance().Shutdown();
 }
 
 #endif // UI_BACKEND
