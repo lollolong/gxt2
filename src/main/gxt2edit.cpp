@@ -350,6 +350,7 @@ void gxt2edit::ImportFile()
 	const string backupPath = m_Path;
 	if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
 		{
+			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
 			{ FILEDESC_CSV, FILTERSPEC_CSV },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
@@ -391,6 +392,7 @@ void gxt2edit::ExportFile()
 	const string backupPath = m_Path;
 	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L"", m_Path, true,
 		{
+			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
 			{ FILEDESC_CSV, FILTERSPEC_CSV },
 			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
