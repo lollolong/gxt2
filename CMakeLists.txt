@@ -37,6 +37,11 @@ if (MSVC)
     )
 endif()
 
+# Unicode Charset
+if(MSVC)
+    add_definitions(-DUNICODE -D_UNICODE)
+endif()
+
 # Directories
 add_subdirectory(${VENDOR_DIR})
 add_subdirectory(src)
