@@ -332,7 +332,7 @@ void gxt2edit::OpenFile()
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog(NULL, L"Select a GTA Text Table", L"", m_Path, false, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
+	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, {{FILEDESC_GXT2, FILTERSPEC_GXT2}}))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
@@ -394,8 +394,8 @@ void gxt2edit::ImportFile()
 
 void gxt2edit::ExportFile()
 {
-	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L".json", m_Path, true,
 	const std::string backupPath = m_Path;
+	if (utils::OpenFileExplorerDialog(L"Export Text Table (JSON, CSV, OXT, TXT)", L".json", m_Path, true,
 		{
 			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
@@ -466,7 +466,7 @@ void gxt2edit::SaveFileAs(bool checkForChanges /*= true*/)
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog(NULL, L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
+	if (utils::OpenFileExplorerDialog(L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}

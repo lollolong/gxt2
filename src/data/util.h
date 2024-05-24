@@ -13,11 +13,9 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 namespace utils
 {
-	bool OpenFileExplorerDialog(HWND hWnd, const wstring& dialogTitle, const wstring& initFileName, string& selectedFile, bool saveMode, const vector<COMDLG_FILTERSPEC>& vFilters = {});
+	bool OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters = {});
 }
 
 #endif // _UTIL_H_

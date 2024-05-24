@@ -7,6 +7,9 @@
 
 #ifdef UI_BACKEND
 
+// Windows
+#include <Windows.h>
+
 // imgui
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -14,7 +17,6 @@
 #include <misc/cpp/imgui_stdlib.h>
 
 // glfw
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
@@ -34,8 +36,6 @@
 	#define ASSERT_VULKAN(vkRes) (void)vkRes;
 #endif
 
-using namespace std;
-
 class CGraphics
 {
 private:
@@ -48,7 +48,8 @@ public:
 	void Render();
 	bool IsRunning();
 
-	static CGraphics& GetInstance() { return sm_Instance; };
+	HWND GetWin32Window() const;
+	static CGraphics& GetInstance() { return sm_Instance; }
 private:
 
 	// Init

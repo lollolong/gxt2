@@ -50,7 +50,7 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
 
-	SetClassLongPtr(glfwGetWin32Window(m_Window), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
+	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 
 	if (!glfwVulkanSupported())
 	{
@@ -137,6 +137,11 @@ void CGraphics::Render()
 bool CGraphics::IsRunning()
 {
 	return !glfwWindowShouldClose(m_Window);
+}
+
+HWND CGraphics::GetWin32Window() const
+{
+	return glfwGetWin32Window(m_Window);
 }
 
 //---------------- Init ----------------

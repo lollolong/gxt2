@@ -108,6 +108,7 @@ target_compile_options(${gxt2edit} PRIVATE
 target_compile_definitions(${gxt2edit} PRIVATE
 	GLFW_INCLUDE_NONE 
 	GLFW_INCLUDE_VULKAN
+	GLFW_EXPOSE_NATIVE_WIN32
 	UI_BACKEND
 	$<$<CONFIG:Debug>:USE_VULKAN_DEBUG_REPORT>
 )

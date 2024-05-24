@@ -3,8 +3,9 @@
 //
 
 #include "util.h"
+#include "grc/glfw_vulkan.h"
 
-bool utils::OpenFileExplorerDialog(HWND hWnd, const wstring& dialogTitle, const wstring& initFileName, string& selectedFile, bool saveMode, const vector<COMDLG_FILTERSPEC>& vFilters /* = {}*/)
+bool utils::OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters /* = {}*/)
 {
 	bool bSuccess = false;
 	IFileDialog* pfd = NULL;
@@ -51,7 +52,7 @@ bool utils::OpenFileExplorerDialog(HWND hWnd, const wstring& dialogTitle, const 
 			hr = pfd->SetFileName(initFileName.c_str());
 		}
 		hr = pfd->SetTitle(dialogTitle.c_str());
-		hr = pfd->Show(hWnd);
+		hr = pfd->Show((HWND)CGraphics::GetInstance().GetWin32Window());
 
 		if (SUCCEEDED(hr))
 		{
