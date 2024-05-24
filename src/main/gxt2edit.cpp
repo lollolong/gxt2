@@ -102,6 +102,22 @@ void gxt2edit::RenderBar()
 		}
 		if (ImGui::BeginMenu("Settings"))
 		{
+			if (ImGui::MenuItem("Register Extension", "Requires Admin"))
+			{
+				if (SUCCEEDED(utils::RegisterShellFileExtension(TEXT(".gxt2"), TEXT("GXT2TextFile"), TEXT("GTA Text Table"))))
+				{
+					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+				}
+			}
+			if (ImGui::MenuItem("Unregister Extension", "Requires Admin"))
+			{
+				if (SUCCEEDED(utils::UnregisterShellFileExtension(TEXT(".gxt2"), TEXT("GXT2TextFile"))))
+				{
+					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+				}
+				
+			}
+			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
 			{
 				exit(0);
