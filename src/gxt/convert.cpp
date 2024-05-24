@@ -5,7 +5,7 @@
 // Project
 #include "convert.h"
 
-CConverter::CConverter(const string& filePath) :
+CConverter::CConverter(const std::string& filePath) :
 	m_Input(nullptr),
 	m_Output(nullptr)
 {
@@ -36,7 +36,7 @@ void CConverter::Convert()
 {
 	if (!GetInput()->ReadEntries())
 	{
-		throw runtime_error("Failed to read content.");
+		throw std::runtime_error("Failed to read content.");
 	}
 
 	//GetInput()->Dump();
@@ -44,13 +44,13 @@ void CConverter::Convert()
 
 	if (!GetOutput()->WriteEntries())
 	{
-		throw runtime_error("Failed to save content.");
+		throw std::runtime_error("Failed to save content.");
 	}
 } // void ::Convert()
 
-void CConverter::CreateInputInterface(const string& filePath)
+void CConverter::CreateInputInterface(const std::string& filePath)
 {
-	const string szFileExtension = filePath.substr(filePath.find_last_of("."));
+	const std::string szFileExtension = filePath.substr(filePath.find_last_of("."));
 
 	if (szFileExtension == ".gxt2")
 	{
@@ -66,14 +66,14 @@ void CConverter::CreateInputInterface(const string& filePath)
 	}
 	else
 	{
-		throw invalid_argument("Unknown input file format.");
+		throw std::invalid_argument("Unknown input file format.");
 	}
 } // void ::CreateInputInterface(const string& filePath)
 
-void CConverter::CreateOutputInterface(const string& filePath)
+void CConverter::CreateOutputInterface(const std::string& filePath)
 {
-	string szOutputPath = filePath.substr(0, filePath.find_last_of("."));
-	const string szInputExtension = filePath.substr(filePath.find_last_of("."));
+	std::string szOutputPath = filePath.substr(0, filePath.find_last_of("."));
+	const std::string szInputExtension = filePath.substr(filePath.find_last_of("."));
 
 	if (szInputExtension == ".gxt2")
 	{
@@ -95,6 +95,6 @@ void CConverter::CreateOutputInterface(const string& filePath)
 	}
 	else
 	{
-		throw invalid_argument("Unknown output file format.");
+		throw std::invalid_argument("Unknown output file format.");
 	}
 } // void ::CreateOutputInterface(const string& filePath)

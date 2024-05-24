@@ -41,7 +41,7 @@ class CGraphics
 private:
 	CGraphics();
 public:
-	bool Init(const string& windowTitle, int width, int height);
+	bool Init(const std::string& windowTitle, int width, int height);
 	void Shutdown();
 
 	void PreRender();

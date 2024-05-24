@@ -11,7 +11,7 @@
 class CConverter
 {
 public:
-	explicit CConverter(const string& filePath);
+	explicit CConverter(const std::string& filePath);
 	virtual ~CConverter();
 
 	void Reset();
@@ -24,8 +24,8 @@ public:
 	const CFile* GetOutput() const { return m_Output; }
 
 private:
-	void CreateInputInterface(const string& filePath);
-	void CreateOutputInterface(const string& filePath);
+	void CreateInputInterface(const std::string& filePath);
+	void CreateOutputInterface(const std::string& filePath);
 
 private:
 	CFile* m_Input;

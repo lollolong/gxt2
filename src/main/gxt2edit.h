@@ -45,7 +45,7 @@ private:
 		FILETYPE_MAX
 	};
 public:
-	gxt2edit(const string& windowTitle, int width, int height);
+	gxt2edit(const std::string& windowTitle, int width, int height);
 	virtual ~gxt2edit();
 public:
 	int Run(int argc, char* argv[]) override;
@@ -69,8 +69,8 @@ private:
 	void ExportFile();
 	void SaveFile(bool checkForChanges = true);
 	void SaveFileAs(bool checkForChanges = true);
-	void SaveToFile(const string& path, eFileType fileType);
-	void LoadFromFile(const string& path, eFileType fileType);
+	void SaveToFile(const std::string& path, eFileType fileType);
+	void LoadFromFile(const std::string& path, eFileType fileType);
 	void ProcessFileRequests();
 
 	//---------------- Editing ----------------
@@ -83,14 +83,14 @@ private:
 	//---------------- IO ----------------
 	//
 	CFile::Map m_Data;
-	string m_Path;
+	std::string m_Path;
 
 	//---------------- UI ----------------
 	//
 	ImVec2 m_BarSize;
-	string m_HashInput;
-	string m_LabelInput;
-	string m_TextInput;
+	std::string m_HashInput;
+	std::string m_LabelInput;
+	std::string m_TextInput;
 
 	//---------------- Editing ----------------
 	//
@@ -99,7 +99,7 @@ private:
 	bool m_RequestNewFile : 1;
 	bool m_RequestOpenFile : 1;
 	bool m_RequestImportFile : 1;
-	vector<unsigned int> m_EntriesToRemove;
+	std::vector<unsigned int> m_EntriesToRemove;
 };
 
 #endif // _GXT2EDIT_H_

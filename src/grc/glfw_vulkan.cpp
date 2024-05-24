@@ -28,7 +28,7 @@ CGraphics::CGraphics() :
 {
 }
 
-bool CGraphics::Init(const string& windowTitle, int width, int height)
+bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 {
 	if (!glfwInit())
 	{
@@ -148,7 +148,7 @@ void CGraphics::InitVulkan()
 		//---------------- Required Instance Extensions ----------------
 		//
 		uint32_t extensionsCount = 0;
-		vector<const char*> extensions;
+		std::vector<const char*> extensions;
 
 		const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&extensionsCount);
 		for (uint32_t i = 0; i < extensionsCount; i++)
@@ -177,7 +177,7 @@ void CGraphics::InitVulkan()
 		//---------------- Instance Layer Properties ----------------
 		//
 		uint32_t layerPropertyCount = 0;
-		vector<VkLayerProperties> layerProperties;
+		std::vector<VkLayerProperties> layerProperties;
 		ASSERT_VULKAN(vkEnumerateInstanceLayerProperties(&layerPropertyCount, nullptr));
 
 		layerProperties.resize(layerPropertyCount);
@@ -192,7 +192,7 @@ void CGraphics::InitVulkan()
 		//---------------- Instance Extension Properties ----------------
 		//
 		uint32_t instanceExtensionCount = 0;
-		vector<VkExtensionProperties> extensionProperties;
+		std::vector<VkExtensionProperties> extensionProperties;
 		ASSERT_VULKAN(vkEnumerateInstanceExtensionProperties(nullptr, &instanceExtensionCount, nullptr));
 
 		extensionProperties.resize(instanceExtensionCount);
@@ -294,7 +294,7 @@ void CGraphics::InitPhysicalDevice()
 	//---------------- Physical Device ----------------
 	//
 	uint32_t numDevices = 0;
-	vector<VkPhysicalDevice> physicalDevices;
+	std::vector<VkPhysicalDevice> physicalDevices;
 	ASSERT_VULKAN(vkEnumeratePhysicalDevices(m_VulkanInstance, &numDevices, nullptr));
 	IM_ASSERT(numDevices > 0);
 
@@ -329,7 +329,7 @@ void CGraphics::InitLogicalDevice()
 		//---------------- Graphics Queue Family ----------------
 		//
 		uint32_t numQueueFamilies = 0;
-		vector<VkQueueFamilyProperties> queueFamilyProperties;
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 
 		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &numQueueFamilies, nullptr);
 		queueFamilyProperties.resize(numQueueFamilies);
@@ -351,7 +351,7 @@ void CGraphics::InitLogicalDevice()
 		//---------------- Logical Device ----------------
 		//
 
-		vector<const char*> enabledExtensions;
+		std::vector<const char*> enabledExtensions;
 		enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 #ifdef VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME

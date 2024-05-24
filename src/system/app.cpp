@@ -10,7 +10,7 @@
 #define _glfw3_native_h_
 #include "grc/glfw_vulkan.h"
 
-CAppUI::CAppUI(const string& windowTitle, int width, int height) :
+CAppUI::CAppUI(const std::string& windowTitle, int width, int height) :
 	m_WindowTitle(windowTitle),
 	m_Width(width),
 	m_Height(height)

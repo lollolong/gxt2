@@ -19,7 +19,7 @@
 // vendor
 #include <IconsFontAwesome6.h>
 
-gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
+gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
 	m_HasPendingChanges(false),
 	m_RenderSaveChangesPopup(false),
@@ -147,9 +147,9 @@ void gxt2edit::RenderTable()
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i, ++it)
 					{
 						const unsigned int& uHash = it->first;
-						string& text = it->second;
+						std::string& text = it->second;
 
-						string szHash = format("0x{:08X}", uHash);
+						std::string szHash = std::format("0x{:08X}", uHash);
 
 						ImGui::TableNextRow();
 
@@ -157,7 +157,7 @@ void gxt2edit::RenderTable()
 						ImGui::TableSetColumnIndex(0);
 						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - trashIconWidth) * 0.5f);
-						if (ImGui::Button((ICON_FA_TRASH "##" + to_string(uHash)).c_str()))
+						if (ImGui::Button((ICON_FA_TRASH "##" + std::to_string(uHash)).c_str()))
 						{
 							FlagForDeletion(uHash);
 						}
@@ -218,7 +218,7 @@ void gxt2edit::RenderEditor()
 		ImGui::PushItemWidth(250.f);
 		if (ImGui::InputText("##LabelInput", &m_LabelInput))
 		{
-			m_HashInput = format("{:08X}", rage::atStringHash(m_LabelInput.c_str()));
+			m_HashInput = std::format("{:08X}", rage::atStringHash(m_LabelInput.c_str()));
 		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
@@ -347,8 +347,8 @@ void gxt2edit::ImportFile()
 		return;
 	}
 
-	const string backupPath = m_Path;
-	if (utils::OpenFileExplorerDialog(NULL, L"Import Text Table (JSON, TXT ...)", L"", m_Path, false,
+	const std::string backupPath = m_Path;
+	if (utils::OpenFileExplorerDialog(L"Import Text Table (JSON, CSV, OXT, TXT)", L"", m_Path, false,
 		{
 			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
@@ -359,7 +359,7 @@ void gxt2edit::ImportFile()
 		))
 	{
 		eFileType fileType = FILETYPE_UNKNOWN;
-		const string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
+		const std::string szInputExtension = m_Path.substr(m_Path.find_last_of("."));
 
 		if (szInputExtension == ".gxt2")
 		{
@@ -394,8 +394,8 @@ void gxt2edit::ImportFile()
 
 void gxt2edit::ExportFile()
 {
-	const string backupPath = m_Path;
 	if (utils::OpenFileExplorerDialog(NULL, L"Export Text Table (JSON, TXT ...)", L".json", m_Path, true,
+	const std::string backupPath = m_Path;
 		{
 			{ FILEDESC_ALL, FILTERSPEC_ALL },
 			{ FILEDESC_JSON, FILTERSPEC_JSON },
@@ -408,9 +408,9 @@ void gxt2edit::ExportFile()
 		eFileType fileType = FILETYPE_GXT2;
 
 		const size_t n = m_Path.find_last_of(".");
-		if (n != string::npos)
+		if (n != std::string::npos)
 		{
-			const string szInputExtension = m_Path.substr(n);
+			const std::string szInputExtension = m_Path.substr(n);
 
 			if (szInputExtension == ".gxt2")
 			{
@@ -472,7 +472,7 @@ void gxt2edit::SaveFileAs(bool checkForChanges /*= true*/)
 	}
 }
 
-void gxt2edit::SaveToFile(const string& path, eFileType fileType)
+void gxt2edit::SaveToFile(const std::string& path, eFileType fileType)
 {
 	CFile* pOutputDevice = nullptr;
 
@@ -509,7 +509,7 @@ void gxt2edit::SaveToFile(const string& path, eFileType fileType)
 	}
 }
 
-void gxt2edit::LoadFromFile(const string& path, eFileType fileType)
+void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 {
 	CFile* pInputDevice = nullptr;
 
@@ -603,7 +603,7 @@ int main(int argc, char* argv[])
 		gxt2edit gxt2edit("Grand Theft Auto V - Text Editor", 1500, 850);
 		gxt2edit.Run(argc, argv);
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
 		printf("Error: %s\n", ex.what());
 		return 1;

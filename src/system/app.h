@@ -8,8 +8,6 @@
 // C/C++
 #include <string>
 
-using namespace std;
-
 class CApp
 {
 public:
@@ -22,7 +20,7 @@ public:
 class CAppUI : public CApp
 {
 public:
-	CAppUI(const string& windowTitle, int width, int height);
+	CAppUI(const std::string& windowTitle, int width, int height);
 	virtual ~CAppUI() = default;
 public:
 	int Run(int argc, char* argv[]) override;
@@ -32,7 +30,7 @@ private:
 	virtual void OnTickInternal();
 	virtual void Shutdown();
 private:
-	string m_WindowTitle;
+	std::string m_WindowTitle;
 	int m_Width;
 	int m_Height;
 };

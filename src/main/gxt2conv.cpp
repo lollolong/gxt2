@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 		gxt2conv gxt2conv;
 		return gxt2conv.Run(argc, argv);
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
 		printf("Error: %s\n", ex.what());
 		return 1;
