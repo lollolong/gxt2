@@ -67,8 +67,8 @@ private:
 	void OpenFile();
 	void ImportFile();
 	void ExportFile();
-	void SaveFile(bool checkForChanges = true);
-	void SaveFileAs(bool checkForChanges = true);
+	void SaveFile();
+	void SaveFileAs();
 	void SaveToFile(const std::string& path, eFileType fileType);
 	void LoadFromFile(const std::string& path, eFileType fileType);
 	void ProcessFileRequests();

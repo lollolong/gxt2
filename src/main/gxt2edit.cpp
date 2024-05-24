@@ -263,7 +263,7 @@ void gxt2edit::RenderPopups()
 
 		if (ImGui::Button("Save", ImVec2(120, 0)))
 		{
-			SaveFile(false);
+			SaveFile();
 			m_RenderSaveChangesPopup = false;
 			ImGui::CloseCurrentPopup();
 		}
@@ -322,6 +322,7 @@ void gxt2edit::NewFile()
 		return;
 	}
 	Reset();
+	m_Path.clear();
 	m_RequestNewFile = false;
 }
 
@@ -442,31 +443,21 @@ void gxt2edit::ExportFile()
 	}
 }
 
-void gxt2edit::SaveFile(bool checkForChanges /*= true*/)
+void gxt2edit::SaveFile()
 {
-	if (checkForChanges && !CheckChanges())
-	{
-		return;
-	}
-
 	if (!m_Path.empty())
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
 	else
 	{
-		SaveFileAs(checkForChanges);
+		SaveFileAs();
 	}
 }
 
-void gxt2edit::SaveFileAs(bool checkForChanges /*= true*/)
+void gxt2edit::SaveFileAs()
 {
-	if (checkForChanges && !CheckChanges())
-	{
-		return;
-	}
-
-	if (utils::OpenFileExplorerDialog(L"Save GTA Text Table", L"global.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
+	if (utils::OpenFileExplorerDialog(L"Save GTA Text Table", L"textfile.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
