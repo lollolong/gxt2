@@ -15,8 +15,8 @@
 
 CGraphics CGraphics::sm_Instance;
 
-CGraphics::CGraphics() : 
-	m_Window(nullptr), 
+CGraphics::CGraphics() :
+	m_Window(nullptr),
 	m_VulkanInstance(VK_NULL_HANDLE),
 	m_PhysicalDevice(VK_NULL_HANDLE),
 	m_Device(VK_NULL_HANDLE),
@@ -26,7 +26,6 @@ CGraphics::CGraphics() :
 	m_MinImageCount(2),
 	m_SwapChainRebuild(false)
 {
-
 }
 
 bool CGraphics::Init(const string& windowTitle, int width, int height)
@@ -140,7 +139,6 @@ bool CGraphics::IsRunning()
 	return !glfwWindowShouldClose(m_Window);
 }
 
-
 //---------------- Init ----------------
 //
 
@@ -161,7 +159,6 @@ void CGraphics::InitVulkan()
 			extensions.push_back(glfwExtensions[i]);
 		}
 
-
 		//---------------- Application Info ----------------
 		//
 		VkApplicationInfo applicationInfo = {};
@@ -170,13 +167,11 @@ void CGraphics::InitVulkan()
 		applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		applicationInfo.apiVersion = VK_API_VERSION_1_3;
 
-
 		//---------------- Create Info ----------------
 		//
 		VkInstanceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &applicationInfo;
-
 
 #ifdef VULKAN_DEBUG
 		//---------------- Instance Layer Properties ----------------
@@ -193,7 +188,6 @@ void CGraphics::InitVulkan()
 			printf("[vulkan][layer property] %s (%s)\n", vkLayerProperty.layerName, vkLayerProperty.description);
 		}
 #endif
-
 
 		//---------------- Instance Extension Properties ----------------
 		//
@@ -224,7 +218,6 @@ void CGraphics::InitVulkan()
 #endif
 		}
 
-
 #ifdef VULKAN_DEBUG
 		//---------------- Validation layers ----------------
 		//
@@ -235,7 +228,6 @@ void CGraphics::InitVulkan()
 		createInfo.ppEnabledLayerNames = enabledLayers;
 		extensions.push_back("VK_EXT_debug_report");
 #endif
-
 
 		//---------------- Create Vulkan Instance ----------------
 		//
@@ -258,16 +250,13 @@ void CGraphics::InitVulkanWindow()
 	VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
 	ASSERT_VULKAN(glfwCreateWindowSurface(m_VulkanInstance, m_Window, nullptr, &vkSurface));
 
-
 	//---------------- Framebuffers ----------------
 	//
 	int width, height;
 	glfwGetFramebufferSize(m_Window, &width, &height);
 
-
 	ImGui_ImplVulkanH_Window* pWindowImpl = &m_MainWindowData;
 	pWindowImpl->Surface = vkSurface;
-
 
 	//---------------- Window System Integration ----------------
 	//
@@ -280,13 +269,11 @@ void CGraphics::InitVulkanWindow()
 		exit(-1);
 	}
 
-
 	//---------------- Surface Format ----------------
 	//
 	const VkFormat requestSurfaceImageFormat[] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM };
 	const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
 	pWindowImpl->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(m_PhysicalDevice, pWindowImpl->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
-
 
 	//---------------- Select Present Mode ----------------
 	//
@@ -296,7 +283,6 @@ void CGraphics::InitVulkanWindow()
 	VkPresentModeKHR presentModes[] = { VK_PRESENT_MODE_FIFO_KHR };
 #endif
 	pWindowImpl->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(m_PhysicalDevice, pWindowImpl->Surface, &presentModes[0], IM_ARRAYSIZE(presentModes));
-
 
 	//---------------- SwapChain, RenderPass, Framebuffer ----------------
 	//
@@ -376,7 +362,6 @@ void CGraphics::InitLogicalDevice()
 		extensionProperties.resize(extensionPropertiesCount);
 		ASSERT_VULKAN(vkEnumerateDeviceExtensionProperties(CGraphics::sm_PhysicalDevice, nullptr, &extensionPropertiesCount, extensionProperties.data()));
 
-
 		for (const VkExtensionProperties extensionProperty : extensionProperties)
 		{
 			if (strcmp(extensionProperty.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) == 0)
@@ -429,7 +414,6 @@ void CGraphics::InitDescriptorPool()
 	ASSERT_VULKAN(vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &m_DescriptorPool));
 }
 
-
 //---------------- Cleanup ----------------
 //
 
@@ -448,7 +432,6 @@ void CGraphics::CleanupVulkanWindow()
 {
 	ImGui_ImplVulkanH_DestroyWindow(m_VulkanInstance, m_Device, &m_MainWindowData, nullptr);
 }
-
 
 //---------------- Render ----------------
 //
@@ -471,14 +454,12 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData)
 	ASSERT_VULKAN(vkResetFences(m_Device, 1, &fd->Fence));
 	ASSERT_VULKAN(vkResetCommandPool(m_Device, fd->CommandPool, 0));
 
-
 	//---------------- Command Buffer ----------------
 	//
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	commandBufferBeginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	ASSERT_VULKAN(vkBeginCommandBuffer(fd->CommandBuffer, &commandBufferBeginInfo));
-
 
 	//---------------- Render Pass ----------------
 	//
@@ -493,7 +474,6 @@ void CGraphics::FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* drawData)
 	vkCmdBeginRenderPass(fd->CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	ImGui_ImplVulkan_RenderDrawData(drawData, fd->CommandBuffer);
 	vkCmdEndRenderPass(fd->CommandBuffer);
-	
 
 	//---------------- Queue Submit ----------------
 	//
@@ -538,7 +518,6 @@ void CGraphics::FramePresent(ImGui_ImplVulkanH_Window* wd)
 	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount;
 }
 
-
 //---------------- ImGui ----------------
 //
 
@@ -553,7 +532,6 @@ void CGraphics::InitImGui()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io.IniFilename = nullptr;
 	io.LogFilename = nullptr;
-
 
 	//---------------- Platform & Renderer Backends ----------------
 	//
@@ -573,7 +551,6 @@ void CGraphics::InitImGui()
 	ImGui_ImplGlfw_InitForVulkan(m_Window, true);
 	ImGui_ImplVulkan_Init(&initInfo);
 
-
 	//---------------- Fonts & Theme ----------------
 	//
 	CGraphics::SetupFonts();
@@ -592,7 +569,6 @@ void CGraphics::SetupFonts()
 	static const ImWchar ranges[] = { 0x0020, 0x00FF, 0x0100, 0x017F, 0x0400, 0x052F, 0 };
 	io.Fonts->AddFontFromMemoryTTF((void*)g_FontNotoRegular, sizeof(g_FontNotoRegular), 18.f, &notoConfig, ranges);
 
-
 	//---------------- Noto CJK ----------------
 	//
 	ImFontConfig notoConfigCJK;
@@ -609,12 +585,11 @@ void CGraphics::SetupFonts()
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, rangesSC);
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, rangesTC);
 
-
 	//---------------- Font Awesome ----------------
 	//
 	const float baseFontSize = 13.0f; // 13.0f is the size of the default font. Change to the font size you use.
 	const float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
-	
+
 	ImFontConfig iconsConfig;
 	iconsConfig.MergeMode = true;
 	iconsConfig.PixelSnapH = true;
@@ -623,7 +598,6 @@ void CGraphics::SetupFonts()
 
 	static const ImWchar rangesFA[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
 	io.Fonts->AddFontFromMemoryTTF((void*)g_FontAwesomeSolid900, sizeof(g_FontAwesomeSolid900), 16.f, &iconsConfig, rangesFA);
-
 
 	//---------------- Build Atlas ----------------
 	//

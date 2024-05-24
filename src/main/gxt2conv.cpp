@@ -43,5 +43,4 @@ int main(int argc, char* argv[])
 		printf("Unknown error occurred!\n");
 		return 1;
 	}
-//	return 0;
 }

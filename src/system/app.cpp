@@ -15,13 +15,12 @@ CAppUI::CAppUI(const string& windowTitle, int width, int height) :
 	m_Width(width),
 	m_Height(height)
 {
-
 }
 
 int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 {
 	const int bSuccess = Init();
-	
+
 	if (bSuccess)
 	{
 		while (CGraphics::GetInstance().IsRunning())

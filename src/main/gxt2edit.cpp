@@ -27,7 +27,6 @@ gxt2edit::gxt2edit(const string& windowTitle, int width, int height) :
 	m_RequestOpenFile(false),
 	m_RequestImportFile(false)
 {
-
 }
 
 gxt2edit::~gxt2edit()
