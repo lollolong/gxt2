@@ -32,4 +32,4 @@ private:
 	CFile* m_Output;
 };
 
-#endif // _CONVERT_H_
+#endif // !_CONVERT_H_

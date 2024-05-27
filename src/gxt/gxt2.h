@@ -161,4 +161,4 @@ public:
 	bool WriteEntries() override;
 };
 
-#endif // _GXT2_H_
+#endif // !_GXT2_H_

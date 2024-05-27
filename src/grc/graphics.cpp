@@ -152,6 +152,18 @@ HWND CGraphics::GetWin32Window() const
 	return glfwGetWin32Window(m_Window);
 }
 
+unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, uint32_t typeFlags) const
+{
+	VkPhysicalDeviceMemoryProperties properties;
+	vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &properties);
+	for (unsigned int iType = 0; iType < properties.memoryTypeCount; iType++)
+	{
+		if ((properties.memoryTypes[iType].propertyFlags & memFlags) == memFlags && typeFlags & (1 << iType))
+			return iType;
+	}
+	return 0XFFFFFFFF;
+}
+
 void CGraphics::DropCallback(GLFWwindow* window, int path_count, const char* paths[])
 {
 #if _DEBUG
@@ -432,13 +444,23 @@ void CGraphics::InitDescriptorPool()
 	//
 	VkDescriptorPoolSize poolSizes[] =
 	{
-		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
 	};
 
 	VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
 	descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-	descriptorPoolCreateInfo.maxSets = 1;
+	descriptorPoolCreateInfo.maxSets = 1000 * IM_ARRAYSIZE(poolSizes);
 	descriptorPoolCreateInfo.poolSizeCount = (uint32_t)std::size(poolSizes);
 	descriptorPoolCreateInfo.pPoolSizes = poolSizes;
 

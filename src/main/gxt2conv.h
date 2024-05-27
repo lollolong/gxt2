@@ -20,4 +20,4 @@ public:
 	int Run(int argc, char* argv[]) override;
 };
 
-#endif // _GXT2CONV_H_
+#endif // !_GXT2CONV_H_

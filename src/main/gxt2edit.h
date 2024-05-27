@@ -7,6 +7,7 @@
 
 // Project
 #include "gxt/gxt2.h"
+#include "grc/image.h"
 #include "system/app.h"
 
 // vendor
@@ -50,14 +51,20 @@ public:
 public:
 	int Run(int argc, char* argv[]) override;
 private:
+	//---------------- App ----------------
+	//
+	bool Init() override;
+	void Shutdown() override;
 	void Reset();
 
 	//---------------- UI ----------------
 	//
 	void OnTick() override;
-	void RenderBar();
-	void RenderTable();
+	void RenderMenuBar();
 	void RenderEditor();
+	void RenderTable();
+	void RenderEmptyView();
+	void RenderEditTools();
 	void RenderPopups();
 	void ProcessShortcuts();
 	void SortTable();
@@ -66,6 +73,7 @@ private:
 	//
 	void NewFile();
 	void OpenFile();
+	void CloseFile();
 	void ImportFile();
 	void ExportFile();
 	void SaveFile();
@@ -93,15 +101,19 @@ private:
 	std::string m_HashInput;
 	std::string m_LabelInput;
 	std::string m_TextInput;
+	CImage* m_AddFileImg;
 
 	//---------------- Editing ----------------
 	//
-	bool m_HasPendingChanges : 1;
-	bool m_RenderSaveChangesPopup : 1;
-	bool m_RequestNewFile : 1;
-	bool m_RequestOpenFile : 1;
-	bool m_RequestImportFile : 1;
+	bool m_RequestNewFile;
+	bool m_RequestOpenFile;
+	bool m_RequestCloseFile;
+	bool m_RequestImportFile;
+
+	bool m_HasPendingChanges;
+	bool m_RenderSaveChangesPopup;
+	bool m_RenderEmptyEditorTable;
 	std::vector<unsigned int> m_EntriesToRemove;
 };
 
-#endif // _GXT2EDIT_H_
+#endif // !_GXT2EDIT_H_

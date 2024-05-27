@@ -2,8 +2,8 @@
 //	grc/graphics.h
 //
 
-#ifndef _GLFW_VULKAN_H_
-#define _GLFW_VULKAN_H_
+#ifndef _GRAPHICS_H_
+#define _GRAPHICS_H_
 
 #ifdef UI_BACKEND
 
@@ -51,6 +51,7 @@ public:
 	bool IsMinimized() const;
 
 	HWND GetWin32Window() const;
+	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
 
 public:
 	GLFWwindow* GetWindow() const { return m_Window; }
@@ -108,4 +109,4 @@ public:
 
 #endif // UI_BACKEND
 
-#endif // _GLFW_VULKAN_H_
+#endif // !_GRAPHICS_H_

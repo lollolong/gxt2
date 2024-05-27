@@ -10,6 +10,7 @@
 #include "data/util.h"
 #include "data/stringhash.h"
 #include "grc/graphics.h"
+#include "grc/images/addfile.cpp"
 #include "resources/resource.h"
 
 // C/C++
@@ -23,11 +24,14 @@
 
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
-	m_HasPendingChanges(false),
-	m_RenderSaveChangesPopup(false),
+	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
-	m_RequestImportFile(false)
+	m_RequestCloseFile(false),
+	m_RequestImportFile(false),
+	m_HasPendingChanges(false),
+	m_RenderSaveChangesPopup(false),
+	m_RenderEmptyEditorTable(true)
 {
 }
 
@@ -45,6 +49,19 @@ int gxt2edit::Run(int argc, char* argv[])
 	return CAppUI::Run(argc, argv);
 }
 
+bool gxt2edit::Init()
+{
+	const bool bInit = CAppUI::Init();
+	m_AddFileImg = CImage::FromMemory(g_ImageAddFile);
+	return bInit;
+}
+
+void gxt2edit::Shutdown()
+{
+	delete m_AddFileImg;
+	return CAppUI::Shutdown();
+}
+
 void gxt2edit::Reset()
 {
 	m_Data.clear();
@@ -58,15 +75,13 @@ void gxt2edit::OnTick()
 
 	HandleDragDropLoading();
 	RenderPopups();
-	RenderBar();
-	RenderTable();
 	RenderEditor();
 	ProcessShortcuts();
 	ProcessFileRequests();
 	UpdateEntries();
 }
 
-void gxt2edit::RenderBar()
+void gxt2edit::RenderMenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -79,6 +94,10 @@ void gxt2edit::RenderBar()
 			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File", "CTRL + O"))
 			{
 				m_RequestOpenFile = true;
+			}
+			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + C"))
+			{
+				m_RequestCloseFile = true;
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save", "CTRL + S", false, !m_Data.empty()))
@@ -118,7 +137,6 @@ void gxt2edit::RenderBar()
 				{
 					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 				}
-				
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
@@ -133,6 +151,20 @@ void gxt2edit::RenderBar()
 	}
 }
 
+void gxt2edit::RenderEditor()
+{
+	RenderMenuBar();
+	if (!m_Data.empty() || !m_RenderEmptyEditorTable)
+	{
+		RenderTable();
+		RenderEditTools();
+	}
+	else
+	{
+		RenderEmptyView();
+	}
+}
+
 void gxt2edit::RenderTable()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
@@ -143,7 +175,7 @@ void gxt2edit::RenderTable()
 	{
 		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize  | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
 			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
 			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
@@ -215,7 +247,33 @@ void gxt2edit::RenderTable()
 	}
 }
 
-void gxt2edit::RenderEditor()
+void gxt2edit::RenderEmptyView()
+{
+	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y));
+
+	if (ImGui::Begin("##EmptyEditor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+	{
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+
+		const float imageWidth = static_cast<float>(m_AddFileImg->GetWidth());
+		const float imageHeight = static_cast<float>(m_AddFileImg->GetHeight());
+
+		const float imageSizeX = imageWidth * 0.25f;
+		const float imageSizeY = imageHeight * 0.25f;
+
+		const float posX = (windowSize.x - imageSizeX) / 2.0f;
+		const float posY = (windowSize.y - imageSizeY) / 2.0f;
+
+		ImGui::SetCursorPos(ImVec2(posX, posY));
+		ImGui::Image(m_AddFileImg->GetTextureId(), ImVec2(imageSizeX, imageSizeY));
+
+		ImGui::End();
+	}
+}
+
+void gxt2edit::RenderEditTools()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 65.f));
@@ -325,6 +383,10 @@ void gxt2edit::ProcessShortcuts()
 	{
 		m_RequestOpenFile = true;
 	}
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+	{
+		m_RequestCloseFile = true;
+	}
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)) && !m_Data.empty())
 	{
 		SaveFile();
@@ -384,6 +446,7 @@ void gxt2edit::NewFile()
 	Reset();
 	m_Path.clear();
 	m_RequestNewFile = false;
+	m_RenderEmptyEditorTable = false;
 }
 
 void gxt2edit::OpenFile()
@@ -393,12 +456,25 @@ void gxt2edit::OpenFile()
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, {{FILEDESC_GXT2, FILTERSPEC_GXT2}}))
+	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, { {FILEDESC_GXT2, FILTERSPEC_GXT2} }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
 	}
 	m_RequestOpenFile = false;
+	m_RenderEmptyEditorTable = false;
+}
+
+void gxt2edit::CloseFile()
+{
+	if (!CheckChanges())
+	{
+		return;
+	}
+	Reset();
+	m_Path.clear();
+	m_RequestCloseFile = false;
+	m_RenderEmptyEditorTable = true;
 }
 
 void gxt2edit::ImportFile()
@@ -590,7 +666,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 		pInputDevice->SetData(m_Data);
 		if (pInputDevice->ReadEntries())
 		{
-			for (const auto& [uHash, szEntry] : pInputDevice->GetData()) 
+			for (const auto& [uHash, szEntry] : pInputDevice->GetData())
 			{
 				m_Data.emplace_back(uHash, szEntry);
 			}
@@ -598,6 +674,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 			{
 				m_Path = path;
 			}
+			m_RenderEmptyEditorTable = false;
 		}
 		delete pInputDevice;
 	}
@@ -612,6 +689,10 @@ void gxt2edit::ProcessFileRequests()
 	if (m_RequestOpenFile)
 	{
 		OpenFile();
+	}
+	if (m_RequestCloseFile)
+	{
+		CloseFile();
 	}
 	if (m_RequestImportFile)
 	{
@@ -655,7 +736,7 @@ void gxt2edit::UpdateEntries()
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
 		auto it = std::find_if(m_Data.begin(), m_Data.end(),
-			[uHash](const std::pair<unsigned int, std::string>& entry) 
+			[uHash](const std::pair<unsigned int, std::string>& entry)
 			{
 				return entry.first == uHash;
 			});
