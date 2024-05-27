@@ -15,6 +15,7 @@
 // C/C++
 #include <vector>
 #include <format>
+#include <algorithm>
 
 // vendor
 #include <IconsFontAwesome6.h>
@@ -138,13 +139,15 @@ void gxt2edit::RenderTable()
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY))
+		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize  | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
 			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
 			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
+
+			SortTable();
 
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0));
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.f, 0.f));
@@ -335,6 +338,38 @@ void gxt2edit::ProcessShortcuts()
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_E)) && !m_Data.empty())
 	{
 		ExportFile();
+	}
+}
+
+void gxt2edit::SortTable()
+{
+	ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
+	if (sortSpecs && sortSpecs->SpecsDirty)
+	{
+		auto compareEntries = [&](const std::pair<unsigned int, std::string>& a, const std::pair<unsigned int, std::string>& b) -> bool
+		{
+			for (int n = 0; n < sortSpecs->SpecsCount; n++)
+			{
+				const ImGuiTableColumnSortSpecs* sortSpec = &sortSpecs->Specs[n];
+				int delta = 0;
+				switch (sortSpec->ColumnIndex)
+				{
+				case 1:
+					if (a.first < b.first) delta = -1;
+					if (a.first > b.first) delta = 1;
+					break;
+				case 2:
+					delta = a.second.compare(b.second);
+					break;
+				}
+				if (delta != 0)
+					return (sortSpec->SortDirection == ImGuiSortDirection_Ascending) ? (delta < 0) : (delta > 0);
+			}
+			return false;
+		};
+
+		std::sort(m_Data.begin(), m_Data.end(), compareEntries);
+		sortSpecs->SpecsDirty = false;
 	}
 }
 

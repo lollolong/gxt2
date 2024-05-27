@@ -60,6 +60,7 @@ private:
 	void RenderEditor();
 	void RenderPopups();
 	void ProcessShortcuts();
+	void SortTable();
 
 	//---------------- IO ----------------
 	//
