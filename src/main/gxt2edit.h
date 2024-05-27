@@ -73,6 +73,7 @@ private:
 	//
 	void NewFile();
 	void OpenFile();
+	void CloseFile();
 	void ImportFile();
 	void ExportFile();
 	void SaveFile();
@@ -104,11 +105,14 @@ private:
 
 	//---------------- Editing ----------------
 	//
-	bool m_HasPendingChanges : 1;
-	bool m_RenderSaveChangesPopup : 1;
-	bool m_RequestNewFile : 1;
-	bool m_RequestOpenFile : 1;
-	bool m_RequestImportFile : 1;
+	bool m_RequestNewFile;
+	bool m_RequestOpenFile;
+	bool m_RequestCloseFile;
+	bool m_RequestImportFile;
+
+	bool m_HasPendingChanges;
+	bool m_RenderSaveChangesPopup;
+	bool m_RenderEmptyEditorTable;
 	std::vector<unsigned int> m_EntriesToRemove;
 };
 

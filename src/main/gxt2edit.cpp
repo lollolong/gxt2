@@ -28,7 +28,9 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RenderSaveChangesPopup(false),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
+	m_RequestCloseFile(false),
 	m_RequestImportFile(false),
+	m_RenderEmptyEditorTable(true),
 	m_AddFileImg(nullptr)
 {
 }
@@ -93,6 +95,10 @@ void gxt2edit::RenderMenuBar()
 			{
 				m_RequestOpenFile = true;
 			}
+			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + C"))
+			{
+				m_RequestCloseFile = true;
+			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save", "CTRL + S", false, !m_Data.empty()))
 			{
@@ -149,7 +155,7 @@ void gxt2edit::RenderMenuBar()
 void gxt2edit::RenderEditor()
 {
 	RenderMenuBar();
-	if (!m_Data.empty())
+	if (!m_Data.empty() || !m_RenderEmptyEditorTable)
 	{
 		RenderTable();
 		RenderEditTools();
@@ -378,6 +384,10 @@ void gxt2edit::ProcessShortcuts()
 	{
 		m_RequestOpenFile = true;
 	}
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+	{
+		m_RequestCloseFile = true;
+	}
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)) && !m_Data.empty())
 	{
 		SaveFile();
@@ -437,6 +447,7 @@ void gxt2edit::NewFile()
 	Reset();
 	m_Path.clear();
 	m_RequestNewFile = false;
+	m_RenderEmptyEditorTable = false;
 }
 
 void gxt2edit::OpenFile()
@@ -452,6 +463,19 @@ void gxt2edit::OpenFile()
 		LoadFromFile(m_Path, FILETYPE_GXT2);
 	}
 	m_RequestOpenFile = false;
+	m_RenderEmptyEditorTable = false;
+}
+
+void gxt2edit::CloseFile()
+{
+	if (!CheckChanges())
+	{
+		return;
+	}
+	Reset();
+	m_Path.clear();
+	m_RequestCloseFile = false;
+	m_RenderEmptyEditorTable = true;
 }
 
 void gxt2edit::ImportFile()
@@ -651,6 +675,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 			{
 				m_Path = path;
 			}
+			m_RenderEmptyEditorTable = false;
 		}
 		delete pInputDevice;
 	}
@@ -665,6 +690,10 @@ void gxt2edit::ProcessFileRequests()
 	if (m_RequestOpenFile)
 	{
 		OpenFile();
+	}
+	if (m_RequestCloseFile)
+	{
+		CloseFile();
 	}
 	if (m_RequestImportFile)
 	{
