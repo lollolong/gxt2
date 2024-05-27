@@ -42,6 +42,7 @@ target_compile_options(${gxt2conv} PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
 	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
+set_target_properties(${gxt2conv} PROPERTIES UNITY_BUILD ON)
 
 
 #------------------ gxt2edit ------------------
@@ -119,3 +120,4 @@ target_compile_definitions(${gxt2edit} PRIVATE
 	STB_IMAGE_IMPLEMENTATION
 	$<$<CONFIG:Debug>:USE_VULKAN_DEBUG_REPORT>
 )
+set_target_properties(${gxt2edit} PROPERTIES UNITY_BUILD ON)
