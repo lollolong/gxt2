@@ -51,9 +51,21 @@ public:
 	bool IsMinimized() const;
 
 	HWND GetWin32Window() const;
-	static CGraphics& GetInstance() { return sm_Instance; }
 
-	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
+public:
+	GLFWwindow* GetWindow() const { return m_Window; }
+	VkInstance& GetVulkanInstance() { return m_VulkanInstance; }
+	VkPhysicalDevice& GetPhysicalDevice() { return m_PhysicalDevice; }
+	VkDevice& GetDevice() { return m_Device; }
+	VkQueue& GetQueue() { return m_Queue; }
+	VkDescriptorPool& GetDescriptorPool() { return m_DescriptorPool; }
+	ImGui_ImplVulkanH_Window* GetImGuiWindow() { return &m_MainWindowData; }
+	uint32_t GetQueueFamilyIndex() const { return m_QueueFamily; }
+	int GetMinImageCount() const { return m_MinImageCount; }
+	bool IsSwapchainRebuild() const { return m_SwapChainRebuild; }
+
+	static CGraphics& GetInstance() { return sm_Instance; }
+	static std::stack<std::string>& GetDropFiles() { return sm_DropFiles; }
 private:
 
 	// Init
@@ -75,6 +87,9 @@ private:
 	void InitImGui();
 	void SetupFonts();
 	void SetupTheme();
+
+	// Callbacks
+	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 public:
 	GLFWwindow* m_Window;
 	VkInstance m_VulkanInstance;

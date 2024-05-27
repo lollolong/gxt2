@@ -621,10 +621,10 @@ void gxt2edit::ProcessFileRequests()
 
 void gxt2edit::HandleDragDropLoading()
 {
-	if (!CGraphics::sm_DropFiles.empty())
+	if (!CGraphics::GetDropFiles().empty())
 	{
-		const std::string dropPath = CGraphics::sm_DropFiles.top();
-		CGraphics::sm_DropFiles.pop();
+		const std::string dropPath = CGraphics::GetDropFiles().top();
+		CGraphics::GetDropFiles().pop();
 
 		if (CheckChanges() && std::filesystem::exists(dropPath) && std::filesystem::path(dropPath).extension() == ".gxt2")
 		{
