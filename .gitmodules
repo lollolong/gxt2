@@ -11,3 +11,6 @@
 [submodule "vendor/IconFontCppHeaders"]
 	path = vendor/IconFontCppHeaders
 	url = https://github.com/juliettef/IconFontCppHeaders
+[submodule "vendor/stb"]
+	path = vendor/stb
+	url = https://github.com/nothings/stb

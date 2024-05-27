@@ -89,6 +89,9 @@ target_include_directories(${gxt2edit} PRIVATE
 	
 	# Icon Font
 	${VENDOR_DIR}/IconFontCppHeaders
+
+	# stb
+	${VENDOR_DIR}/stb
 	
 	# Vulkan
 	${Vulkan_INCLUDE_DIRS}
@@ -110,5 +113,6 @@ target_compile_definitions(${gxt2edit} PRIVATE
 	GLFW_INCLUDE_VULKAN
 	GLFW_EXPOSE_NATIVE_WIN32
 	UI_BACKEND
+	STB_IMAGE_IMPLEMENTATION
 	$<$<CONFIG:Debug>:USE_VULKAN_DEBUG_REPORT>
 )
