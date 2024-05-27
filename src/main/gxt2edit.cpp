@@ -16,6 +16,7 @@
 #include <vector>
 #include <format>
 #include <algorithm>
+#include <filesystem>
 
 // vendor
 #include <IconsFontAwesome6.h>
@@ -55,6 +56,7 @@ void gxt2edit::OnTick()
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif
 
+	HandleDragDropLoading();
 	RenderPopups();
 	RenderBar();
 	RenderTable();
@@ -614,6 +616,21 @@ void gxt2edit::ProcessFileRequests()
 	if (m_RequestImportFile)
 	{
 		ImportFile();
+	}
+}
+
+void gxt2edit::HandleDragDropLoading()
+{
+	if (!CGraphics::sm_DropFiles.empty())
+	{
+		const std::string dropPath = CGraphics::sm_DropFiles.top();
+		CGraphics::sm_DropFiles.pop();
+
+		if (CheckChanges() && std::filesystem::exists(dropPath) && std::filesystem::path(dropPath).extension() == ".gxt2")
+		{
+			Reset();
+			LoadFromFile(dropPath, FILETYPE_GXT2);
+		}
 	}
 }
 

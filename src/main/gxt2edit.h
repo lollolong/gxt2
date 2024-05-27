@@ -73,6 +73,7 @@ private:
 	void SaveToFile(const std::string& path, eFileType fileType);
 	void LoadFromFile(const std::string& path, eFileType fileType);
 	void ProcessFileRequests();
+	void HandleDragDropLoading();
 
 	//---------------- Editing ----------------
 	//

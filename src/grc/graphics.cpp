@@ -14,6 +14,7 @@
 #include <IconsFontAwesome6.h>
 
 CGraphics CGraphics::sm_Instance;
+std::stack<std::string> CGraphics::sm_DropFiles;
 
 CGraphics::CGraphics() :
 	m_Window(nullptr),
@@ -51,6 +52,8 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		(yPos + (pVideoMode->height - height)) / 2);
 
 	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
+
+	glfwSetDropCallback(m_Window, DropCallback);
 
 	if (!glfwVulkanSupported())
 	{
@@ -147,6 +150,24 @@ bool CGraphics::IsMinimized() const
 HWND CGraphics::GetWin32Window() const
 {
 	return glfwGetWin32Window(m_Window);
+}
+
+void CGraphics::DropCallback(GLFWwindow* window, int path_count, const char* paths[])
+{
+#if _DEBUG
+	printf("[%s] window = %p\n", __FUNCTION__, window);
+	for (int i = 0; i < path_count; i++)
+	{
+		printf("[%s] paths[%i] = %s\n", __FUNCTION__, i, paths[i]);
+	}
+#endif
+
+	if (path_count > 0)
+	{
+		sm_DropFiles.push(paths[0]);
+	}
+
+	IM_UNUSED(window);
 }
 
 //---------------- Init ----------------

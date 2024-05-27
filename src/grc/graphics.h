@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <stack>
 
 // Debug and Assert
 #ifdef _DEBUG
@@ -51,6 +52,8 @@ public:
 
 	HWND GetWin32Window() const;
 	static CGraphics& GetInstance() { return sm_Instance; }
+
+	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 private:
 
 	// Init
@@ -85,6 +88,7 @@ public:
 	bool m_SwapChainRebuild;
 
 	static CGraphics sm_Instance;
+	static std::stack<std::string> sm_DropFiles;
 };
 
 #endif // UI_BACKEND
