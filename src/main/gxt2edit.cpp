@@ -24,14 +24,14 @@
 
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
-	m_HasPendingChanges(false),
-	m_RenderSaveChangesPopup(false),
+	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
 	m_RequestCloseFile(false),
 	m_RequestImportFile(false),
-	m_RenderEmptyEditorTable(true),
-	m_AddFileImg(nullptr)
+	m_HasPendingChanges(false),
+	m_RenderSaveChangesPopup(false),
+	m_RenderEmptyEditorTable(true)
 {
 }
 

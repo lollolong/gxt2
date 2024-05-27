@@ -13,14 +13,14 @@
 CImage::CImage(unsigned int width, unsigned int height, const void* data) : 
 	m_Width(width),
 	m_Height(height),
+	m_AlignedSize(0),
 	m_Image(VK_NULL_HANDLE),
 	m_ImageView(VK_NULL_HANDLE),
 	m_Memory(VK_NULL_HANDLE),
 	m_Sampler(VK_NULL_HANDLE),
 	m_StagingBuffer(VK_NULL_HANDLE),
 	m_StagingBufferMemory(VK_NULL_HANDLE),
-	m_DescriptorSet(VK_NULL_HANDLE),
-	m_AlignedSize(0)
+	m_DescriptorSet(VK_NULL_HANDLE)
 {
 	AllocateMemory();
 	if (data)
