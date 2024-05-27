@@ -7,6 +7,7 @@
 
 // Project
 #include "gxt/gxt2.h"
+#include "grc/image.h"
 #include "system/app.h"
 
 // vendor
@@ -59,9 +60,11 @@ private:
 	//---------------- UI ----------------
 	//
 	void OnTick() override;
-	void RenderBar();
-	void RenderTable();
+	void RenderMenuBar();
 	void RenderEditor();
+	void RenderTable();
+	void RenderEmptyView();
+	void RenderEditTools();
 	void RenderPopups();
 	void ProcessShortcuts();
 	void SortTable();
@@ -97,6 +100,7 @@ private:
 	std::string m_HashInput;
 	std::string m_LabelInput;
 	std::string m_TextInput;
+	CImage* m_AddFileImg;
 
 	//---------------- Editing ----------------
 	//

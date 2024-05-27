@@ -10,6 +10,7 @@
 #include "data/util.h"
 #include "data/stringhash.h"
 #include "grc/graphics.h"
+#include "grc/images/addfile.cpp"
 #include "resources/resource.h"
 
 // C/C++
@@ -27,7 +28,8 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RenderSaveChangesPopup(false),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
-	m_RequestImportFile(false)
+	m_RequestImportFile(false),
+	m_AddFileImg(nullptr)
 {
 }
 
@@ -48,11 +50,13 @@ int gxt2edit::Run(int argc, char* argv[])
 bool gxt2edit::Init()
 {
 	const bool bInit = CAppUI::Init();
+	m_AddFileImg = CImage::FromMemory(g_ImageAddFile);
 	return bInit;
 }
 
 void gxt2edit::Shutdown()
 {
+	delete m_AddFileImg;
 	return CAppUI::Shutdown();
 }
 
@@ -69,15 +73,13 @@ void gxt2edit::OnTick()
 
 	HandleDragDropLoading();
 	RenderPopups();
-	RenderBar();
-	RenderTable();
 	RenderEditor();
 	ProcessShortcuts();
 	ProcessFileRequests();
 	UpdateEntries();
 }
 
-void gxt2edit::RenderBar()
+void gxt2edit::RenderMenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -141,6 +143,20 @@ void gxt2edit::RenderBar()
 
 		m_BarSize = ImGui::GetWindowSize();
 		ImGui::EndMainMenuBar();
+	}
+}
+
+void gxt2edit::RenderEditor()
+{
+	RenderMenuBar();
+	if (!m_Data.empty())
+	{
+		RenderTable();
+		RenderEditTools();
+	}
+	else
+	{
+		RenderEmptyView();
 	}
 }
 
@@ -226,7 +242,33 @@ void gxt2edit::RenderTable()
 	}
 }
 
-void gxt2edit::RenderEditor()
+void gxt2edit::RenderEmptyView()
+{
+	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y));
+
+	if (ImGui::Begin("##EmptyEditor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+	{
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+
+		const float imageWidth = static_cast<float>(m_AddFileImg->GetWidth());
+		const float imageHeight = static_cast<float>(m_AddFileImg->GetHeight());
+
+		const float imageSizeX = imageWidth * 0.25f;
+		const float imageSizeY = imageHeight * 0.25f;
+
+		const float posX = (windowSize.x - imageSizeX) / 2.0f;
+		const float posY = (windowSize.y - imageSizeY) / 2.0f;
+
+		ImGui::SetCursorPos(ImVec2(posX, posY));
+		ImGui::Image(m_AddFileImg->GetTextureId(), ImVec2(imageSizeX, imageSizeY));
+
+		ImGui::End();
+	}
+}
+
+void gxt2edit::RenderEditTools()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 65.f));
