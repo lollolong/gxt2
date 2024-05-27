@@ -98,6 +98,12 @@ void CFile::SetData(const Map& data)
 	m_Entries = data;
 } // void ::SetData()
 
+void CFile::SetData(const Vec& data)
+{
+	Reset();
+	m_Entries.insert(data.begin(), data.end());
+} // void ::SetData()
+
 //-----------------------------------------------------------------------------------------
 //
 

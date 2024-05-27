@@ -10,6 +10,7 @@
 
 // C/C++
 #include <map>
+#include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -30,7 +31,8 @@ public:
 		// default
 		FLAGS_DEFAULT = (std::fstream::in | std::fstream::out)
 	};
-	using Map = std::map<unsigned int, std::string, std::less<unsigned int>>; // do not touch
+	using Map = std::map<unsigned int, std::string, std::less<unsigned int>>;
+	using Vec = std::vector<std::pair<unsigned int, std::string>>;
 public:
 	CFile();
 	CFile(const std::string& fileName, int openFlags = FLAGS_DEFAULT);
@@ -46,6 +48,7 @@ public:
 	Map& GetData();
 	const Map& GetData() const;
 	void SetData(const Map& data);
+	void SetData(const Vec& data);
 
 	virtual bool ReadEntries() { return false; };
 	virtual bool WriteEntries() { return false; };

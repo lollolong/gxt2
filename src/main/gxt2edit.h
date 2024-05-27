@@ -82,7 +82,7 @@ private:
 private:
 	//---------------- IO ----------------
 	//
-	CFile::Map m_Data;
+	CFile::Vec m_Data;
 	std::string m_Path;
 
 	//---------------- UI ----------------

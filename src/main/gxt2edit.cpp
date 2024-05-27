@@ -153,17 +153,16 @@ void gxt2edit::RenderTable()
 			if (!m_Data.empty())
 			{
 				ImGuiListClipper clipper;
-				clipper.Begin(static_cast<int>(m_Data.size()) /*, ImGui::GetTextLineHeightWithSpacing()*/);
+				clipper.Begin(static_cast<int>(m_Data.size()));
 
 				const float trashIconWidth = ImGui::CalcTextSize(ICON_FA_TRASH).x;
 
 				while (clipper.Step())
 				{
-					CFile::Map::iterator it = std::next(m_Data.begin(), clipper.DisplayStart);
-					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i, ++it)
+					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 					{
-						const unsigned int& uHash = it->first;
-						std::string& text = it->second;
+						const unsigned int& uHash = m_Data[i].first;
+						std::string& text = m_Data[i].second;
 
 						std::string szHash = std::format("0x{:08X}", uHash);
 
@@ -255,7 +254,7 @@ void gxt2edit::RenderEditor()
 
 				if (uHash != 0x00000000)
 				{
-					m_Data[uHash] = m_TextInput;
+					m_Data.emplace_back(uHash, m_TextInput);
 
 					m_HashInput.clear();
 					m_LabelInput.clear();
@@ -554,7 +553,10 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 		pInputDevice->SetData(m_Data);
 		if (pInputDevice->ReadEntries())
 		{
-			m_Data = pInputDevice->GetData();
+			for (const auto& [uHash, szEntry] : pInputDevice->GetData()) 
+			{
+				m_Data.emplace_back(uHash, szEntry);
+			}
 			if (fileType == FILETYPE_GXT2)
 			{
 				m_Path = path;
@@ -600,7 +602,16 @@ void gxt2edit::UpdateEntries()
 {
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
-		m_Data.erase(uHash);
+		auto it = std::find_if(m_Data.begin(), m_Data.end(),
+			[uHash](const std::pair<unsigned int, std::string>& entry) 
+			{
+				return entry.first == uHash;
+			});
+
+		if (it != m_Data.end())
+		{
+			m_Data.erase(it);
+		}
 	}
 	m_EntriesToRemove.clear();
 }
