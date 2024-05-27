@@ -24,7 +24,7 @@ public:
 	virtual ~CAppUI() = default;
 public:
 	int Run(int argc, char* argv[]) override;
-private:
+protected:
 	virtual bool Init();
 	virtual void OnTick() = 0;
 	virtual void OnTickInternal();

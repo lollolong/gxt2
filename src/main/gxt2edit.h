@@ -50,6 +50,10 @@ public:
 public:
 	int Run(int argc, char* argv[]) override;
 private:
+	//---------------- App ----------------
+	//
+	bool Init() override;
+	void Shutdown() override;
 	void Reset();
 
 	//---------------- UI ----------------

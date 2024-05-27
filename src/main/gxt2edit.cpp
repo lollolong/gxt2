@@ -45,6 +45,17 @@ int gxt2edit::Run(int argc, char* argv[])
 	return CAppUI::Run(argc, argv);
 }
 
+bool gxt2edit::Init()
+{
+	const bool bInit = CAppUI::Init();
+	return bInit;
+}
+
+void gxt2edit::Shutdown()
+{
+	return CAppUI::Shutdown();
+}
+
 void gxt2edit::Reset()
 {
 	m_Data.clear();
