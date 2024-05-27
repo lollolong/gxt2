@@ -10,7 +10,7 @@
 // vendor
 #include <stb_image.h>
 
-CImage::CImage(unsigned int width, unsigned int height, const void* data) : 
+CImage::CImage(unsigned int width, unsigned int height, const void* data) :
 	m_Width(width),
 	m_Height(height),
 	m_AlignedSize(0),
@@ -113,11 +113,9 @@ void CImage::LoadImageData(const void* data)
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		ASSERT_VULKAN(vkCreateBuffer(grc.GetDevice(), &bufferCreateInfo, nullptr, &m_StagingBuffer));
 
-
 		VkMemoryRequirements memoryRequirements;
 		vkGetBufferMemoryRequirements(grc.GetDevice(), m_StagingBuffer, &memoryRequirements);
 		m_AlignedSize = memoryRequirements.size;
-
 
 		VkMemoryAllocateInfo memoryAllocateInfo = {};
 		memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -130,7 +128,6 @@ void CImage::LoadImageData(const void* data)
 		void* pMemoryMap = nullptr;
 		ASSERT_VULKAN(vkMapMemory(grc.GetDevice(), m_StagingBufferMemory, 0, m_AlignedSize, 0, &pMemoryMap));
 		memcpy(pMemoryMap, data, imageSize);
-
 
 		VkMappedMemoryRange mappedMemoryRange = {};
 		mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
@@ -148,12 +145,10 @@ void CImage::LoadImageData(const void* data)
 		ASSERT_VULKAN(vkResetFences(grc.GetDevice(), 1, &fd->Fence));
 		ASSERT_VULKAN(vkResetCommandPool(grc.GetDevice(), fd->CommandPool, 0));
 
-
 		VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 		commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		commandBufferBeginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		ASSERT_VULKAN(vkBeginCommandBuffer(fd->CommandBuffer, &commandBufferBeginInfo));
-
 
 		VkImageMemoryBarrier copy_barrier = {};
 		copy_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -189,7 +184,6 @@ void CImage::LoadImageData(const void* data)
 		use_barrier.subresourceRange.levelCount = 1;
 		use_barrier.subresourceRange.layerCount = 1;
 		vkCmdPipelineBarrier(fd->CommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &use_barrier);
-
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

@@ -12,4 +12,4 @@ namespace rage
 	unsigned int atStringHash(const char* string);
 }
 
-#endif // _STRINGHASH_H_
+#endif // !_STRINGHASH_H_

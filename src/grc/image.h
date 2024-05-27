@@ -49,6 +49,6 @@ private:
 	VkDescriptorSet m_DescriptorSet;
 };
 
-#endif
+#endif // UI_BACKEND
 
-#endif
+#endif // !_IMAGE_H_

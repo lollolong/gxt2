@@ -137,7 +137,6 @@ void gxt2edit::RenderMenuBar()
 				{
 					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 				}
-				
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
@@ -176,7 +175,7 @@ void gxt2edit::RenderTable()
 	{
 		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize  | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
 			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
 			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
@@ -457,7 +456,7 @@ void gxt2edit::OpenFile()
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, {{FILEDESC_GXT2, FILTERSPEC_GXT2}}))
+	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, { {FILEDESC_GXT2, FILTERSPEC_GXT2} }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
@@ -667,7 +666,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 		pInputDevice->SetData(m_Data);
 		if (pInputDevice->ReadEntries())
 		{
-			for (const auto& [uHash, szEntry] : pInputDevice->GetData()) 
+			for (const auto& [uHash, szEntry] : pInputDevice->GetData())
 			{
 				m_Data.emplace_back(uHash, szEntry);
 			}
@@ -737,7 +736,7 @@ void gxt2edit::UpdateEntries()
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
 		auto it = std::find_if(m_Data.begin(), m_Data.end(),
-			[uHash](const std::pair<unsigned int, std::string>& entry) 
+			[uHash](const std::pair<unsigned int, std::string>& entry)
 			{
 				return entry.first == uHash;
 			});

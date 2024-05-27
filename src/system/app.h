@@ -35,4 +35,4 @@ private:
 	int m_Height;
 };
 
-#endif // _APP_H_
+#endif // !_APP_H_

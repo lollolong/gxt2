@@ -116,4 +116,4 @@ private:
 	std::vector<unsigned int> m_EntriesToRemove;
 };
 
-#endif // _GXT2EDIT_H_
+#endif // !_GXT2EDIT_H_

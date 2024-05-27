@@ -22,4 +22,4 @@ namespace utils
 	bool OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters = {});
 }
 
-#endif // _UTIL_H_
+#endif // !_UTIL_H_
