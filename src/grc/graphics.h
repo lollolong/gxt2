@@ -51,6 +51,7 @@ public:
 	bool IsMinimized() const;
 
 	HWND GetWin32Window() const;
+	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
 
 public:
 	GLFWwindow* GetWindow() const { return m_Window; }

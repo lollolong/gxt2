@@ -152,6 +152,18 @@ HWND CGraphics::GetWin32Window() const
 	return glfwGetWin32Window(m_Window);
 }
 
+unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, uint32_t typeFlags) const
+{
+	VkPhysicalDeviceMemoryProperties properties;
+	vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &properties);
+	for (unsigned int iType = 0; iType < properties.memoryTypeCount; iType++)
+	{
+		if ((properties.memoryTypes[iType].propertyFlags & memFlags) == memFlags && typeFlags & (1 << iType))
+			return iType;
+	}
+	return 0XFFFFFFFF;
+}
+
 void CGraphics::DropCallback(GLFWwindow* window, int path_count, const char* paths[])
 {
 #if _DEBUG

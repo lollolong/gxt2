@@ -64,6 +64,9 @@ set(SOURCES
 	grc/graphics.cpp
 	grc/graphics.h
 	
+	grc/image.cpp
+	grc/image.h
+	
 	resources/gxt2edit.rc
 	resources/resource.h
 	
