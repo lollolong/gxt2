@@ -622,8 +622,17 @@ void CGraphics::SetupFonts()
 	ImFontConfig notoConfig;
 	notoConfig.FontDataOwnedByAtlas = false;
 
-	static const ImWchar ranges[] = { 0x0020, 0x00FF, 0x0100, 0x017F, 0x0400, 0x052F, 0 };
-	io.Fonts->AddFontFromMemoryTTF((void*)g_FontNotoRegular, sizeof(g_FontNotoRegular), 18.f, &notoConfig, ranges);
+	static const ImWchar ranges[] =
+	{
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0100, 0x017F, // Latin
+		0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+		0x2DE0, 0x2DFF, // Cyrillic Extended-A
+		0xA640, 0xA69F, // Cyrillic Extended-B
+		0,
+	};
+
+	io.Fonts->AddFontFromMemoryTTF((void*)g_FontNotoRegular, sizeof(g_FontNotoRegular), 18.f, &notoConfig, ranges /* io.Fonts->GetGlyphRangesCyrillic() */);
 
 	//---------------- Noto CJK ----------------
 	//
@@ -631,15 +640,10 @@ void CGraphics::SetupFonts()
 	notoConfigCJK.MergeMode = true;
 	notoConfigCJK.PixelSnapH = true;
 
-	static const ImWchar rangesJP[] = { 0x3040, 0x30FF, 0x31F0, 0x31FF, 0x4E00, 0x9FAF, 0 };
-	static const ImWchar rangesKR[] = { 0x1100, 0x11FF, 0x3130, 0x318F, 0xAC00, 0xD7AF, 0 };
-	static const ImWchar rangesSC[] = { 0x4E00, 0x9FFF, 0 };
-	static const ImWchar rangesTC[] = { 0x4E00, 0x9FFF, 0 };
-
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansJP-Regular.ttf", 18.f, &notoConfigCJK, rangesJP);
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansKR-Regular.ttf", 18.f, &notoConfigCJK, rangesKR);
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, rangesSC);
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, rangesTC);
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansJP-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansKR-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
 
 	//---------------- Font Awesome ----------------
 	//
