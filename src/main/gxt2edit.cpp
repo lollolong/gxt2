@@ -260,8 +260,8 @@ void gxt2edit::RenderEmptyView()
 		const float imageWidth = static_cast<float>(m_AddFileImg->GetWidth());
 		const float imageHeight = static_cast<float>(m_AddFileImg->GetHeight());
 
-		const float imageSizeX = imageWidth * 0.25f;
-		const float imageSizeY = imageHeight * 0.25f;
+		const float imageSizeY = windowSize.y * 0.20f;
+		const float imageSizeX = imageSizeY * (imageWidth / imageHeight);
 
 		const float posX = (windowSize.x - imageSizeX) / 2.0f;
 		const float posY = (windowSize.y - imageSizeY) / 2.0f;
