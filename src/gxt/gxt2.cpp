@@ -4,6 +4,7 @@
 
 // Project
 #include "gxt2.h"
+#include "main/main.h"
 #include "data/stringhash.h"
 
 // vendor
@@ -131,7 +132,7 @@ bool CGxt2File::ReadEntries()
 		return false;
 	}
 
-	Entry* pEntries = new Entry[uNumEntries];
+	Entry* pEntries = GXT_NEW Entry[uNumEntries];
 	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)
 	{
 		Read(&pEntries[uEntry].m_Hash);
@@ -143,7 +144,7 @@ bool CGxt2File::ReadEntries()
 	const unsigned int uHeapStart = GetPosition();
 	const unsigned int uHeapLength = uDataLength - uHeapStart;
 
-	char* pStringHeap = new char[uHeapLength];
+	char* pStringHeap = GXT_NEW char[uHeapLength];
 	Read(pStringHeap, uHeapLength);
 
 	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)

@@ -6,6 +6,7 @@
 #include <Windows.h>
 
 // Project
+#include "main.h"
 #include "gxt2edit.h"
 #include "data/util.h"
 #include "data/stringhash.h"
@@ -606,19 +607,19 @@ void gxt2edit::SaveToFile(const std::string& path, eFileType fileType)
 	switch (fileType)
 	{
 	case FILETYPE_GXT2:
-		pOutputDevice = new CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
+		pOutputDevice = GXT_NEW CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
 		break;
 	case FILETYPE_TXT:
-		pOutputDevice = new CTextFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		pOutputDevice = GXT_NEW CTextFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
 	case FILETYPE_JSON:
-		pOutputDevice = new CJsonFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		pOutputDevice = GXT_NEW CJsonFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
 	case FILETYPE_CSV:
-		pOutputDevice = new CCsvFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		pOutputDevice = GXT_NEW CCsvFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
 	case FILETYPE_OXT:
-		pOutputDevice = new COxtFile(path, CFile::FLAGS_WRITE_DECOMPILED);
+		pOutputDevice = GXT_NEW COxtFile(path, CFile::FLAGS_WRITE_DECOMPILED);
 		break;
 	default:
 		break;
@@ -643,19 +644,19 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 	switch (fileType)
 	{
 	case FILETYPE_GXT2:
-		pInputDevice = new CGxt2File(path, CFile::FLAGS_READ_COMPILED);
+		pInputDevice = GXT_NEW CGxt2File(path, CFile::FLAGS_READ_COMPILED);
 		break;
 	case FILETYPE_TXT:
-		pInputDevice = new CTextFile(path, CFile::FLAGS_READ_DECOMPILED);
+		pInputDevice = GXT_NEW CTextFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	case FILETYPE_JSON:
-		pInputDevice = new CJsonFile(path, CFile::FLAGS_READ_DECOMPILED);
+		pInputDevice = GXT_NEW CJsonFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	case FILETYPE_CSV:
-		pInputDevice = new CCsvFile(path, CFile::FLAGS_READ_DECOMPILED);
+		pInputDevice = GXT_NEW CCsvFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	case FILETYPE_OXT:
-		pInputDevice = new COxtFile(path, CFile::FLAGS_READ_DECOMPILED);
+		pInputDevice = GXT_NEW COxtFile(path, CFile::FLAGS_READ_DECOMPILED);
 		break;
 	default:
 		break;

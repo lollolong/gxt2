@@ -4,6 +4,7 @@
 
 // Project
 #include "convert.h"
+#include "main/main.h"
 
 CConverter::CConverter(const std::string& filePath) :
 	m_Input(nullptr),
@@ -54,15 +55,15 @@ void CConverter::CreateInputInterface(const std::string& filePath)
 
 	if (szFileExtension == ".gxt2")
 	{
-		m_Input = new CGxt2File(filePath, CFile::FLAGS_READ_COMPILED);
+		m_Input = GXT_NEW CGxt2File(filePath, CFile::FLAGS_READ_COMPILED);
 	}
 	else if (szFileExtension == ".txt")
 	{
-		m_Input = new CTextFile(filePath, CFile::FLAGS_READ_DECOMPILED);
+		m_Input = GXT_NEW CTextFile(filePath, CFile::FLAGS_READ_DECOMPILED);
 	}
 	else if (szFileExtension == ".json")
 	{
-		m_Input = new CJsonFile(filePath, CFile::FLAGS_READ_DECOMPILED);
+		m_Input = GXT_NEW CJsonFile(filePath, CFile::FLAGS_READ_DECOMPILED);
 	}
 	else
 	{
@@ -78,20 +79,20 @@ void CConverter::CreateOutputInterface(const std::string& filePath)
 	if (szInputExtension == ".gxt2")
 	{
 		//szOutputPath += ".txt";
-		//m_Output = new CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
+		//m_Output = GXT_NEW CTextFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
 
 		szOutputPath += ".json";
-		m_Output = new CJsonFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
+		m_Output = GXT_NEW CJsonFile(szOutputPath, CFile::FLAGS_WRITE_DECOMPILED);
 	}
 	else if (szInputExtension == ".txt")
 	{
 		szOutputPath += ".gxt2";
-		m_Output = new CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
+		m_Output = GXT_NEW CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
 	}
 	else if (szInputExtension == ".json")
 	{
 		szOutputPath += ".gxt2";
-		m_Output = new CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
+		m_Output = GXT_NEW CGxt2File(szOutputPath, CFile::FLAGS_WRITE_COMPILED);
 	}
 	else
 	{

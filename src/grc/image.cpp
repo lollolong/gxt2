@@ -6,6 +6,7 @@
 
 // Project
 #include "image.h"
+#include "main/main.h"
 
 // vendor
 #include <stb_image.h>
@@ -39,7 +40,7 @@ CImage* CImage::FromMemory(const void* pMemory, size_t length)
 	int width, height, comp;
 	stbi_uc* data = stbi_load_from_memory((const stbi_uc*)pMemory, (int)length, &width, &height, &comp, 4);
 	STBI_ASSERT(data);
-	CImage* pImage = new CImage(width, height, data);
+	CImage* pImage = GXT_NEW CImage(width, height, data);
 	STBI_FREE(data);
 	return pImage;
 }
