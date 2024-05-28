@@ -32,9 +32,21 @@
 // Debug and Assert
 #ifdef _DEBUG
 	#define VULKAN_DEBUG
-	#define ASSERT_VULKAN(vkRes) assert(vkRes == VK_SUCCESS);
+	#define ASSERT_VULKAN(vkRes) CheckVulkan(vkRes);
 #else
 	#define ASSERT_VULKAN(vkRes) (void)vkRes;
+#endif
+
+#ifdef VULKAN_DEBUG
+static void CheckVulkan(VkResult vkRes)
+{
+	if (vkRes != VK_SUCCESS)
+	{
+		printf("[vulkan] Error: VkResult = %d\n", vkRes);
+	}
+	assert(vkRes == VK_SUCCESS);
+}
+
 #endif
 
 class CGraphics
