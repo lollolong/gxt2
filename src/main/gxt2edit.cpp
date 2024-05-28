@@ -96,7 +96,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				m_RequestOpenFile = true;
 			}
-			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + C"))
+			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + SHIFT + C"))
 			{
 				m_RequestCloseFile = true;
 			}
@@ -384,7 +384,7 @@ void gxt2edit::ProcessShortcuts()
 	{
 		m_RequestOpenFile = true;
 	}
-	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+	if (io.KeyCtrl && io.KeyShift && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
 	{
 		m_RequestCloseFile = true;
 	}
