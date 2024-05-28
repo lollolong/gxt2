@@ -30,6 +30,11 @@
 #define FILTERSPEC_TEXT L"*.txt"
 #define FILTERSPEC_ALL  L"*.*"
 
+// File Extension
+#define FILE_EXTENSION_GXT2			TEXT(".gxt2")
+#define FILE_EXTENSION_HANDLER		TEXT("GXT2TextFile")
+#define FILE_EXTENSION_DESC			TEXT("GTA Text Table")
+
 class gxt2edit : public CAppUI
 {
 private:
@@ -56,6 +61,8 @@ private:
 	bool Init() override;
 	void Shutdown() override;
 	void Reset();
+
+	void RegisterExtension(bool bUnregister = false);
 
 	//---------------- UI ----------------
 	//

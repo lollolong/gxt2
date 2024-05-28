@@ -127,17 +127,11 @@ void gxt2edit::RenderMenuBar()
 		{
 			if (ImGui::MenuItem("Register Extension", "Requires Admin"))
 			{
-				if (SUCCEEDED(utils::RegisterShellFileExtension(TEXT(".gxt2"), TEXT("GXT2TextFile"), TEXT("GTA Text Table"))))
-				{
-					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
-				}
+				RegisterExtension();
 			}
 			if (ImGui::MenuItem("Unregister Extension", "Requires Admin"))
 			{
-				if (SUCCEEDED(utils::UnregisterShellFileExtension(TEXT(".gxt2"), TEXT("GXT2TextFile"))))
-				{
-					SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
-				}
+				RegisterExtension(true);
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
@@ -748,6 +742,19 @@ void gxt2edit::UpdateEntries()
 		}
 	}
 	m_EntriesToRemove.clear();
+}
+
+void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
+{
+	const bool bRefreshShell = 
+		bUnregister ? 
+			SUCCEEDED(utils::UnregisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER)) : 
+			SUCCEEDED(utils::RegisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER, FILE_EXTENSION_DESC));
+
+	if (bRefreshShell)
+	{
+		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+	}
 }
 
 int main(int argc, char* argv[])
