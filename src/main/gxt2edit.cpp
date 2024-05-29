@@ -70,10 +70,6 @@ void gxt2edit::Reset()
 
 void gxt2edit::OnTick()
 {
-#if !_DEBUG
-	ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif
-
 	HandleDragDropLoading();
 	RenderPopups();
 	RenderEditor();
@@ -756,18 +752,95 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 	}
 }
 
-int main(int argc, char* argv[])
-{
-#if _DEBUG
-	ShowWindow(GetConsoleWindow(), SW_SHOW);
-#else
-	ShowWindow(GetConsoleWindow(), SW_HIDE);
+
+//---------------- Entry Point ----------------
+//
+
+#ifdef _WIN32
+	//#define WINMAIN_ENTRY_DEBUG
+	#if defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)
+		#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
+	#else
+		#pragma comment(linker, "/SUBSYSTEM:WINDOWS")
+	#endif
 #endif
 
+#if (defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)) || !defined(_WIN32)
+int main(int argc, char* argv[])
+{
+#elif _WIN32
+int WINAPI WinMain(
+	[[maybe_unused]] _In_ HINSTANCE			hInstance,
+	[[maybe_unused]] _In_opt_ HINSTANCE		hPrevInstance,
+	[[maybe_unused]] _In_ LPSTR				lpCmdLine,
+	[[maybe_unused]] _In_ int				nCmdShow
+)
+{
+#endif
 	try
 	{
+#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+		int argc = 0;
+		char** argv = nullptr;
+
+		LPWSTR* argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
+		if (argvW)
+		{
+			argv = (char**)malloc(sizeof(char*) * argc);
+			if (argv)
+			{
+				for (int i = 0; i < argc; i++)
+				{
+					argv[i] = nullptr;
+				}
+
+				for (int j = 0; j < argc; j++)
+				{
+					size_t wcharLen = wcslen(argvW[j]);
+					argv[j] = (char*)malloc(sizeof(char) * (wcharLen + 1));
+					if (argv[j])
+					{
+						size_t numConverted = 0;
+						wcstombs_s(&numConverted, argv[j], wcharLen + 1, argvW[j], wcharLen);
+					}
+					else
+					{
+						for (int i = 0; i < argc; i++)
+						{
+							free(argv[i]);
+							argv[i] = nullptr;
+						}
+						free(argv);
+						argv = nullptr;
+						argc = 0;
+						break;
+					}
+				}
+			}
+			LocalFree(argvW);
+		}
+#endif
+
+		//---------------- Main Logic ----------------
+		//
 		gxt2edit gxt2edit("Grand Theft Auto V - Text Editor", 1500, 850);
 		gxt2edit.Run(argc, argv);
+
+#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+		if (argc && argv)
+		{
+			for (int i = 0; i < argc; i++)
+			{
+				if (argv[i])
+				{
+					free(argv[i]);
+					argv[i] = nullptr;
+				}
+			}
+			free(argv);
+			argv = nullptr;
+		}
+#endif
 	}
 	catch (const std::exception& ex)
 	{
