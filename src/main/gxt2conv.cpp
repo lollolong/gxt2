@@ -15,13 +15,26 @@
 
 int gxt2conv::Run(int argc, char* argv[])
 {
-	if (argc != 2)
+	if (argc < 2 || argc > 3)
 	{
 		printf("Usage: %s global.gxt2\n\t", argv[0]);
 		return 1;
 	}
 
 	CConverter gxtConverter(argv[1]);
+
+	if (argc == 3)
+	{
+		if (strcmp(argv[2], "/le") == 0)
+		{
+			gxtConverter.GetOutput()->SetLittleEndian();
+		}
+		if (strcmp(argv[2], "/be") == 0)
+		{
+			gxtConverter.GetOutput()->SetBigEndian();
+		}
+	}
+
 	gxtConverter.Convert();
 	return 0;
 }
