@@ -18,9 +18,10 @@
 CFile::CFile()
 {
 	Reset();
-} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
+} // ::CFile()
 
-CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
+CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int endian /*= LITTLE_ENDIAN*/) 
+	: m_Endian(endian)
 {
 	Reset();
 	m_File.open(fileName, openFlags);
@@ -29,7 +30,7 @@ CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/)
 	{
 		throw std::runtime_error(std::format("The specified file {} could not be opened.", fileName));
 	}
-} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT)
+} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT, int endian = LITTLE_ENDIAN)
 
 CFile::~CFile()
 {
@@ -105,11 +106,27 @@ void CFile::SetData(const Vec& data)
 	m_Entries.insert(data.begin(), data.end());
 } // void ::SetData()
 
+void CFile::SwapEndian(unsigned int& x)
+{
+	x = ((x >> 0x18) & 0x000000FF) |
+		((x >> 0x08) & 0x0000FF00) |
+		((x << 0x08) & 0x00FF0000) |
+		((x << 0x18) & 0xFF000000);
+} // void ::SwapEndian(unsigned int& x)
+
+void CFile::DoSwapEndian(unsigned int& x) const
+{
+	if (IsBigEndian())
+	{
+		CFile::SwapEndian(x);
+	}
+} // void ::CheckDoSwapEndian(unsigned int& x)
+
 //-----------------------------------------------------------------------------------------
 //
 
-CGxt2File::CGxt2File(const std::string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/) :
-	CFile(fileName, openFlags)
+CGxt2File::CGxt2File(const std::string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/, int endian /*= LITTLE_ENDIAN*/) :
+	CFile(fileName, openFlags, endian)
 {
 } // ::CGxt2File(const string& fileName, int openFlags = FLAGS_READ_COMPILED)
 
@@ -126,20 +143,43 @@ bool CGxt2File::ReadEntries()
 	Read(&uMagic);
 	Read(&uNumEntries);
 
-	if (uMagic != CGxt2File::GXT2_MAGIC)
+	if (uMagic == CGxt2File::GXT2_MAGIC_LE)
+	{
+		SetLittleEndian();
+	}
+	else if (uMagic == CGxt2File::GXT2_MAGIC_BE)
+	{
+		SetBigEndian();
+	}
+	else
 	{
 		std::cerr << "Error: Not GXT2 file format." << std::endl;
 		return false;
 	}
+
+	DoSwapEndian(uNumEntries);
 
 	Entry* pEntries = GXT_NEW Entry[uNumEntries];
 	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)
 	{
 		Read(&pEntries[uEntry].m_Hash);
 		Read(&pEntries[uEntry].m_Offset);
+		DoSwapEndian(pEntries[uEntry].m_Hash);
+		DoSwapEndian(pEntries[uEntry].m_Offset);
 	}
+
 	Read(&uMagic);
 	Read(&uDataLength);
+	DoSwapEndian(uMagic);
+	DoSwapEndian(uDataLength);
+
+	if (uMagic != CGxt2File::GXT2_MAGIC_LE && uMagic != CGxt2File::GXT2_MAGIC_BE)
+	{
+		std::cerr << "Expected GXT2 Magic, your file might be corrupted!" << std::endl;
+#if _DEBUG
+		__debugbreak();
+#endif
+	}
 
 	const unsigned int uHeapStart = GetPosition();
 	const unsigned int uHeapLength = uDataLength - uHeapStart;
@@ -150,11 +190,34 @@ bool CGxt2File::ReadEntries()
 	for (unsigned int uEntry = 0; uEntry < uNumEntries; uEntry++)
 	{
 		const char* szTextEntry = pStringHeap + (pEntries[uEntry].m_Offset - uHeapStart);
+#if _DEBUG
+		if (auto it = m_Entries.find(pEntries[uEntry].m_Hash); it != m_Entries.end())
+		{
+			if (strcmp(it->second.c_str(), szTextEntry) == 0)
+			{
+				std::cout << std::format("[{}] Warning: Duplicate Text Entry (0x{:08X}) with same content found!", __FUNCTION__, pEntries[uEntry].m_Hash) << std::endl;
+			}
+			else
+			{
+				std::cout << std::format("[{}] Warning: Duplicate Text Entry (0x{:08X}) found!\n\tprv = {}\n\tcur = {}", __FUNCTION__, pEntries[uEntry].m_Hash, it->second, szTextEntry) << std::endl;
+			}
+			//__debugbreak();
+		}
+		else
+		{
+			m_Entries[pEntries[uEntry].m_Hash] = szTextEntry;
+		}
+#else
 		m_Entries[pEntries[uEntry].m_Hash] = szTextEntry;
+#endif
 	}
 
 	delete[] pEntries;
 	delete[] pStringHeap;
+
+#if _DEBUG && 0
+	assert(uNumEntries == m_Entries.size());
+#endif
 
 	return true;
 } // bool ::ReadEntries()
@@ -169,18 +232,40 @@ bool CGxt2File::WriteEntries()
 	unsigned int uCount = static_cast<unsigned int>(m_Entries.size());
 	unsigned int uOffset = (uCount * 2 + 4) * 4;
 
-	Write(&CGxt2File::GXT2_MAGIC);
+	if (IsLittleEndian())
+	{
+		Write(&CGxt2File::GXT2_MAGIC_LE);
+	}
+	else if (IsBigEndian())
+	{
+		Write(&CGxt2File::GXT2_MAGIC_BE);
+	}
+
+	DoSwapEndian(uCount);
 	Write(&uCount);
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
-		Write(&uHash);
-		Write(&uOffset);
+		unsigned int uHashSwapped = uHash;
+		unsigned int uOffsetSwapped = uOffset;
+
+		DoSwapEndian(uHashSwapped);
+		DoSwapEndian(uOffsetSwapped);
+		Write(&uHashSwapped);
+		Write(&uOffsetSwapped);
 
 		uOffset += static_cast<unsigned int>(szTextEntry.size()) + 1;
 	}
 
-	Write(&CGxt2File::GXT2_MAGIC);
+	if (IsLittleEndian())
+	{
+		Write(&CGxt2File::GXT2_MAGIC_LE);
+	}
+	else if (IsBigEndian())
+	{
+		Write(&CGxt2File::GXT2_MAGIC_BE);
+	}
+	DoSwapEndian(uOffset);
 	Write(&uOffset);
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)

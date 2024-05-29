@@ -90,6 +90,14 @@ private:
 	void ProcessFileRequests();
 	void HandleDragDropLoading();
 
+	void SetEndian(int endian) { m_Endian = endian; }
+	void SetLittleEndian() { m_Endian = CFile::LITTLE_ENDIAN; }
+	void SetBigEndian() { m_Endian = CFile::BIG_ENDIAN; }
+	bool IsLittleEndian() const { return m_Endian == CFile::LITTLE_ENDIAN; }
+	bool IsBigEndian() const { return m_Endian == CFile::BIG_ENDIAN; }
+	int GetEndian() const { return m_Endian; }
+	
+
 	//---------------- Editing ----------------
 	//
 	bool CheckChanges();
@@ -101,6 +109,7 @@ private:
 	//
 	CFile::Vec m_Data;
 	std::string m_Path;
+	int m_Endian;
 
 	//---------------- UI ----------------
 	//

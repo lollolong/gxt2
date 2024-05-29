@@ -25,6 +25,7 @@
 
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
+	m_Endian(CFile::LITTLE_ENDIAN),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
@@ -121,6 +122,15 @@ void gxt2edit::RenderMenuBar()
 		}
 		if (ImGui::BeginMenu("Settings"))
 		{
+			if (ImGui::MenuItem("Little Endian", nullptr, IsLittleEndian()))
+			{
+				SetLittleEndian();
+			}
+			if (ImGui::MenuItem("Big Endian", nullptr, IsBigEndian()))
+			{
+				SetBigEndian();
+			}
+			ImGui::Separator();
 			if (ImGui::MenuItem("Register Extension", "Requires Admin"))
 			{
 				RegisterExtension();
@@ -596,7 +606,7 @@ void gxt2edit::SaveToFile(const std::string& path, eFileType fileType)
 	switch (fileType)
 	{
 	case FILETYPE_GXT2:
-		pOutputDevice = GXT_NEW CGxt2File(path, CFile::FLAGS_WRITE_COMPILED);
+		pOutputDevice = GXT_NEW CGxt2File(path, CFile::FLAGS_WRITE_COMPILED, GetEndian());
 		break;
 	case FILETYPE_TXT:
 		pOutputDevice = GXT_NEW CTextFile(path, CFile::FLAGS_WRITE_DECOMPILED);
@@ -662,6 +672,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 			}
 			if (fileType == FILETYPE_GXT2)
 			{
+				SetEndian(pInputDevice->GetEndian());
 				m_Path = path;
 			}
 			m_RenderEmptyEditorTable = false;
