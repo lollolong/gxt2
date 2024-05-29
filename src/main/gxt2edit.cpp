@@ -457,7 +457,6 @@ void gxt2edit::OpenFile()
 		LoadFromFile(m_Path, FILETYPE_GXT2);
 	}
 	m_RequestOpenFile = false;
-	m_RenderEmptyEditorTable = false;
 }
 
 void gxt2edit::CloseFile()
