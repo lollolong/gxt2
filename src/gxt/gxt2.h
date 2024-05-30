@@ -114,7 +114,7 @@ protected:
 
 class CGxt2File : public CFile
 {
-public:
+private:
 	struct Entry
 	{
 		unsigned int m_Hash;
