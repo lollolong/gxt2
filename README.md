@@ -35,6 +35,9 @@ This tool allows you to view and edit Grand Theft Auto V text files (*.gxt2).
 ## Getting Started
 
 ### Option 1: Download the latest Release
+#### Requirements
+- [Vulkan Runtime](https://vulkan.lunarg.com/sdk/home)
+
 **Download the latest Release:** Get the latest release [here](https://github.com/lollolong/gxt2/releases)
 
 ### Option 2: Build from Source
