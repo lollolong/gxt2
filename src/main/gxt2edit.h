@@ -97,7 +97,6 @@ private:
 	bool IsLittleEndian() const { return m_Endian == CFile::LITTLE_ENDIAN; }
 	bool IsBigEndian() const { return m_Endian == CFile::BIG_ENDIAN; }
 	int GetEndian() const { return m_Endian; }
-	
 
 	//---------------- Editing ----------------
 	//

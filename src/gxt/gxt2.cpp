@@ -20,7 +20,7 @@ CFile::CFile()
 	Reset();
 } // ::CFile()
 
-CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int endian /*= LITTLE_ENDIAN*/) 
+CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int endian /*= LITTLE_ENDIAN*/)
 	: m_Endian(endian)
 {
 	Reset();

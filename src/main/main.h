@@ -29,24 +29,24 @@
 void* operator new(size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new(size);
-	#if TRACK_MEMORY
+#if TRACK_MEMORY
 	printf("[operator new] Allocating 0x%llx bytes (%zi KB) @ %p (%s:%i)\n", size, (size >> 10), pBlock, file, line);
-	#else
+#else
 	(void)file;
 	(void)line;
-	#endif
+#endif
 	return pBlock;
 }
 
 void* operator new[](size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new[](size);
-	#if TRACK_MEMORY
+#if TRACK_MEMORY
 	printf("[operator new[]] Allocating 0x%llx bytes (%zi KB) @ %p (%s:%i)\n", size, (size >> 10), pBlock, file, line);
-	#else
+#else
 	(void)file;
 	(void)line;
-	#endif
+#endif
 	return pBlock;
 }
 
@@ -54,12 +54,12 @@ void operator delete(void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{
-		#if TRACK_MEMORY
+#if TRACK_MEMORY
 		printf("[operator delete] Deallocating memory @ %p (%s:%i)\n", pBlock, file, line);
-		#else
+#else
 		(void)file;
 		(void)line;
-		#endif
+#endif
 		::operator delete(pBlock);
 	}
 }
@@ -68,12 +68,12 @@ void operator delete[](void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{
-		#if TRACK_MEMORY
+#if TRACK_MEMORY
 		printf("[operator delete[]] Deallocating memory @ %p (%s:%i)\n", pBlock, file, line);
-		#else
+#else
 		(void)file;
 		(void)line;
-		#endif
+#endif
 		::operator delete[](pBlock);
 	}
 }
