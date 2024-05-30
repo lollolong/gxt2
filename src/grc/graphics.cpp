@@ -10,6 +10,13 @@
 #include "fonts/fa-solid-900.cpp"
 #include "fonts/NotoSans-Regular.cpp"
 
+// Windows
+#ifdef _WIN32
+	#include <dwmapi.h>
+	#define DARK_MODE_STRING_NAME	L"DarkMode_Explorer"
+	#define DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 19
+#endif
+
 // vendor
 #include <IconsFontAwesome6.h>
 
@@ -51,8 +58,6 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
 
-	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
-
 	glfwSetDropCallback(m_Window, DropCallback);
 
 	if (!glfwVulkanSupported())
@@ -60,6 +65,18 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		printf("GLFW: Vulkan Not Supported\n");
 		return false;
 	}
+
+#ifdef _WIN32
+	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
+
+	const BOOL isDarkMode = TRUE;
+
+	//SetWindowTheme(GetWin32Window(), DARK_MODE_STRING_NAME, nullptr);
+	if (FAILED(DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode))))
+	{
+		DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, &isDarkMode, sizeof(isDarkMode));
+	}
+#endif
 
 	CGraphics::InitVulkan();
 	CGraphics::InitImGui();
