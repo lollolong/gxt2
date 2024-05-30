@@ -834,7 +834,7 @@ int WINAPI WinMain(
 
 		//---------------- Main Logic ----------------
 		//
-		gxt2edit gxt2edit("Grand Theft Auto V - Text Editor", 1500, 850);
+		gxt2edit gxt2edit("Text Table Editor", 1500, 850);
 		gxt2edit.Run(argc, argv);
 
 #if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
