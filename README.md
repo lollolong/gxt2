@@ -53,7 +53,8 @@ mkdir bin
 cd bin
 cmake ..
 ```
-3. Compile the generated project in Visual Studio.
+3. Compile the generated project in Visual Studio
+4. Copy the fonts folder into the executable directory
 
 ## Dependencies
 
