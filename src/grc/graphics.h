@@ -61,6 +61,7 @@ public:
 	void Render();
 	bool IsRunning() const;
 	bool IsMinimized() const;
+	void CloseWindow(bool bClose) const;
 
 	HWND GetWin32Window() const;
 	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
@@ -79,6 +80,9 @@ public:
 
 	static CGraphics& GetInstance() { return sm_Instance; }
 	static std::stack<std::string>& GetDropFiles() { return sm_DropFiles; }
+
+	static bool IsClosing() { return sm_InClosingState; }
+	static void SetIsClosing(bool isClosingState) { sm_InClosingState = isClosingState; }
 private:
 
 	// Init
@@ -103,6 +107,7 @@ private:
 
 	// Callbacks
 	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
+	static void CloseCallback(GLFWwindow* window);
 public:
 	GLFWwindow* m_Window;
 	VkInstance m_VulkanInstance;
@@ -117,6 +122,7 @@ public:
 
 	static CGraphics sm_Instance;
 	static std::stack<std::string> sm_DropFiles;
+	static bool sm_InClosingState;
 };
 
 #endif // UI_BACKEND

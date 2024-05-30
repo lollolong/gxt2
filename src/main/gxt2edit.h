@@ -89,6 +89,7 @@ private:
 	void LoadFromFile(const std::string& path, eFileType fileType);
 	void ProcessFileRequests();
 	void HandleDragDropLoading();
+	void HandleWindowClosing();
 
 	void SetEndian(int endian) { m_Endian = endian; }
 	void SetLittleEndian() { m_Endian = CFile::LITTLE_ENDIAN; }

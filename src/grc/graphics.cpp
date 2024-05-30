@@ -22,6 +22,7 @@
 
 CGraphics CGraphics::sm_Instance;
 std::stack<std::string> CGraphics::sm_DropFiles;
+bool CGraphics::sm_InClosingState;
 
 CGraphics::CGraphics() :
 	m_Window(nullptr),
@@ -59,6 +60,7 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		(yPos + (pVideoMode->height - height)) / 2);
 
 	glfwSetDropCallback(m_Window, DropCallback);
+	glfwSetWindowCloseCallback(m_Window, CloseCallback);
 
 	if (!glfwVulkanSupported())
 	{
@@ -164,6 +166,22 @@ bool CGraphics::IsMinimized() const
 	return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
 }
 
+void CGraphics::CloseWindow(bool bClose) const
+{
+#if _DEBUG
+	printf("[%s] Closing State = %i\n", __FUNCTION__, bClose);
+#endif
+
+	if (bClose)
+	{
+		glfwSetWindowShouldClose(m_Window, GLFW_TRUE);
+	}
+	else
+	{
+		glfwSetWindowShouldClose(m_Window, GLFW_FALSE);
+	}
+}
+
 HWND CGraphics::GetWin32Window() const
 {
 	return glfwGetWin32Window(m_Window);
@@ -196,6 +214,16 @@ void CGraphics::DropCallback(GLFWwindow* window, int path_count, const char* pat
 		sm_DropFiles.push(paths[0]);
 	}
 
+	IM_UNUSED(window);
+}
+
+void CGraphics::CloseCallback(GLFWwindow* window)
+{
+#if _DEBUG
+	printf("[%s] Settings Closing State!\n", __FUNCTION__);
+#endif
+
+	SetIsClosing(true);
 	IM_UNUSED(window);
 }
 

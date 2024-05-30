@@ -77,6 +77,7 @@ void gxt2edit::OnTick()
 	ProcessShortcuts();
 	ProcessFileRequests();
 	UpdateEntries();
+	HandleWindowClosing();
 }
 
 void gxt2edit::RenderMenuBar()
@@ -142,7 +143,7 @@ void gxt2edit::RenderMenuBar()
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
 			{
-				exit(0);
+				CGraphics::SetIsClosing(true);
 			}
 			ImGui::EndMenu();
 		}
@@ -360,6 +361,7 @@ void gxt2edit::RenderPopups()
 			m_RequestOpenFile = false;
 			m_RequestImportFile = false;
 			m_RenderSaveChangesPopup = false;
+			CGraphics::SetIsClosing(false);
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -713,6 +715,14 @@ void gxt2edit::HandleDragDropLoading()
 			Reset();
 			LoadFromFile(dropPath, FILETYPE_GXT2);
 		}
+	}
+}
+
+void gxt2edit::HandleWindowClosing()
+{
+	if (CGraphics::IsClosing())
+	{
+		CGraphics::GetInstance().CloseWindow(CheckChanges());
 	}
 }
 
