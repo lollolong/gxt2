@@ -4,7 +4,7 @@
 
 #------------------ gxt2conv ------------------
 
-set(gxt2conv "gxt2conv")
+project("gxt2conv")
 
 set(SOURCES
 	main/gxt2conv.cpp
@@ -26,28 +26,27 @@ set(SOURCES
 	system/app.h
 )
 
-add_executable(${gxt2conv} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${gxt2conv} PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
 	# project
 	${CMAKE_CURRENT_SOURCE_DIR}
-	
-	# rapidjson
-	${VENDOR_DIR}/rapidjson/include
 )
-target_compile_features(${gxt2conv} PRIVATE 
+target_compile_features(${PROJECT_NAME} PRIVATE 
 	cxx_std_20
 )
-target_compile_options(${gxt2conv} PRIVATE
+target_compile_options(${PROJECT_NAME} PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
 )
-set_target_properties(${gxt2conv} PROPERTIES UNITY_BUILD ON)
 
+if(GXT2_ENABLE_UNITY_BUILD)
+	set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+endif(GXT2_ENABLE_UNITY_BUILD)
 
 #------------------ gxt2edit ------------------
 
-set(gxt2edit "gxt2edit")
+project("gxt2edit")
 
 set(SOURCES
 	main/gxt2edit.cpp
@@ -76,22 +75,12 @@ set(SOURCES
 	system/app.h
 )
 
-add_executable(${gxt2edit} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${gxt2edit} PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
 	# project
 	${CMAKE_CURRENT_SOURCE_DIR}
-	
-	# imgui
-	${VENDOR_DIR}/imgui
-	${VENDOR_DIR}/imgui/backends
-	
-	# glfw
-	${VENDOR_DIR}/glfw/include
-	
-	# rapidjson
-	${VENDOR_DIR}/rapidjson/include
-	
+
 	# Icon Font
 	${VENDOR_DIR}/IconFontCppHeaders
 
@@ -101,30 +90,42 @@ target_include_directories(${gxt2edit} PRIVATE
 	# Vulkan
 	${Vulkan_INCLUDE_DIRS}
 )
-target_compile_features(${gxt2edit} PRIVATE 
+target_compile_features(${PROJECT_NAME} PRIVATE 
 	cxx_std_20
 )
-target_link_libraries(${gxt2edit} PRIVATE
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
 	glfw
-	ImGui
+	ImGui::ImGui
+	portable_file_dialogs
+	nlohmann_json::nlohmann_json
 	${Vulkan_LIBRARIES}
 )
+
 if(WIN32)
-    target_link_libraries(${gxt2edit} PRIVATE 
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
 		UxTheme 
 		Dwmapi
 	)
 endif()
-target_compile_options(${gxt2edit} PRIVATE
+
+target_compile_options(${PROJECT_NAME} PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
 )
-target_compile_definitions(${gxt2edit} PRIVATE
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
 	GLFW_INCLUDE_NONE 
 	GLFW_INCLUDE_VULKAN
-	GLFW_EXPOSE_NATIVE_WIN32
 	UI_BACKEND
 	STB_IMAGE_IMPLEMENTATION
 	$<$<CONFIG:Debug>:USE_VULKAN_DEBUG_REPORT>
 )
-set_target_properties(${gxt2edit} PROPERTIES UNITY_BUILD ON)
+
+if(CMAKE_HOST_WIN32)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
+endif(CMAKE_HOST_WIN32)
+
+if(GXT2_ENABLE_UNITY_BUILD)
+	set_target_properties(${gxt2edit} PROPERTIES UNITY_BUILD ON)
+endif(GXT2_ENABLE_UNITY_BUILD)
