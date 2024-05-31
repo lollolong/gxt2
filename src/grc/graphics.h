@@ -8,7 +8,9 @@
 #ifdef UI_BACKEND
 
 // Windows
+#if _WIN32
 #include <Windows.h>
+#endif
 
 // imgui
 #include <imgui.h>
@@ -63,7 +65,10 @@ public:
 	bool IsMinimized() const;
 	void CloseWindow(bool bClose) const;
 
+	#if _WIN32
 	HWND GetWin32Window() const;
+	#endif
+
 	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
 
 public:
@@ -110,6 +115,8 @@ private:
 	static void CloseCallback(GLFWwindow* window);
 public:
 	GLFWwindow* m_Window;
+	int m_Width;
+	int m_Height;
 	VkInstance m_VulkanInstance;
 	VkPhysicalDevice m_PhysicalDevice;
 	VkDevice m_Device;
@@ -119,6 +126,7 @@ public:
 	ImGui_ImplVulkanH_Window m_MainWindowData;
 	int m_MinImageCount;
 	bool m_SwapChainRebuild;
+
 
 	static CGraphics sm_Instance;
 	static std::stack<std::string> sm_DropFiles;
