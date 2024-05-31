@@ -5,15 +5,16 @@
 #ifndef _GXT2_H_
 #define _GXT2_H_
 
-// vendor
-#include <rapidjson/document.h>
-
 // C/C++
+#include <cstring>
 #include <map>
+#include <nlohmann/json_fwd.hpp>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
+
+#include <nlohmann/json.hpp>
 
 class CFile
 {
@@ -35,8 +36,8 @@ public:
 	{
 		ENDIAN_UNKNOWN,
 
-		LITTLE_ENDIAN,
-		BIG_ENDIAN
+		_LITTLE_ENDIAN,
+		_BIG_ENDIAN
 	};
 	using Map = std::map<unsigned int, std::string, std::less<unsigned int>>;
 	using Vec = std::vector<std::pair<unsigned int, std::string>>;
@@ -153,7 +154,7 @@ public:
 	bool ReadEntries() override;
 	bool WriteEntries() override;
 private:
-	rapidjson::Document m_Document;
+	nlohmann::json m_Data;
 };
 
 //-----------------------------------------------------------------------------------------

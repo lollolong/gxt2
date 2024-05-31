@@ -8,9 +8,8 @@
 #include "data/stringhash.h"
 
 // vendor
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/prettywriter.h>
+#include <fstream>
+#include <ios>
 
 // C/C++
 #include <format>
@@ -24,7 +23,7 @@ CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int
 	: m_Endian(endian)
 {
 	Reset();
-	m_File.open(fileName, openFlags);
+	m_File.open(fileName, static_cast<std::ios_base::openmode>(openFlags));
 
 	if (!IsOpen())
 	{
@@ -321,7 +320,8 @@ bool CTextFile::WriteEntries()
 //
 
 CJsonFile::CJsonFile(const std::string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
-	CFile(fileName, openFlags)
+	CFile(fileName, openFlags),
+	m_Data()
 {
 } // ::CJsonFile(const string& fileName, int openFlags = FLAGS_READ_DECOMPILED)
 
@@ -331,14 +331,14 @@ bool CJsonFile::ReadEntries()
 	{
 		return false;
 	}
+	
+	m_Data.clear();
+	m_File >> m_Data;
 
-	rapidjson::IStreamWrapper isw(m_File);
-	m_Document.ParseStream(isw);
-
-	for (auto it = m_Document.MemberBegin(); it != m_Document.MemberEnd(); it++)
+	for (auto [key, val] : m_Data.items())
 	{
-		const unsigned int uHash = strtoul(it->name.GetString(), NULL, 16);
-		m_Entries[uHash] = it->value.GetString();
+		const unsigned int uHash = strtoul(key.c_str(), NULL, 16);
+		m_Entries[uHash] = val.get<std::string>();
 	}
 	return true;
 } // bool ::ReadEntries()
@@ -350,23 +350,16 @@ bool CJsonFile::WriteEntries()
 		return false;
 	}
 
-	m_Document.SetObject();
+	m_Data.clear();
 
 	for (const auto& [uHash, szTextEntry] : m_Entries)
 	{
 		const std::string szHash = std::format("0x{:08X}", uHash);
 
-		rapidjson::Value key(szHash.c_str(), m_Document.GetAllocator());
-		rapidjson::Value value(szTextEntry.c_str(), m_Document.GetAllocator());
-
-		m_Document.AddMember(key, value, m_Document.GetAllocator());
+		m_Data[szHash] = szTextEntry;
 	}
 
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-	m_Document.Accept(writer);
-
-	m_File << buffer.GetString();
+	m_File << m_Data.dump(1);
 
 	return true;
 } // bool ::WriteEntries()
