@@ -15,6 +15,7 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif // _MSC_VER
 
+#if _WIN32
 #if _DEBUG
 #define TRACK_MEMORY (1)
 #else
@@ -83,9 +84,15 @@ void operator delete[](void* pBlock, const char* file, int line) noexcept
 #define GXT_FREE(pBlock)			operator delete(pBlock, __FILENAME__, __LINE__)
 #define GXT_FREE_ARRAY(pBlock)		operator delete[](pBlock, __FILENAME__, __LINE__)
 #else
-#define GXT_NEW						new(NULL, NULL)
+#define GXT_NEW						new(NULL, 0)
 #define GXT_FREE(pBlock)			operator delete(pBlock, NULL, NULL)
 #define GXT_FREE_ARRAY(pBlock)		operator delete[](pBlock, NULL, NULL)
 #endif // TRACK_MEMORY
+
+#else
+#define GXT_NEW						new 
+#define GXT_FREE(pBlock)			delete pBlock
+#define GXT_FREE_ARRAY(pBlock)		delete[] pBlock
+#endif
 
 #endif // !_MAIN_H_
