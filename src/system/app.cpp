@@ -28,7 +28,6 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 			if (CGraphics::GetInstance().IsMinimized())
 			{
 				glfwPollEvents();
-				Sleep(100);
 			}
 			else
 			{
