@@ -335,7 +335,7 @@ bool CJsonFile::ReadEntries()
 	m_Data.clear();
 	m_File >> m_Data;
 
-	for (auto [key, val] : m_Data.items())
+	for (const auto& [key, val] : m_Data.items())
 	{
 		const unsigned int uHash = strtoul(key.c_str(), NULL, 16);
 		m_Entries[uHash] = val.get<std::string>();
@@ -359,7 +359,7 @@ bool CJsonFile::WriteEntries()
 		m_Data[szHash] = szTextEntry;
 	}
 
-	m_File << m_Data.dump(1);
+	m_File << m_Data.dump(1, '\t');
 
 	return true;
 } // bool ::WriteEntries()
