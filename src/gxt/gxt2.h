@@ -34,7 +34,7 @@ public:
 	};
 	enum
 	{
-		ENDIAN_UNKNOWN,
+		_ENDIAN_UNKNOWN,
 
 		_LITTLE_ENDIAN,
 		_BIG_ENDIAN
@@ -43,7 +43,7 @@ public:
 	using Vec = std::vector<std::pair<unsigned int, std::string>>;
 public:
 	CFile();
-	CFile(const std::string& fileName, int openFlags = FLAGS_DEFAULT, int endian = LITTLE_ENDIAN);
+	CFile(const std::string& fileName, int openFlags = FLAGS_DEFAULT, int endian = _LITTLE_ENDIAN);
 	virtual ~CFile();
 
 	CFile(const CFile&) = delete;
@@ -59,10 +59,10 @@ public:
 	void SetData(const Vec& data);
 
 	void SetEndian(int endian) { m_Endian = endian; }
-	void SetLittleEndian() { m_Endian = LITTLE_ENDIAN; }
-	void SetBigEndian() { m_Endian = BIG_ENDIAN; }
-	bool IsLittleEndian() const { return m_Endian == LITTLE_ENDIAN; }
-	bool IsBigEndian() const { return m_Endian == BIG_ENDIAN; }
+	void SetLittleEndian() { m_Endian = _LITTLE_ENDIAN; }
+	void SetBigEndian() { m_Endian = _BIG_ENDIAN; }
+	bool IsLittleEndian() const { return m_Endian == _LITTLE_ENDIAN; }
+	bool IsBigEndian() const { return m_Endian == _BIG_ENDIAN; }
 	int GetEndian() const { return m_Endian; }
 
 	static void SwapEndian(unsigned int& x);
@@ -122,7 +122,7 @@ private:
 		unsigned int m_Offset;
 	};
 public:
-	CGxt2File(const std::string& fileName, int openFlags = FLAGS_READ_COMPILED, int endian = LITTLE_ENDIAN);
+	CGxt2File(const std::string& fileName, int openFlags = FLAGS_READ_COMPILED, int endian = _LITTLE_ENDIAN);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;

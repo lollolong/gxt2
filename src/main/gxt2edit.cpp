@@ -128,6 +128,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				SetBigEndian();
 			}
+#if _WIN32
 			ImGui::Separator();
 			if (ImGui::MenuItem("Register Extension", "Requires Admin"))
 			{
@@ -137,6 +138,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				RegisterExtension(true);
 			}
+#endif
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
 			{
