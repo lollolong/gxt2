@@ -17,18 +17,18 @@
 #include <vector>
 
 // Descriptions
-#define FILEDESC_GXT2 L"GTA Text Table (*.gxt2)"
-#define FILEDESC_JSON L"JSON File (*.json)"
-#define FILEDESC_CSV  L"CSV File (*.csv)"
-#define FILEDESC_OXT  L"Open Office (*.oxt)"
-#define FILEDESC_TEXT L"Text File (*.txt)"
-#define FILEDESC_ALL  L"All Files (*.*)"
-#define FILTERSPEC_GXT2 L"*.gxt2"
-#define FILTERSPEC_JSON L"*.json"
-#define FILTERSPEC_CSV  L"*.csv"
-#define FILTERSPEC_OXT  L"*.oxt"
-#define FILTERSPEC_TEXT L"*.txt"
-#define FILTERSPEC_ALL  L"*.*"
+#define FILEDESC_GXT2 "GTA Text Table (*.gxt2)"
+#define FILEDESC_JSON "JSON File (*.json)"
+#define FILEDESC_CSV  "CSV File (*.csv)"
+#define FILEDESC_OXT  "Open Office (*.oxt)"
+#define FILEDESC_TEXT "Text File (*.txt)"
+#define FILEDESC_ALL  "All Files (*.*)"
+#define FILTERSPEC_GXT2 "*.gxt2"
+#define FILTERSPEC_JSON "*.json"
+#define FILTERSPEC_CSV  "*.csv"
+#define FILTERSPEC_OXT  "*.oxt"
+#define FILTERSPEC_TEXT "*.txt"
+#define FILTERSPEC_ALL  "*.*"
 
 // File Extension
 #define FILE_EXTENSION_GXT2			TEXT(".gxt2")
@@ -92,10 +92,10 @@ private:
 	void HandleWindowClosing();
 
 	void SetEndian(int endian) { m_Endian = endian; }
-	void SetLittleEndian() { m_Endian = CFile::LITTLE_ENDIAN; }
-	void SetBigEndian() { m_Endian = CFile::BIG_ENDIAN; }
-	bool IsLittleEndian() const { return m_Endian == CFile::LITTLE_ENDIAN; }
-	bool IsBigEndian() const { return m_Endian == CFile::BIG_ENDIAN; }
+	void SetLittleEndian() { m_Endian = CFile::_LITTLE_ENDIAN; }
+	void SetBigEndian() { m_Endian = CFile::_BIG_ENDIAN; }
+	bool IsLittleEndian() const { return m_Endian == CFile::_LITTLE_ENDIAN; }
+	bool IsBigEndian() const { return m_Endian == CFile::_BIG_ENDIAN; }
 	int GetEndian() const { return m_Endian; }
 
 	//---------------- Editing ----------------

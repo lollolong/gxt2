@@ -15,6 +15,7 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif // _MSC_VER
 
+#if _WIN32
 #if _DEBUG
 #define TRACK_MEMORY (1)
 #else
@@ -26,7 +27,7 @@
 // MB = KB >> 10 = B >> 20
 // GB = MB >> 10 = KB >> 20 = B >> 30
 
-void* operator new(size_t size, const char* file, int line)
+inline void* operator new(size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new(size);
 #if TRACK_MEMORY
@@ -38,7 +39,7 @@ void* operator new(size_t size, const char* file, int line)
 	return pBlock;
 }
 
-void* operator new[](size_t size, const char* file, int line)
+inline void* operator new[](size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new[](size);
 #if TRACK_MEMORY
@@ -50,7 +51,7 @@ void* operator new[](size_t size, const char* file, int line)
 	return pBlock;
 }
 
-void operator delete(void* pBlock, const char* file, int line) noexcept
+inline void operator delete(void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{
@@ -64,7 +65,7 @@ void operator delete(void* pBlock, const char* file, int line) noexcept
 	}
 }
 
-void operator delete[](void* pBlock, const char* file, int line) noexcept
+inline void operator delete[](void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{
@@ -83,9 +84,15 @@ void operator delete[](void* pBlock, const char* file, int line) noexcept
 #define GXT_FREE(pBlock)			operator delete(pBlock, __FILENAME__, __LINE__)
 #define GXT_FREE_ARRAY(pBlock)		operator delete[](pBlock, __FILENAME__, __LINE__)
 #else
-#define GXT_NEW						new(NULL, NULL)
+#define GXT_NEW						new(NULL, 0)
 #define GXT_FREE(pBlock)			operator delete(pBlock, NULL, NULL)
 #define GXT_FREE_ARRAY(pBlock)		operator delete[](pBlock, NULL, NULL)
 #endif // TRACK_MEMORY
+
+#else
+#define GXT_NEW						new 
+#define GXT_FREE(pBlock)			delete pBlock
+#define GXT_FREE_ARRAY(pBlock)		delete[] pBlock
+#endif
 
 #endif // !_MAIN_H_

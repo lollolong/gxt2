@@ -2,6 +2,7 @@
 //	grc/graphics.cpp
 //
 
+#include <cstdio>
 #ifdef UI_BACKEND
 
 // Project
@@ -26,6 +27,8 @@ bool CGraphics::sm_InClosingState;
 
 CGraphics::CGraphics() :
 	m_Window(nullptr),
+	m_Width(0),
+	m_Height(0),
 	m_VulkanInstance(VK_NULL_HANDLE),
 	m_PhysicalDevice(VK_NULL_HANDLE),
 	m_Device(VK_NULL_HANDLE),
@@ -39,6 +42,10 @@ CGraphics::CGraphics() :
 
 bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 {
+	glfwSetErrorCallback([] (int error, const char* description) -> void {
+		printf("GLFW: Error %i (%s)\n", error, description);
+	});
+
 	if (!glfwInit())
 	{
 		return false;
@@ -47,17 +54,23 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* pVideoMode = glfwGetVideoMode(pPrimaryMonitor);
-
-	int xPos, yPos;
-	glfwGetMonitorPos(pPrimaryMonitor, &xPos, &yPos);
-
 	m_Window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 
+	// Linux issue:
+	//  Wayland does not support window positioning
+	//  You could argue x11 does, but x11 is genuinely deprecated and old 
+	// 	Most people these days use Wayland
+#if _WIN32
+	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* pVideoMode = glfwGetVideoMode(pPrimaryMonitor);
+	
+	int xPos, yPos;
+	glfwGetMonitorPos(pPrimaryMonitor, &xPos, &yPos);
+	
 	glfwSetWindowPos(m_Window,
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
+#endif
 
 	glfwSetDropCallback(m_Window, DropCallback);
 	glfwSetWindowCloseCallback(m_Window, CloseCallback);
@@ -78,6 +91,12 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	{
 		DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, &isDarkMode, sizeof(isDarkMode));
 	}
+#endif
+
+#if linux
+	// Window has to be visible on surface creation for vulkan
+	// https://github.com/glfw/glfw/issues/1268#issuecomment-392246281
+	glfwShowWindow(m_Window);
 #endif
 
 	CGraphics::InitVulkan();
@@ -109,11 +128,18 @@ void CGraphics::PreRender()
 {
 	glfwPollEvents();
 
+	int width, height;
+	glfwGetFramebufferSize(m_Window, &width, &height);
+	
+	if(width != m_Width || height != m_Height)
+	{
+		m_Width = width;
+		m_Height = height;
+		m_SwapChainRebuild = true;
+	}
+	
 	if (m_SwapChainRebuild)
 	{
-		int width, height;
-		glfwGetFramebufferSize(m_Window, &width, &height);
-
 		if (width > 0 && height > 0)
 		{
 			ImGui_ImplVulkan_SetMinImageCount(m_MinImageCount);
@@ -182,10 +208,12 @@ void CGraphics::CloseWindow(bool bClose) const
 	}
 }
 
+#ifdef _WIN32
 HWND CGraphics::GetWin32Window() const
 {
 	return glfwGetWin32Window(m_Window);
 }
+#endif
 
 unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const
 {

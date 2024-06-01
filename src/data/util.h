@@ -5,9 +5,11 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#if _WIN32
 // Windows
 #include <Windows.h>
 #include <ShlObj.h>
+#endif
 
 // C/C++
 #include <vector>
@@ -15,11 +17,13 @@
 
 namespace utils
 {
+#if _WIN32
 	HRESULT WriteRegistryValue(HKEY hKey, PCWSTR pszSubKey, PCWSTR pszValueName, PCWSTR pszData);
 	HRESULT RegisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName, PCWSTR pszFileTypeName);
 	HRESULT UnregisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName);
+#endif
 
-	bool OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters = {});
+	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters = {});
 }
 
 #endif // !_UTIL_H_

@@ -2,9 +2,6 @@
 //	main/gxt2edit.cpp
 //
 
-// Windows
-#include <Windows.h>
-
 // Project
 #include "main.h"
 #include "gxt2edit.h"
@@ -25,7 +22,7 @@
 
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
-	m_Endian(CFile::LITTLE_ENDIAN),
+	m_Endian(CFile::_LITTLE_ENDIAN),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
@@ -131,6 +128,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				SetBigEndian();
 			}
+#if _WIN32
 			ImGui::Separator();
 			if (ImGui::MenuItem("Register Extension", "Requires Admin"))
 			{
@@ -140,6 +138,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				RegisterExtension(true);
 			}
+#endif
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "ALT + F4"))
 			{
@@ -459,11 +458,12 @@ void gxt2edit::OpenFile()
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog(L"Select a GTA Text Table", L"", m_Path, false, { {FILEDESC_GXT2, FILTERSPEC_GXT2} }))
+	if (utils::OpenFileExplorerDialog("Select a GTA Text Table", L"", m_Path, false, { FILEDESC_GXT2, FILTERSPEC_GXT2 }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
 	}
+
 	m_RequestOpenFile = false;
 }
 
@@ -487,13 +487,14 @@ void gxt2edit::ImportFile()
 	}
 
 	const std::string backupPath = m_Path;
-	if (utils::OpenFileExplorerDialog(L"Import Text Table (JSON, CSV, OXT, TXT)", L"", m_Path, false,
+	
+	if (utils::OpenFileExplorerDialog("Import Text Table (JSON, CSV, OXT, TXT)", L"", m_Path, false,
 		{
-			{ FILEDESC_ALL, FILTERSPEC_ALL },
-			{ FILEDESC_JSON, FILTERSPEC_JSON },
-			{ FILEDESC_CSV, FILTERSPEC_CSV },
-			{ FILEDESC_OXT, FILTERSPEC_OXT },
-			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
+			FILEDESC_ALL, FILTERSPEC_ALL,
+			FILEDESC_JSON, FILTERSPEC_JSON,
+			FILEDESC_CSV, FILTERSPEC_CSV,
+			FILEDESC_OXT, FILTERSPEC_OXT,
+			FILEDESC_TEXT, FILTERSPEC_TEXT,
 		}
 		))
 	{
@@ -528,19 +529,21 @@ void gxt2edit::ImportFile()
 			m_Path = backupPath;
 		}
 	}
+
 	m_RequestImportFile = false;
 }
 
 void gxt2edit::ExportFile()
 {
 	const std::string backupPath = m_Path;
-	if (utils::OpenFileExplorerDialog(L"Export Text Table (JSON, CSV, OXT, TXT)", L".json", m_Path, true,
+
+	if (utils::OpenFileExplorerDialog("Export Text Table (JSON, CSV, OXT, TXT)", L".json", m_Path, true,
 		{
-			{ FILEDESC_ALL, FILTERSPEC_ALL },
-			{ FILEDESC_JSON, FILTERSPEC_JSON },
-			{ FILEDESC_CSV, FILTERSPEC_CSV },
-			{ FILEDESC_OXT, FILTERSPEC_OXT },
-			{ FILEDESC_TEXT, FILTERSPEC_TEXT },
+			FILEDESC_ALL, FILTERSPEC_ALL ,
+			FILEDESC_JSON, FILTERSPEC_JSON ,
+			FILEDESC_CSV, FILTERSPEC_CSV ,
+			FILEDESC_OXT, FILTERSPEC_OXT ,
+			FILEDESC_TEXT, FILTERSPEC_TEXT ,
 		}
 		))
 	{
@@ -595,7 +598,7 @@ void gxt2edit::SaveFile()
 
 void gxt2edit::SaveFileAs()
 {
-	if (utils::OpenFileExplorerDialog(L"Save GTA Text Table", L"textfile.gxt2", m_Path, true, { { FILEDESC_GXT2, FILTERSPEC_GXT2 } }))
+	if (utils::OpenFileExplorerDialog("Save GTA Text Table", L"textfile.gxt2", m_Path, true, { FILEDESC_GXT2, FILTERSPEC_GXT2 }))
 	{
 		SaveToFile(m_Path, FILETYPE_GXT2);
 	}
@@ -762,6 +765,7 @@ void gxt2edit::UpdateEntries()
 
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 {
+	#if _WIN32
 	const bool bRefreshShell = 
 		bUnregister ? 
 			SUCCEEDED(utils::UnregisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER)) : 
@@ -771,6 +775,7 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 	{
 		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 	}
+	#endif
 }
 
 

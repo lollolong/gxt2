@@ -5,12 +5,19 @@
 // Project
 #include "util.h"
 #include "grc/graphics.h"
+#include "portable-file-dialogs.h"
+#include <filesystem>
+
+#if _WIN32
 
 // C/C++
 #include <strsafe.h>
 
+#endif
+
 namespace utils
 {
+#if _WIN32
 	HRESULT WriteRegistryValue(HKEY hKey, PCWSTR pszSubKey, PCWSTR pszValueName, PCWSTR pszData)
 	{
 		HRESULT hr;
@@ -82,80 +89,29 @@ namespace utils
 		return HRESULT_FROM_WIN32(RegDeleteTree(HKEY_CLASSES_ROOT, pszHandlerName));
 	}
 
-	bool OpenFileExplorerDialog(const std::wstring& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<COMDLG_FILTERSPEC>& vFilters /* = {}*/)
+#endif
+
+	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters)
 	{
-		bool bSuccess = false;
-		IFileDialog* pfd = NULL;
-
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-		if (FAILED(hr))
+		if(saveMode)
 		{
-			return false;
-		}
+			auto result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
+			selectedFile = result.result();
 
-		if (saveMode)
-		{
-			hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+			return selectedFile.empty() == false;
 		}
 		else
 		{
-			hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+			auto result = pfd::open_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
+
+			if(result.result().size() >= 1)
+			{
+				selectedFile = result.result().at(0);
+				return selectedFile.empty() == false;
+			}
+
+			return false;
 		}
-
-		if (SUCCEEDED(hr))
-		{
-			FILEOPENDIALOGOPTIONS fos;
-			hr = pfd->GetOptions(&fos);
-
-			if (SUCCEEDED(hr))
-			{
-				fos |= FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR | FOS_DONTADDTORECENT;
-
-				if (saveMode)
-				{
-					fos |= FOS_NOTESTFILECREATE | FOS_OVERWRITEPROMPT;
-				}
-				hr = pfd->SetOptions(fos);
-			}
-
-			if (!vFilters.empty())
-			{
-				hr = pfd->SetFileTypes((UINT)vFilters.size(), vFilters.data());
-				hr = pfd->SetFileTypeIndex(1);
-			}
-
-			if (!initFileName.empty())
-			{
-				hr = pfd->SetFileName(initFileName.c_str());
-			}
-			hr = pfd->SetTitle(dialogTitle.c_str());
-			hr = pfd->Show((HWND)CGraphics::GetInstance().GetWin32Window());
-
-			if (SUCCEEDED(hr))
-			{
-				IShellItem* pShellItem;
-
-				hr = pfd->GetResult(&pShellItem);
-				if (SUCCEEDED(hr))
-				{
-					PWSTR pszBuffer = NULL;
-					hr = pShellItem->GetDisplayName(SIGDN_FILESYSPATH, &pszBuffer);
-					if (SUCCEEDED(hr))
-					{
-						const int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, pszBuffer, lstrlenW(pszBuffer), NULL, 0, NULL, NULL);
-						selectedFile.clear();
-						selectedFile.resize(sizeNeeded);
-						WideCharToMultiByte(CP_UTF8, 0, pszBuffer, lstrlenW(pszBuffer), selectedFile.data(), sizeNeeded, NULL, NULL);
-						bSuccess = true;
-						CoTaskMemFree(pszBuffer);
-					}
-					pShellItem->Release();
-				}
-			}
-			pfd->Release();
-		}
-		CoUninitialize();
-
-		return bSuccess;
 	}
+
 }

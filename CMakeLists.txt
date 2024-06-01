@@ -4,22 +4,27 @@
 
 # CMake
 cmake_minimum_required(VERSION 3.6)
-set(CMAKE_SYSTEM_VERSION 10.0)
 
-# Project
-set(PROJECT_NAME gxt2)
+if(CMAKE_HOST_WIN32)
+	set(CMAKE_SYSTEM_VERSION 10.0)
+endif(CMAKE_HOST_WIN32)
+
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
-project(${PROJECT_NAME} VERSION 1.0)
+project(gxt2 VERSION 1.0)
+
+option(GXT2_ENABLE_UNITY_BUILD "Enable Unity-Build type for gxt2" OFF)
 
 # Configurations
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 
 # Options
 set(BUILD_SHARED_LIBS OFF)
 
 # Properties
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT gxt2edit)
+if(MSVC)
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT gxt2edit)
+endif(MSVC)
 
 # Vulkan
 find_package(Vulkan)
