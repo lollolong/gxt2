@@ -23,7 +23,7 @@ namespace utils
 	HRESULT UnregisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName);
 #endif
 
-	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters = {});
+	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::string& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters = {});
 }
 
 #endif // !_UTIL_H_

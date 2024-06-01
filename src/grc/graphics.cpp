@@ -2,7 +2,6 @@
 //	grc/graphics.cpp
 //
 
-#include <cstdio>
 #ifdef UI_BACKEND
 
 // Project
@@ -20,6 +19,9 @@
 
 // vendor
 #include <IconsFontAwesome6.h>
+
+// C/C++
+#include <cstdio>
 
 CGraphics CGraphics::sm_Instance;
 std::stack<std::string> CGraphics::sm_DropFiles;

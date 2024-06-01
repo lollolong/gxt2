@@ -2,11 +2,11 @@
 //	system/app.cpp
 //
 
-#include "app.h"
-
 #ifdef UI_BACKEND
 
 // Project
+#include "app.h"
+
 #define _glfw3_native_h_
 #include "grc/graphics.h"
 

@@ -9,10 +9,8 @@
 #include <filesystem>
 
 #if _WIN32
-
-// C/C++
+// Windows
 #include <strsafe.h>
-
 #endif
 
 namespace utils
@@ -39,7 +37,6 @@ namespace utils
 		}
 		return hr;
 	}
-
 	HRESULT RegisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName, PCWSTR pszFileTypeName)
 	{
 		HRESULT hr = S_OK;
@@ -82,34 +79,31 @@ namespace utils
 		}
 		return hr;
 	}
-
 	HRESULT UnregisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName)
 	{
 		RegDeleteTree(HKEY_CLASSES_ROOT, pszFileType);
 		return HRESULT_FROM_WIN32(RegDeleteTree(HKEY_CLASSES_ROOT, pszHandlerName));
 	}
-
 #endif
 
-	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters)
+	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::string& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters)
 	{
 		if (saveMode)
 		{
-			auto result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
+			pfd::save_file result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 			selectedFile = result.result();
 
-			return selectedFile.empty() == false;
+			return !selectedFile.empty();
 		}
 		else
 		{
-			auto result = pfd::open_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
+			pfd::open_file result = pfd::open_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 
 			if (result.result().size() >= 1)
 			{
 				selectedFile = result.result().at(0);
-				return selectedFile.empty() == false;
+				return !selectedFile.empty();
 			}
-
 			return false;
 		}
 	}

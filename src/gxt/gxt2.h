@@ -6,14 +6,15 @@
 #define _GXT2_H_
 
 // C/C++
-#include <cstring>
 #include <map>
-#include <nlohmann/json_fwd.hpp>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 
+// vendor
+#include <nlohmann/json_fwd.hpp>
 #include <nlohmann/json.hpp>
 
 class CFile
