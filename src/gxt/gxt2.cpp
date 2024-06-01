@@ -7,19 +7,17 @@
 #include "main/main.h"
 #include "data/stringhash.h"
 
-// vendor
-#include <fstream>
-#include <ios>
-
 // C/C++
+#include <ios>
 #include <format>
+#include <fstream>
 
 CFile::CFile()
 {
 	Reset();
 } // ::CFile()
 
-CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int endian /*= LITTLE_ENDIAN*/)
+CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int endian /*= _LITTLE_ENDIAN*/)
 	: m_Endian(endian)
 {
 	Reset();
@@ -29,7 +27,7 @@ CFile::CFile(const std::string& fileName, int openFlags /*= FLAGS_DEFAULT*/, int
 	{
 		throw std::runtime_error(std::format("The specified file {} could not be opened.", fileName));
 	}
-} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT, int endian = LITTLE_ENDIAN)
+} // ::CFile(const string& fileName, int openFlags = FLAGS_DEFAULT, int endian = _LITTLE_ENDIAN)
 
 CFile::~CFile()
 {
@@ -124,10 +122,10 @@ void CFile::DoSwapEndian(unsigned int& x) const
 //-----------------------------------------------------------------------------------------
 //
 
-CGxt2File::CGxt2File(const std::string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/, int endian /*= LITTLE_ENDIAN*/) :
+CGxt2File::CGxt2File(const std::string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/, int endian /*= _LITTLE_ENDIAN*/) :
 	CFile(fileName, openFlags, endian)
 {
-} // ::CGxt2File(const string& fileName, int openFlags = FLAGS_READ_COMPILED)
+} // ::CGxt2File(const string& fileName, int openFlags = FLAGS_READ_COMPILED, int endian = _LITTLE_ENDIAN)
 
 bool CGxt2File::ReadEntries()
 {
