@@ -95,14 +95,14 @@ namespace utils
 	{
 		if(saveMode)
 		{
-			auto result = pfd::save_file(dialogTitle, std::filesystem::current_path() / initFileName, vFilters);
+			auto result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 			selectedFile = result.result();
 
 			return true;
 		}
 		else
 		{
-			auto result = pfd::open_file(dialogTitle, std::filesystem::current_path() / initFileName, vFilters);
+			auto result = pfd::open_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 
 			if(result.result().size() >= 1)
 			{

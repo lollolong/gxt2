@@ -40,7 +40,7 @@
 #endif
 
 #ifdef VULKAN_DEBUG
-static void CheckVulkan(VkResult vkRes)
+inline void CheckVulkan(VkResult vkRes)
 {
 	if (vkRes != VK_SUCCESS)
 	{

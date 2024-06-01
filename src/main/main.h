@@ -27,7 +27,7 @@
 // MB = KB >> 10 = B >> 20
 // GB = MB >> 10 = KB >> 20 = B >> 30
 
-void* operator new(size_t size, const char* file, int line)
+inline void* operator new(size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new(size);
 #if TRACK_MEMORY
@@ -39,7 +39,7 @@ void* operator new(size_t size, const char* file, int line)
 	return pBlock;
 }
 
-void* operator new[](size_t size, const char* file, int line)
+inline void* operator new[](size_t size, const char* file, int line)
 {
 	void* pBlock = ::operator new[](size);
 #if TRACK_MEMORY
@@ -51,7 +51,7 @@ void* operator new[](size_t size, const char* file, int line)
 	return pBlock;
 }
 
-void operator delete(void* pBlock, const char* file, int line) noexcept
+inline void operator delete(void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{
@@ -65,7 +65,7 @@ void operator delete(void* pBlock, const char* file, int line) noexcept
 	}
 }
 
-void operator delete[](void* pBlock, const char* file, int line) noexcept
+inline void operator delete[](void* pBlock, const char* file, int line) noexcept
 {
 	if (pBlock)
 	{

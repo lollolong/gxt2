@@ -43,6 +43,10 @@ if(MSVC)
     add_definitions(-DUNICODE -D_UNICODE)
 endif()
 
+if(WIN32)
+	set(CMAKE_SYSTEM_VERSIION 10.0)
+endif(WIN32)
+
 # Directories
 add_subdirectory(${VENDOR_DIR})
 add_subdirectory(src)

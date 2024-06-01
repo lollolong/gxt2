@@ -32,9 +32,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	# project
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
+
 target_compile_features(${PROJECT_NAME} PRIVATE 
 	cxx_std_20
 )
+
 target_compile_options(${PROJECT_NAME} PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
 	$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
@@ -43,6 +45,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 if(GXT2_ENABLE_UNITY_BUILD)
 	set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
 endif(GXT2_ENABLE_UNITY_BUILD)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 #------------------ gxt2edit ------------------
 
@@ -90,6 +94,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	# Vulkan
 	${Vulkan_INCLUDE_DIRS}
 )
+
 target_compile_features(${PROJECT_NAME} PRIVATE 
 	cxx_std_20
 )
