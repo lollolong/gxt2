@@ -10,6 +10,9 @@
 #define _glfw3_native_h_
 #include "grc/graphics.h"
 
+// C/C++
+#include <thread>
+
 CAppUI::CAppUI(const std::string& windowTitle, int width, int height) :
 	m_WindowTitle(windowTitle),
 	m_Width(width),
@@ -28,6 +31,7 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 			if (CGraphics::GetInstance().IsMinimized())
 			{
 				glfwPollEvents();
+				std::this_thread::sleep_for(std::chrono::milliseconds(15));
 			}
 			else
 			{
