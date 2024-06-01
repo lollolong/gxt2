@@ -12,12 +12,9 @@ endif(CMAKE_HOST_WIN32)
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 project(gxt2 VERSION 1.0)
 
-option(GXT2_ENABLE_UNITY_BUILD "Enable Unity-Build type for gxt2" OFF)
-
-# Configurations
-
 # Options
 set(BUILD_SHARED_LIBS OFF)
+option(GXT2_ENABLE_UNITY_BUILD "Enable Unity-Build type for gxt2" OFF)
 
 # Properties
 if(MSVC)
