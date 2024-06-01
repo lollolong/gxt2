@@ -5,6 +5,10 @@
 # CMake
 cmake_minimum_required(VERSION 3.6)
 
+if(MSVC)
+	set(CMAKE_SYSTEM_VERSION 10.0)
+endif(MSVC)
+
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 project(gxt2 VERSION 1.0)
 
@@ -42,10 +46,6 @@ endif()
 if(MSVC)
     add_definitions(-DUNICODE -D_UNICODE)
 endif()
-
-if(WIN32)
-	set(CMAKE_SYSTEM_VERSIION 10.0)
-endif(WIN32)
 
 # Directories
 add_subdirectory(${VENDOR_DIR})
