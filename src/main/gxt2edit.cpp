@@ -91,7 +91,7 @@ void gxt2edit::RenderMenuBar()
 			{
 				m_RequestOpenFile = true;
 			}
-			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + W"))
+			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + W", false, !m_RenderEmptyEditorTable))
 			{
 				m_RequestCloseFile = true;
 			}
