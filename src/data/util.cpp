@@ -98,7 +98,7 @@ namespace utils
 			auto result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 			selectedFile = result.result();
 
-			return true;
+			return selectedFile.empty() == false;
 		}
 		else
 		{
@@ -107,9 +107,10 @@ namespace utils
 			if(result.result().size() >= 1)
 			{
 				selectedFile = result.result().at(0);
+				return selectedFile.empty() == false;
 			}
 
-			return true;
+			return false;
 		}
 	}
 
