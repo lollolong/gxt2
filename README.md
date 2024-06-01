@@ -2,7 +2,8 @@
 
 This tool allows you to view and edit Grand Theft Auto V text files (*.gxt2).
 
-![Editor](./editor.png)
+![Editor](./editor_win.png)
+![Editor](./editor_linux.png)
 
 ## Features
 
