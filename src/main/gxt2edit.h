@@ -62,7 +62,9 @@ private:
 	void Shutdown() override;
 	void Reset();
 
+#if _WIN32
 	void RegisterExtension(bool bUnregister = false);
+#endif
 
 	//---------------- UI ----------------
 	//

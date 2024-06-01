@@ -763,20 +763,20 @@ void gxt2edit::UpdateEntries()
 	m_EntriesToRemove.clear();
 }
 
+#if _WIN32
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 {
 	const bool bRefreshShell = 
 		bUnregister ? 
 			SUCCEEDED(utils::UnregisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER)) : 
 			SUCCEEDED(utils::RegisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER, FILE_EXTENSION_DESC));
-#if _WIN32
 
 	if (bRefreshShell)
 	{
 		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 	}
-#endif
 }
+#endif
 
 
 //---------------- Entry Point ----------------
