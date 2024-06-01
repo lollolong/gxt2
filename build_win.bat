@@ -2,7 +2,7 @@
 
 mkdir bin
 cd bin
-cmake ..
+cmake .. -DGXT2_ENABLE_UNITY_BUILD=ON
 
 for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
   set InstallDir=%%i
