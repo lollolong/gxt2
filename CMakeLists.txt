@@ -5,9 +5,9 @@
 # CMake
 cmake_minimum_required(VERSION 3.6)
 
-if(MSVC)
+if(CMAKE_HOST_WIN32)
 	set(CMAKE_SYSTEM_VERSION 10.0)
-endif(MSVC)
+endif(CMAKE_HOST_WIN32)
 
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 project(gxt2 VERSION 1.0)
