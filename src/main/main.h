@@ -90,7 +90,7 @@ inline void operator delete[](void* pBlock, const char* file, int line) noexcept
 #endif // TRACK_MEMORY
 
 #else
-#define GXT_NEW						new 
+#define GXT_NEW						new
 #define GXT_FREE(pBlock)			delete pBlock
 #define GXT_FREE_ARRAY(pBlock)		delete[] pBlock
 #endif

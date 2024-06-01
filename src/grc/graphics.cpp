@@ -58,15 +58,15 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 
 	// Linux issue:
 	//  Wayland does not support window positioning
-	//  You could argue x11 does, but x11 is genuinely deprecated and old 
+	//  You could argue x11 does, but x11 is genuinely deprecated and old
 	// 	Most people these days use Wayland
 #if _WIN32
 	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* pVideoMode = glfwGetVideoMode(pPrimaryMonitor);
-	
+
 	int xPos, yPos;
 	glfwGetMonitorPos(pPrimaryMonitor, &xPos, &yPos);
-	
+
 	glfwSetWindowPos(m_Window,
 		(xPos + (pVideoMode->width - width)) / 2,
 		(yPos + (pVideoMode->height - height)) / 2);
@@ -130,14 +130,14 @@ void CGraphics::PreRender()
 
 	int width, height;
 	glfwGetFramebufferSize(m_Window, &width, &height);
-	
-	if(width != m_Width || height != m_Height)
+
+	if (width != m_Width || height != m_Height)
 	{
 		m_Width = width;
 		m_Height = height;
 		m_SwapChainRebuild = true;
 	}
-	
+
 	if (m_SwapChainRebuild)
 	{
 		if (width > 0 && height > 0)

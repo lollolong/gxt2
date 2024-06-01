@@ -65,9 +65,9 @@ public:
 	bool IsMinimized() const;
 	void CloseWindow(bool bClose) const;
 
-	#if _WIN32
+#if _WIN32
 	HWND GetWin32Window() const;
-	#endif
+#endif
 
 	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
 
@@ -126,7 +126,6 @@ public:
 	ImGui_ImplVulkanH_Window m_MainWindowData;
 	int m_MinImageCount;
 	bool m_SwapChainRebuild;
-
 
 	static CGraphics sm_Instance;
 	static std::stack<std::string> sm_DropFiles;

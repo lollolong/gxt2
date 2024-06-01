@@ -487,7 +487,7 @@ void gxt2edit::ImportFile()
 	}
 
 	const std::string backupPath = m_Path;
-	
+
 	if (utils::OpenFileExplorerDialog("Import Text Table (JSON, CSV, OXT, TXT)", L"", m_Path, false,
 		{
 			FILEDESC_ALL, FILTERSPEC_ALL,
@@ -765,17 +765,17 @@ void gxt2edit::UpdateEntries()
 
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 {
-	#if _WIN32
 	const bool bRefreshShell = 
 		bUnregister ? 
 			SUCCEEDED(utils::UnregisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER)) : 
 			SUCCEEDED(utils::RegisterShellFileExtension(FILE_EXTENSION_GXT2, FILE_EXTENSION_HANDLER, FILE_EXTENSION_DESC));
+#if _WIN32
 
 	if (bRefreshShell)
 	{
 		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 	}
-	#endif
+#endif
 }
 
 

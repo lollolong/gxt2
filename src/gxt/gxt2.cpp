@@ -331,7 +331,7 @@ bool CJsonFile::ReadEntries()
 	{
 		return false;
 	}
-	
+
 	m_Data.clear();
 	m_File >> m_Data;
 

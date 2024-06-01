@@ -93,7 +93,7 @@ namespace utils
 
 	bool OpenFileExplorerDialog(const std::string& dialogTitle, const std::wstring& initFileName, std::string& selectedFile, bool saveMode, const std::vector<std::string> vFilters)
 	{
-		if(saveMode)
+		if (saveMode)
 		{
 			auto result = pfd::save_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 			selectedFile = result.result();
@@ -104,7 +104,7 @@ namespace utils
 		{
 			auto result = pfd::open_file(dialogTitle, (std::filesystem::current_path() / initFileName).string(), vFilters);
 
-			if(result.result().size() >= 1)
+			if (result.result().size() >= 1)
 			{
 				selectedFile = result.result().at(0);
 				return selectedFile.empty() == false;
@@ -113,5 +113,4 @@ namespace utils
 			return false;
 		}
 	}
-
 }
