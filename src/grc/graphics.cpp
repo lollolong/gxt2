@@ -6,6 +6,7 @@
 
 // Project
 #include "graphics.h"
+#include "main/gxt2edit.h"
 #include "resources/resource.h"
 #include "fonts/fa-solid-900.cpp"
 #include "fonts/NotoSans-Regular.cpp"
@@ -44,7 +45,8 @@ CGraphics::CGraphics() :
 
 bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 {
-	glfwSetErrorCallback([] (int error, const char* description) -> void {
+	glfwSetErrorCallback([] (int error, const char* description) -> void
+	{
 		printf("GLFW: Error %i (%s)\n", error, description);
 	});
 
@@ -100,6 +102,21 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	// https://github.com/glfw/glfw/issues/1268#issuecomment-392246281
 	glfwShowWindow(m_Window);
 #endif
+
+	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int, int) -> void
+	{
+#if _DEBUG
+		printf("[glfwSetWindowSizeCallback] window = %p\n", window);
+		//printf("[glfwSetWindowSizeCallback] Resizing and drawing window!\n");
+#endif
+
+		// Render
+		CGraphics::GetInstance().PreRender();
+		gxt2edit::GetInstance().Draw();
+		CGraphics::GetInstance().Render();
+
+		IM_UNUSED(window);
+	});
 
 	CGraphics::InitVulkan();
 	CGraphics::InitImGui();
