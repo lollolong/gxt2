@@ -754,10 +754,17 @@ void CGraphics::SetupFonts()
 		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansTC-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
 	}
 #else
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansJP-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansKR-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
-	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
+	std::filesystem::path baseFontPath = std::filesystem::current_path();
+
+	if(IS_APPIMAGE_BUILD)
+	{
+		baseFontPath = std::getenv("APPDIR");
+	}
+
+	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansJP-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
+	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansKR-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
+	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansSC-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansTC-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
 #endif
 
 	//---------------- Font Awesome ----------------
