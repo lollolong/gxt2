@@ -70,7 +70,9 @@ private:
 
 	//---------------- UI ----------------
 	//
-	void OnTick() override;
+public:
+	void Draw() override;
+private:
 	void RenderMenuBar();
 	void RenderEditor();
 	void RenderTable();

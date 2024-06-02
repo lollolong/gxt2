@@ -26,8 +26,8 @@ public:
 	int Run(int argc, char* argv[]) override;
 protected:
 	virtual bool Init();
-	virtual void OnTick() = 0;
-	virtual void OnTickInternal();
+	virtual void Draw() = 0;
+	virtual void OnDraw();
 	virtual void Shutdown();
 private:
 	std::string m_WindowTitle;

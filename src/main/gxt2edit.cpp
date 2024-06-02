@@ -72,7 +72,7 @@ void gxt2edit::Reset()
 	m_Data.clear();
 }
 
-void gxt2edit::OnTick()
+void gxt2edit::Draw()
 {
 	HandleDragDropLoading();
 	RenderPopups();

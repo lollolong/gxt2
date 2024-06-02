@@ -35,7 +35,7 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 			}
 			else
 			{
-				OnTickInternal();
+				OnDraw();
 			}
 		}
 		Shutdown();
@@ -49,11 +49,11 @@ bool CAppUI::Init()
 	return CGraphics::GetInstance().Init(m_WindowTitle, m_Width, m_Height);
 }
 
-void CAppUI::OnTickInternal()
+void CAppUI::OnDraw()
 {
 	CGraphics::GetInstance().PollEvents();
 	CGraphics::GetInstance().PreRender();
-	OnTick();
+	Draw();
 	CGraphics::GetInstance().Render();
 }
 
