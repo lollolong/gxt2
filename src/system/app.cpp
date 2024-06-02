@@ -30,7 +30,7 @@ int CAppUI::Run(int /*argc*/, char* /*argv*/[])
 		{
 			if (CGraphics::GetInstance().IsMinimized())
 			{
-				glfwPollEvents();
+				CGraphics::GetInstance().PollEvents();
 				std::this_thread::sleep_for(std::chrono::milliseconds(15));
 			}
 			else
@@ -51,6 +51,7 @@ bool CAppUI::Init()
 
 void CAppUI::OnTickInternal()
 {
+	CGraphics::GetInstance().PollEvents();
 	CGraphics::GetInstance().PreRender();
 	OnTick();
 	CGraphics::GetInstance().Render();

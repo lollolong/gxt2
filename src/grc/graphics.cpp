@@ -128,8 +128,6 @@ void CGraphics::Shutdown()
 
 void CGraphics::PreRender()
 {
-	glfwPollEvents();
-
 	int width, height;
 	glfwGetFramebufferSize(m_Window, &width, &height);
 
@@ -208,6 +206,11 @@ void CGraphics::CloseWindow(bool bClose) const
 	{
 		glfwSetWindowShouldClose(m_Window, GLFW_FALSE);
 	}
+}
+
+void CGraphics::PollEvents() const
+{
+	glfwPollEvents();
 }
 
 #ifdef _WIN32

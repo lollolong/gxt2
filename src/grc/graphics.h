@@ -56,14 +56,19 @@ class CGraphics
 private:
 	CGraphics();
 public:
+	// Init
 	bool Init(const std::string& windowTitle, int width, int height);
 	void Shutdown();
 
+	// Render
 	void PreRender();
 	void Render();
+
 	bool IsRunning() const;
 	bool IsMinimized() const;
 	void CloseWindow(bool bClose) const;
+
+	void PollEvents() const;
 
 #if _WIN32
 	HWND GetWin32Window() const;
