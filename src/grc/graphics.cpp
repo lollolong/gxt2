@@ -738,10 +738,27 @@ void CGraphics::SetupFonts()
 	notoConfigCJK.MergeMode = true;
 	notoConfigCJK.PixelSnapH = true;
 
+#if _WIN32
+	char szModulePath[MAX_PATH] = {};
+	GetModuleFileNameA(NULL, szModulePath, sizeof(szModulePath));
+
+	std::string modulePath = szModulePath;
+	modulePath = modulePath.substr(0, modulePath.find_last_of('\\'));
+
+	const std::filesystem::path fontsPath = std::filesystem::path(modulePath) / "fonts";
+	if (std::filesystem::exists(fontsPath))
+	{
+		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansJP-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
+		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansKR-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
+		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansSC-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansTC-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
+	}
+#else
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansJP-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansKR-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansSC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 	io.Fonts->AddFontFromFileTTF("fonts/NotoSansTC-Regular.ttf", 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesChineseFull());
+#endif
 
 	//---------------- Font Awesome ----------------
 	//
