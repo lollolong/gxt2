@@ -103,11 +103,11 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	glfwShowWindow(m_Window);
 #endif
 
-	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int, int) -> void
+	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) -> void
 	{
 #if _DEBUG
 		printf("[glfwSetWindowSizeCallback] window = %p\n", window);
-		//printf("[glfwSetWindowSizeCallback] Resizing and drawing window!\n");
+		printf("[glfwSetWindowSizeCallback] width = %i, height = %i\n", width, height);
 #endif
 
 		// Render
@@ -115,7 +115,10 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		gxt2edit::GetInstance().Draw();
 		CGraphics::GetInstance().Render();
 
+		// Params
 		IM_UNUSED(window);
+		IM_UNUSED(width);
+		IM_UNUSED(height);
 	});
 
 	CGraphics::InitVulkan();
