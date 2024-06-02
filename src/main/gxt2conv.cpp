@@ -39,12 +39,17 @@ int gxt2conv::Run(int argc, char* argv[])
 	return 0;
 }
 
+gxt2conv& gxt2conv::GetInstance()
+{
+	static gxt2conv gxt2conv;
+	return gxt2conv;
+}
+
 int main(int argc, char* argv[])
 {
 	try
 	{
-		gxt2conv gxt2conv;
-		return gxt2conv.Run(argc, argv);
+		return gxt2conv::GetInstance().Run(argc, argv);
 	}
 	catch (const std::exception& ex)
 	{

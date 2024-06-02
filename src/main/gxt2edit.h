@@ -50,11 +50,13 @@ private:
 
 		FILETYPE_MAX
 	};
-public:
+private:
 	gxt2edit(const std::string& windowTitle, int width, int height);
 	virtual ~gxt2edit();
 public:
 	int Run(int argc, char* argv[]) override;
+public:
+	static gxt2edit& GetInstance();
 private:
 	//---------------- App ----------------
 	//

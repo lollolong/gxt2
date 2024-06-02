@@ -13,11 +13,13 @@
 
 class gxt2conv : public CApp
 {
-public:
+private:
 	gxt2conv() = default;
 	~gxt2conv() = default;
-
+public:
 	int Run(int argc, char* argv[]) override;
+public:
+	static gxt2conv& GetInstance();
 };
 
 #endif // !_GXT2CONV_H_

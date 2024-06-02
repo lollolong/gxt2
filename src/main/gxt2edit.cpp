@@ -39,6 +39,12 @@ gxt2edit::~gxt2edit()
 	Reset();
 }
 
+gxt2edit& gxt2edit::GetInstance()
+{
+	static gxt2edit gxt2edit("Text Table Editor", 1500, 850);
+	return gxt2edit;
+}
+
 int gxt2edit::Run(int argc, char* argv[])
 {
 	if (argc == 2)
@@ -849,8 +855,7 @@ int WINAPI WinMain(
 
 		//---------------- Main Logic ----------------
 		//
-		gxt2edit gxt2edit("Text Table Editor", 1500, 850);
-		gxt2edit.Run(argc, argv);
+		gxt2edit::GetInstance().Run(argc, argv);
 
 #if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
 		if (argc && argv)
