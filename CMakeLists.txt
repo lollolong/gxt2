@@ -15,6 +15,7 @@ project(gxt2 VERSION 1.0)
 # Options
 set(BUILD_SHARED_LIBS OFF)
 option(GXT2_ENABLE_UNITY_BUILD "Enable Unity-Build type for gxt2" OFF)
+option(GXT2_IS_APPIMAGE_BUILD "Signals gxt2 that it is being built as an AppImage" OFF)
 
 # Properties
 if(MSVC)
