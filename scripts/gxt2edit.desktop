@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Exec=gxt2edit
+Name=gxt2edit
+Icon=icon_gxt2edit
+StartupNotify=false
+Categories=Development
