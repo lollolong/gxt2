@@ -107,9 +107,9 @@ private:
 	//---------------- Editing ----------------
 	//
 	bool CheckChanges();
-	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
 	void UpdateFilter();
+	void UpdateRemovals();
 
 private:
 	//---------------- IO ----------------

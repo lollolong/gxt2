@@ -80,7 +80,7 @@ void gxt2edit::Draw()
 	RenderEditor();
 	ProcessShortcuts();
 	ProcessFileRequests();
-	UpdateEntries();
+	UpdateRemovals();
 	HandleWindowClosing();
 }
 
@@ -752,6 +752,16 @@ void gxt2edit::HandleWindowClosing()
 	}
 }
 
+bool gxt2edit::CheckChanges()
+{
+	if (m_HasPendingChanges)
+	{
+		m_RenderSaveChangesPopup = true;
+		return false;
+	}
+	return true;
+}
+
 void gxt2edit::FlagForDeletion(unsigned int uHash)
 {
 	m_HasPendingChanges = true;
@@ -781,17 +791,7 @@ void gxt2edit::UpdateFilter()
 	}
 }
 
-bool gxt2edit::CheckChanges()
-{
-	if (m_HasPendingChanges)
-	{
-		m_RenderSaveChangesPopup = true;
-		return false;
-	}
-	return true;
-}
-
-void gxt2edit::UpdateEntries()
+void gxt2edit::UpdateRemovals()
 {
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
