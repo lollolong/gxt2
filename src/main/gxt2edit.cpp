@@ -70,6 +70,7 @@ void gxt2edit::Shutdown()
 void gxt2edit::Reset()
 {
 	m_Data.clear();
+	m_Filter.clear();
 }
 
 void gxt2edit::Draw()
@@ -176,7 +177,7 @@ void gxt2edit::RenderTable()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
-	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y - 65.f));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y - 130.f));
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
@@ -194,10 +195,10 @@ void gxt2edit::RenderTable()
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.f, 0.f));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, ImGui::GetStyle().FramePadding.y));
 
-			if (!m_Data.empty())
+			if (!m_Filter.empty())
 			{
 				ImGuiListClipper clipper;
-				clipper.Begin(static_cast<int>(m_Data.size()));
+				clipper.Begin(static_cast<int>(m_Filter.size()));
 
 				const float trashIconWidth = ImGui::CalcTextSize(ICON_FA_TRASH).x;
 
@@ -205,8 +206,8 @@ void gxt2edit::RenderTable()
 				{
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 					{
-						const unsigned int& uHash = m_Data[i].first;
-						std::string& text = m_Data[i].second;
+						const unsigned int& uHash = m_Filter[i].first;
+						std::string& text = m_Filter[i].second;
 
 						std::string szHash = std::format("0x{:08X}", uHash);
 
@@ -283,8 +284,8 @@ void gxt2edit::RenderEmptyView()
 void gxt2edit::RenderEditTools()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 65.f));
-	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, 65.f));
+	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 130.f));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, 130.f));
 
 	if (ImGui::Begin("Editor Bar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
@@ -325,6 +326,7 @@ void gxt2edit::RenderEditTools()
 				if (uHash != 0x00000000)
 				{
 					m_Data.emplace_back(uHash, m_TextInput);
+					UpdateFilter();
 
 					m_HashInput.clear();
 					m_LabelInput.clear();
@@ -334,6 +336,19 @@ void gxt2edit::RenderEditTools()
 				}
 			}
 		}
+
+		ImGui::NewLine();
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text(ICON_FA_MAGNIFYING_GLASS " Search");
+		ImGui::SameLine();
+
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+		if (ImGui::InputText("##SearchInput", &m_SearchInput))
+		{
+			UpdateFilter();
+		}
+		ImGui::PopItemWidth();
 
 		ImGui::End();
 	}
@@ -440,7 +455,7 @@ void gxt2edit::SortTable()
 			return false;
 		};
 
-		std::sort(m_Data.begin(), m_Data.end(), compareEntries);
+		std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
 		sortSpecs->SpecsDirty = false;
 	}
 }
@@ -681,6 +696,8 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 			{
 				m_Data.emplace_back(uHash, szEntry);
 			}
+			m_Filter = m_Data;
+
 			if (fileType == FILETYPE_GXT2)
 			{
 				SetEndian(pInputDevice->GetEndian());
@@ -741,6 +758,29 @@ void gxt2edit::FlagForDeletion(unsigned int uHash)
 	m_EntriesToRemove.push_back(uHash);
 }
 
+void gxt2edit::UpdateFilter()
+{
+	m_Filter.clear();
+
+	if (m_Data.empty())
+	{
+		m_HasPendingChanges = false;
+		return;
+	}
+	if (m_SearchInput.empty())
+	{
+		m_Filter = m_Data;
+		return;
+	}
+	for (const auto& entry : m_Data)
+	{
+		if (entry.second.find(m_SearchInput) != std::string::npos)
+		{
+			m_Filter.push_back(entry);
+		}
+	}
+}
+
 bool gxt2edit::CheckChanges()
 {
 	if (m_HasPendingChanges)
@@ -756,7 +796,7 @@ void gxt2edit::UpdateEntries()
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
 		auto it = std::find_if(m_Data.begin(), m_Data.end(),
-			[uHash](const std::pair<unsigned int, std::string>& entry)
+			[uHash](const std::pair<unsigned int, std::string>& entry) -> bool
 			{
 				return entry.first == uHash;
 			});
@@ -766,6 +806,7 @@ void gxt2edit::UpdateEntries()
 			m_Data.erase(it);
 		}
 	}
+	UpdateFilter();
 	m_EntriesToRemove.clear();
 }
 

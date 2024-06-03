@@ -109,11 +109,13 @@ private:
 	bool CheckChanges();
 	void UpdateEntries();
 	void FlagForDeletion(unsigned int uHash);
+	void UpdateFilter();
 
 private:
 	//---------------- IO ----------------
 	//
 	CFile::Vec m_Data;
+	CFile::Vec m_Filter;
 	std::string m_Path;
 	int m_Endian;
 
@@ -123,6 +125,7 @@ private:
 	std::string m_HashInput;
 	std::string m_LabelInput;
 	std::string m_TextInput;
+	std::string m_SearchInput;
 	CImage* m_AddFileImg;
 
 	//---------------- Editing ----------------
