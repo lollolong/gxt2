@@ -479,7 +479,7 @@ void gxt2edit::OpenFile()
 		return;
 	}
 
-	if (utils::OpenFileExplorerDialog("Select a GTA Text Table", "", m_Path, false, {FILEDESC_GXT2, FILTERSPEC_GXT2}))
+	if (utils::OpenFileExplorerDialog("Select a GTA Text Table", "", m_Path, false, { FILEDESC_GXT2, FILTERSPEC_GXT2 }))
 	{
 		Reset();
 		LoadFromFile(m_Path, FILETYPE_GXT2);
@@ -824,7 +824,6 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 	}
 }
 #endif
-
 
 //---------------- Entry Point ----------------
 //

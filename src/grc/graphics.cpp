@@ -45,7 +45,7 @@ CGraphics::CGraphics() :
 
 bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 {
-	glfwSetErrorCallback([] (int error, const char* description) -> void
+	glfwSetErrorCallback([](int error, const char* description) -> void
 	{
 		printf("GLFW: Error %i (%s)\n", error, description);
 	});
@@ -756,7 +756,7 @@ void CGraphics::SetupFonts()
 #else
 	std::filesystem::path baseFontPath = std::filesystem::current_path();
 
-	if(IS_APPIMAGE_BUILD)
+	if (IS_APPIMAGE_BUILD)
 	{
 		baseFontPath = std::getenv("APPDIR");
 	}
