@@ -110,15 +110,16 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 		printf("[glfwSetWindowSizeCallback] width = %i, height = %i\n", width, height);
 #endif
 
-		// Render
-		CGraphics::GetInstance().PreRender();
-		gxt2edit::GetInstance().Draw();
-		CGraphics::GetInstance().Render();
+		if (width > 0 && height > 0)
+		{
+			// Render
+			CGraphics::GetInstance().PreRender();
+			gxt2edit::GetInstance().Draw();
+			CGraphics::GetInstance().Render();
+		}
 
 		// Params
 		IM_UNUSED(window);
-		IM_UNUSED(width);
-		IM_UNUSED(height);
 	});
 
 	CGraphics::InitVulkan();
