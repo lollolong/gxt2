@@ -238,6 +238,22 @@ void gxt2edit::RenderTable()
 							{
 								FlagForDeletion(uHash);
 							}
+							else
+							{
+								auto it = std::find_if(m_Data.begin(), m_Data.end(),
+									[uHash](const std::pair<unsigned int, std::string>& entry) -> bool
+									{
+										return entry.first == uHash;
+									});
+
+								if (it != m_Data.end())
+								{
+									if (it->second != text)
+									{
+										it->second = text;
+									}
+								}
+							}
 							m_HasPendingChanges = true;
 						}
 						ImGui::PopItemWidth();
