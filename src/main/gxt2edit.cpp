@@ -30,7 +30,8 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RequestImportFile(false),
 	m_HasPendingChanges(false),
 	m_RenderSaveChangesPopup(false),
-	m_RenderEmptyEditorTable(true)
+	m_RenderEmptyEditorTable(true),
+	m_RenderEntryAlreadyExistPopup(false)
 {
 }
 
@@ -71,6 +72,10 @@ void gxt2edit::Reset()
 {
 	m_Data.clear();
 	m_Filter.clear();
+
+	m_HashInput.clear();
+	m_LabelInput.clear();
+	m_TextInput.clear();
 }
 
 void gxt2edit::Draw()
@@ -80,7 +85,7 @@ void gxt2edit::Draw()
 	RenderEditor();
 	ProcessShortcuts();
 	ProcessFileRequests();
-	UpdateRemovals();
+	UpdateEntries();
 	HandleWindowClosing();
 }
 
@@ -341,14 +346,17 @@ void gxt2edit::RenderEditTools()
 
 				if (uHash != 0x00000000)
 				{
-					m_Data.emplace_back(uHash, m_TextInput);
-					UpdateFilter();
+					auto it = std::find_if(m_Data.begin(), m_Data.end(),
+						[uHash](const std::pair<unsigned int, std::string>& entry) -> bool
+						{
+							return entry.first == uHash;
+						});
 
-					m_HashInput.clear();
-					m_LabelInput.clear();
-					m_TextInput.clear();
-
-					m_HasPendingChanges = true;
+					if (it != m_Data.end())
+					{
+						m_RenderEntryAlreadyExistPopup = true;
+					}
+					m_ItemsToAdd.push(std::make_pair(uHash, m_TextInput));
 				}
 			}
 		}
@@ -404,9 +412,45 @@ void gxt2edit::RenderPopups()
 		ImGui::EndPopup();
 	}
 
+	if (ImGui::BeginPopupModal("Override Entry", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("This entry already exists. Would you like to overwrite it?");
+		ImGui::Separator();
+
+		const float buttonWidth = 100.0f;
+		const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
+		const float totalButtonWidth = buttonWidth * 2 + buttonSpacing;
+
+		const float contentWidth = ImGui::GetContentRegionAvail().x;
+		const float startX = (contentWidth - totalButtonWidth) / 2.0f;
+
+		ImGui::SetCursorPosX(startX);
+
+		if (ImGui::Button("Yes", ImVec2(buttonWidth, 0)))
+		{
+			m_OverrideExistingEntry = true;
+			m_RenderEntryAlreadyExistPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("No", ImVec2(buttonWidth, 0)))
+		{
+			m_ItemsToAdd.pop();
+			m_RenderEntryAlreadyExistPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
 	if (m_RenderSaveChangesPopup)
 	{
 		ImGui::OpenPopup("Unsaved Changes");
+	}
+
+	if (m_RenderEntryAlreadyExistPopup)
+	{
+		ImGui::OpenPopup("Override Entry");
 	}
 }
 
@@ -807,8 +851,10 @@ void gxt2edit::UpdateFilter()
 	}
 }
 
-void gxt2edit::UpdateRemovals()
+void gxt2edit::UpdateEntries()
 {
+	bool bShouldUpdateFilter = false;
+
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
 		auto it = std::find_if(m_Data.begin(), m_Data.end(),
@@ -820,10 +866,75 @@ void gxt2edit::UpdateRemovals()
 		if (it != m_Data.end())
 		{
 			m_Data.erase(it);
+
+			// Update State
+			bShouldUpdateFilter = true;
+			m_HasPendingChanges = true;
 		}
 	}
-	UpdateFilter();
-	m_EntriesToRemove.clear();
+
+	if (!m_ItemsToAdd.empty())
+	{
+		const auto& entryToAdd = m_ItemsToAdd.top();
+		const unsigned int uHash = entryToAdd.first;
+
+		// Entry is not a duplicate, insert and pop
+		if (!m_RenderEntryAlreadyExistPopup && !m_OverrideExistingEntry)
+		{
+			m_Data.push_back(entryToAdd);
+			m_ItemsToAdd.pop();
+
+			// Update State
+			bShouldUpdateFilter = true;
+			m_HasPendingChanges = true;
+
+			// Insertion was successful, clear fields
+			m_HashInput.clear();
+			m_LabelInput.clear();
+			m_TextInput.clear();
+		}
+		else if (m_OverrideExistingEntry) // User clicked "Yes" - override existing entry and pop it
+		{
+			auto it = std::find_if(m_Data.begin(), m_Data.end(),
+				[uHash](const std::pair<unsigned int, std::string>& entry) -> bool
+				{
+					return entry.first == uHash;
+				});
+
+			if (it != m_Data.end())
+			{
+				// Override and Pop
+				it->second = entryToAdd.second;
+				m_ItemsToAdd.pop();
+
+				// Update State
+				bShouldUpdateFilter = true;
+				m_HasPendingChanges = true;
+				m_OverrideExistingEntry = false;
+
+				// Insertion was successful, clear fields
+				m_HashInput.clear();
+				m_LabelInput.clear();
+				m_TextInput.clear();
+			}
+		}
+#if _DEBUG && 0
+		else
+		{
+			printf("Keeping Entry on Stack, Hash: 0x%08x\n", uHash);
+			printf("m_RenderEntryAlreadyExistPopup = %i\n", m_RenderEntryAlreadyExistPopup);
+		}
+#endif
+	}
+
+	if (!m_EntriesToRemove.empty())
+	{
+		m_EntriesToRemove.clear();
+	}
+	if (bShouldUpdateFilter)
+	{
+		UpdateFilter();
+	}
 }
 
 #if _WIN32

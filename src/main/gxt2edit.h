@@ -15,6 +15,7 @@
 
 // C/C++
 #include <vector>
+#include <stack>
 
 // Descriptions
 #define FILEDESC_GXT2 "GTA Text Table (*.gxt2)"
@@ -109,7 +110,7 @@ private:
 	bool CheckChanges();
 	void FlagForDeletion(unsigned int uHash);
 	void UpdateFilter();
-	void UpdateRemovals();
+	void UpdateEntries();
 
 private:
 	//---------------- IO ----------------
@@ -138,7 +139,10 @@ private:
 	bool m_HasPendingChanges;
 	bool m_RenderSaveChangesPopup;
 	bool m_RenderEmptyEditorTable;
+	bool m_RenderEntryAlreadyExistPopup;
+	bool m_OverrideExistingEntry;
 	std::vector<unsigned int> m_EntriesToRemove;
+	std::stack<std::pair<unsigned int, std::string>> m_ItemsToAdd;
 };
 
 #endif // !_GXT2EDIT_H_

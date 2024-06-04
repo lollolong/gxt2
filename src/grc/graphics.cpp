@@ -757,9 +757,9 @@ void CGraphics::SetupFonts()
 #else
 	std::filesystem::path baseFontPath = std::filesystem::current_path();
 
-	#if IS_APPIMAGE_BUILD
+#if IS_APPIMAGE_BUILD
 	baseFontPath = std::getenv("APPDIR");
-	#endif
+#endif
 
 	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansJP-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
 	io.Fonts->AddFontFromFileTTF((baseFontPath / "fonts/NotoSansKR-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesKorean());
