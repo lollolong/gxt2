@@ -123,6 +123,7 @@ private:
 	//---------------- UI ----------------
 	//
 	ImVec2 m_BarSize;
+	float m_EditorToolsHeight;
 	std::string m_HashInput;
 	std::string m_LabelInput;
 	std::string m_TextInput;

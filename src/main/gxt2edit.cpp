@@ -23,6 +23,7 @@
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
 	m_Endian(CFile::_LITTLE_ENDIAN),
+	m_EditorToolsHeight(110.f),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
@@ -31,7 +32,8 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_HasPendingChanges(false),
 	m_RenderSaveChangesPopup(false),
 	m_RenderEmptyEditorTable(true),
-	m_RenderEntryAlreadyExistPopup(false)
+	m_RenderEntryAlreadyExistPopup(false),
+	m_OverrideExistingEntry(false)
 {
 }
 
@@ -182,7 +184,7 @@ void gxt2edit::RenderTable()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, m_BarSize.y));
-	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y - 130.f));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, pViewport->Size.y - m_BarSize.y - m_EditorToolsHeight));
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
@@ -305,16 +307,20 @@ void gxt2edit::RenderEmptyView()
 void gxt2edit::RenderEditTools()
 {
 	const ImGuiViewport* pViewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - 130.f));
-	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, 130.f));
+	ImGui::SetNextWindowPos(ImVec2(pViewport->Pos.x, pViewport->Size.y - m_EditorToolsHeight));
+	ImGui::SetNextWindowSize(ImVec2(pViewport->Size.x, m_EditorToolsHeight));
 
 	if (ImGui::Begin("Editor Bar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
+		static const float paddingLeftRight = 15.f;
+
+		ImGui::SetCursorPosX(paddingLeftRight);
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text(ICON_FA_CODE " Hash");
 		ImGui::SameLine();
 
 		ImGui::PushItemWidth(90.f);
+		const float cursorX = ImGui::GetCursorPosX();
 		ImGui::InputText("##HashInput", &m_HashInput, ImGuiInputTextFlags_CharsHexadecimal);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
@@ -333,12 +339,12 @@ void gxt2edit::RenderEditTools()
 		ImGui::Text(ICON_FA_PENCIL " Text");
 		ImGui::SameLine();
 
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 50.f);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - paddingLeftRight - 105.f);
 		ImGui::InputText("##TextInput", &m_TextInput);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
-		if (ImGui::Button("Add"))
+		if (ImGui::Button("Add", ImVec2(100.f, 0.f)))
 		{
 			if (!m_TextInput.empty())
 			{
@@ -361,13 +367,15 @@ void gxt2edit::RenderEditTools()
 			}
 		}
 
-		ImGui::NewLine();
+		ImGui::Spacing();
 
+		ImGui::SetCursorPosX(paddingLeftRight);
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text(ICON_FA_MAGNIFYING_GLASS " Search");
 		ImGui::SameLine();
 
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::SetCursorPosX(cursorX);
 		if (ImGui::InputText("##SearchInput", &m_SearchInput))
 		{
 			UpdateFilter();
