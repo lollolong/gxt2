@@ -374,13 +374,25 @@ void gxt2edit::RenderEditTools()
 		ImGui::Text(ICON_FA_MAGNIFYING_GLASS " Search");
 		ImGui::SameLine();
 
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - paddingLeftRight - 210.f);
 		ImGui::SetCursorPosX(cursorX);
-		if (ImGui::InputText("##SearchInput", &m_SearchInput))
+		ImGui::InputText("##SearchInput", &m_SearchInput);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		if (ImGui::Button("Search", ImVec2(100.f, 0.f)))
 		{
+			if (!m_SearchInput.empty())
+			{
+				UpdateFilter();
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Clear", ImVec2(100.f, 0.f)))
+		{
+			m_SearchInput.clear();
 			UpdateFilter();
 		}
-		ImGui::PopItemWidth();
 
 		ImGui::End();
 	}
@@ -852,7 +864,7 @@ void gxt2edit::UpdateFilter()
 	}
 	for (const auto& entry : m_Data)
 	{
-		if (entry.second.find(m_SearchInput) != std::string::npos)
+		if (utils::ToLower(entry.second).find(utils::ToLower(m_SearchInput)) != std::string::npos)
 		{
 			m_Filter.push_back(entry);
 		}
