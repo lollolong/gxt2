@@ -13,8 +13,30 @@
 #include <strsafe.h>
 #endif
 
+// C/C++
+#include <ctype.h>
+
 namespace utils
 {
+	std::string ToLower(const std::string& str)
+	{
+		std::string r = str;
+		std::transform(r.begin(), r.end(), r.begin(), [](const char& c) -> char
+		{
+			return static_cast<char>(tolower(c));
+		});
+		return r;
+	}
+	std::string ToUpper(const std::string& str)
+	{
+		std::string r = str;
+		std::transform(r.begin(), r.end(), r.begin(), [](const char& c) -> char
+		{
+			return static_cast<char>(toupper(c));
+		});
+		return r;
+	}
+
 #if _WIN32
 	HRESULT WriteRegistryValue(HKEY hKey, PCWSTR pszSubKey, PCWSTR pszValueName, PCWSTR pszData)
 	{

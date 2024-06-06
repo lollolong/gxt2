@@ -17,6 +17,9 @@
 
 namespace utils
 {
+	std::string ToLower(const std::string& str);
+	std::string ToUpper(const std::string& str);
+
 #if _WIN32
 	HRESULT WriteRegistryValue(HKEY hKey, PCWSTR pszSubKey, PCWSTR pszValueName, PCWSTR pszData);
 	HRESULT RegisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName, PCWSTR pszFileTypeName);
