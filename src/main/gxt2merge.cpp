@@ -15,11 +15,31 @@
 
 int gxt2merge::Run(int argc, char* argv[])
 {
-	if (argc < 2 || argc > 3)
+	if (argc < 4 || argc > 5)
 	{
-		printf("Usage: %s global.gxt2\n\t", argv[0]);
+		printf("Usage: %s <file1.gxt2> <file2.gxt2> <output.gxt2>\n\t", argv[0]);
 		return 1;
 	}
+
+	CMerger merger(argv[1], argv[2], argv[3]);
+
+	if (argc == 5)
+	{
+		if (strcmp(argv[4], "/le") == 0)
+		{
+			merger.GetOutput()->SetLittleEndian();
+		}
+		if (strcmp(argv[4], "/be") == 0)
+		{
+			merger.GetOutput()->SetBigEndian();
+		}
+	}
+	if (!merger.Run())
+	{
+		printf("Merge failed!\n");
+		return 1;
+	}
+	printf("Successfully merged!\n");
 	return 0;
 }
 
