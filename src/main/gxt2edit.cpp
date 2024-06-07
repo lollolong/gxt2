@@ -769,7 +769,6 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 
 	if (pInputDevice)
 	{
-		pInputDevice->SetData(m_Data);
 		if (pInputDevice->ReadEntries())
 		{
 			for (const auto& [uHash, szEntry] : pInputDevice->GetData())
