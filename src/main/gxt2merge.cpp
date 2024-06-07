@@ -39,7 +39,7 @@ int gxt2merge::Run(int argc, char* argv[])
 		printf("Merge failed!\n");
 		return 1;
 	}
-	printf("Successfully merged!\n");
+	//printf("Successfully merged!\n");
 	return 0;
 }
 
