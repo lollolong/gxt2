@@ -33,7 +33,9 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RenderSaveChangesPopup(false),
 	m_RenderEmptyEditorTable(true),
 	m_RenderEntryAlreadyExistPopup(false),
-	m_OverrideExistingEntry(false)
+	m_OverrideExistingEntry(false),
+	m_RenderEmptyHashPopup(false),
+	m_RenderEmptyTextPopup(false)
 {
 }
 
@@ -364,6 +366,14 @@ void gxt2edit::RenderEditTools()
 					}
 					m_ItemsToAdd.push(std::make_pair(uHash, m_TextInput));
 				}
+				else
+				{
+					m_RenderEmptyHashPopup = true;
+				}
+			}
+			else
+			{
+				m_RenderEmptyTextPopup = true;
 			}
 		}
 
@@ -463,14 +473,65 @@ void gxt2edit::RenderPopups()
 		ImGui::EndPopup();
 	}
 
+	if (ImGui::BeginPopupModal("Hash Empty", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Hash input field is empty");
+		ImGui::Separator();
+
+		const float buttonWidth = 100.f;
+		const float contentWidth = ImGui::GetContentRegionAvail().x;
+		const float startX = (contentWidth - buttonWidth) * 0.5f;
+		if (startX > 0.0f)
+		{
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + startX);
+		}
+
+		if (ImGui::Button("Ok", ImVec2(buttonWidth, 0)))
+		{
+			m_RenderEmptyHashPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+	
+	if (ImGui::BeginPopupModal("Text Empty", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Text input field is empty");
+		ImGui::Separator();
+
+		const float buttonWidth = 100.f;
+		const float contentWidth = ImGui::GetContentRegionAvail().x;
+		const float startX = (contentWidth - buttonWidth) * 0.5f;
+		if (startX > 0.0f)
+		{
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + startX);
+		}
+
+		if (ImGui::Button("Ok", ImVec2(buttonWidth, 0)))
+		{
+			m_RenderEmptyTextPopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
 	if (m_RenderSaveChangesPopup)
 	{
 		ImGui::OpenPopup("Unsaved Changes");
 	}
-
 	if (m_RenderEntryAlreadyExistPopup)
 	{
 		ImGui::OpenPopup("Override Entry");
+	}
+	if (m_RenderEmptyHashPopup)
+	{
+		ImGui::OpenPopup("Hash Empty");
+	}
+	if (m_RenderEmptyTextPopup)
+	{
+		ImGui::OpenPopup("Text Empty");
 	}
 }
 

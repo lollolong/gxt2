@@ -142,6 +142,8 @@ private:
 	bool m_RenderEmptyEditorTable;
 	bool m_RenderEntryAlreadyExistPopup;
 	bool m_OverrideExistingEntry;
+	bool m_RenderEmptyHashPopup;
+	bool m_RenderEmptyTextPopup;
 	std::vector<unsigned int> m_EntriesToRemove;
 	std::stack<std::pair<unsigned int, std::string>> m_ItemsToAdd;
 };
