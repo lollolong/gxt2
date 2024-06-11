@@ -182,4 +182,16 @@ public:
 	bool WriteEntries() override;
 };
 
+//-----------------------------------------------------------------------------------------
+//
+
+class CHashDatabase : public CFile
+{
+public:
+	CHashDatabase(const std::string& fileName);
+
+	bool ReadEntries() override;
+	bool WriteEntries() override;
+};
+
 #endif // !_GXT2_H_

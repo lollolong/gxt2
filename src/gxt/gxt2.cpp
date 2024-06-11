@@ -462,3 +462,32 @@ bool COxtFile::WriteEntries()
 
 	return true;
 } // bool ::WriteEntries()
+
+//-----------------------------------------------------------------------------------------
+//
+
+CHashDatabase::CHashDatabase(const std::string& fileName) :
+	CFile(fileName, FLAGS_READ_DECOMPILED)
+{
+} // ::CHashDatabase(const string& fileName)
+
+bool CHashDatabase::ReadEntries()
+{
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	std::string line;
+	while (std::getline(m_File, line))
+	{
+		m_Entries[rage::atStringHash(line.c_str())] = line;
+	}
+	return true;
+} // bool ::ReadEntries()
+
+bool CHashDatabase::WriteEntries()
+{
+	assert(false /*, "CHashDatabase::WriteEntries() should not be called!"*/);
+	return false;
+} // bool ::WriteEntries()

@@ -22,6 +22,7 @@
 
 gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
+	m_LabelNames(nullptr),
 	m_Endian(CFile::_LITTLE_ENDIAN),
 	m_EditorToolsHeight(110.f),
 	m_AddFileImg(nullptr),
@@ -61,14 +62,53 @@ int gxt2edit::Run(int argc, char* argv[])
 
 bool gxt2edit::Init()
 {
+	//---------------- System Init ----------------
+	//
 	const bool bInit = CAppUI::Init();
+
+	//---------------- App Specific ----------------
+	//
 	m_AddFileImg = CImage::FromMemory(g_ImageAddFile);
+
+#if _WIN32
+	char szModulePath[MAX_PATH] = {};
+	GetModuleFileNameA(NULL, szModulePath, sizeof(szModulePath));
+
+	std::string modulePath = szModulePath;
+	modulePath = modulePath.substr(0, modulePath.find_last_of('\\'));
+
+	std::filesystem::path basePath = modulePath;
+#else
+	std::filesystem::path basePath = std::filesystem::current_path();
+
+#if IS_APPIMAGE_BUILD
+	basePath = std::getenv("APPDIR");
+#endif
+
+#endif
+
+	const std::filesystem::path labelsFile = basePath / "labels.txt";
+	if (std::filesystem::exists(labelsFile))
+	{
+		m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
+		m_LabelNames->ReadEntries();
+	}
+
 	return bInit;
 }
 
 void gxt2edit::Shutdown()
 {
-	delete m_AddFileImg;
+	if (m_AddFileImg)
+	{
+		delete m_AddFileImg;
+		m_AddFileImg = nullptr;
+	}
+	if (m_LabelNames)
+	{
+		delete m_LabelNames;
+		m_LabelNames = nullptr;
+	}
 	return CAppUI::Shutdown();
 }
 
