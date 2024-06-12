@@ -481,7 +481,21 @@ bool CHashDatabase::ReadEntries()
 	std::string line;
 	while (std::getline(m_File, line))
 	{
-		m_Entries[rage::atStringHash(line.c_str())] = line;
+		const unsigned int uHash = rage::atStringHash(line.c_str());
+
+#if _DEBUG
+		if (auto it = m_Entries.find(uHash); it != m_Entries.end())
+		{
+			if (it->second != line)
+			{
+				std::cout << std::format("[{}] Warning: Duplicate Hash Entry (0x{:08X}) found!\n\tprv = {}\n\tcur = {}", __FUNCTION__, uHash, it->second, line) << std::endl;
+			}
+		}
+		else
+#endif
+		{
+			m_Entries[uHash] = line;
+		}
 	}
 	return true;
 } // bool ::ReadEntries()
