@@ -240,8 +240,8 @@ void gxt2edit::RenderTable()
 		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
-			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide);//| ImGuiTableColumnFlags_WidthStretch
-			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide);//| ImGuiTableColumnFlags_WidthStretch
+			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide, 150.f);
+			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
 
