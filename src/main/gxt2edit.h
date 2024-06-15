@@ -120,6 +120,7 @@ private:
 	CFile* m_LabelNames;
 	std::string m_Path;
 	int m_Endian;
+	bool m_LabelsNotFound;
 
 	//---------------- UI ----------------
 	//

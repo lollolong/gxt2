@@ -16,6 +16,7 @@
 #include <format>
 #include <algorithm>
 #include <filesystem>
+#include <execution>
 
 // vendor
 #include <IconsFontAwesome6.h>
@@ -24,6 +25,7 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
 	m_LabelNames(nullptr),
 	m_Endian(CFile::_LITTLE_ENDIAN),
+	m_LabelsNotFound(false),
 	m_EditorToolsHeight(110.f),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
@@ -96,6 +98,7 @@ bool gxt2edit::Init()
 	else
 	{
 		m_LabelNames = GXT_NEW CMemoryFile(); // memory device
+		m_LabelsNotFound = true;
 	}
 
 	return bInit;
@@ -627,13 +630,38 @@ void gxt2edit::SortTable()
 				switch (sortSpec->ColumnIndex)
 				{
 				case 1:
-					//if (a.first < b.first) delta = -1;
-					//if (a.first > b.first) delta = 1;
-					delta = m_LabelNames->GetData()[a.first].compare(m_LabelNames->GetData()[b.first]);
-					break;
+				{
+					if (m_LabelsNotFound)
+					{
+						// Hash comparison
+						if (a.first < b.first) delta = -1;
+						if (a.first > b.first) delta = 1;
+					}
+					else
+					{
+						const CFile::Map& mLabels = m_LabelNames->GetDataConst();
+						const CFile::Map::const_iterator aIt = mLabels.find(a.first);
+						const CFile::Map::const_iterator bIt = mLabels.find(b.first);
+
+						if (aIt != mLabels.end() && bIt != mLabels.end())
+						{
+							// Name comparison
+							delta = aIt->second.compare(bIt->second);
+						}
+						else
+						{
+							// Hash comparison
+							if (a.first < b.first) delta = -1;
+							if (a.first > b.first) delta = 1;
+						}
+					}
+				}
+				break;
 				case 2:
+				{
 					delta = a.second.compare(b.second);
-					break;
+				}
+				break;
 				}
 				if (delta != 0)
 					return (sortSpec->SortDirection == ImGuiSortDirection_Ascending) ? (delta < 0) : (delta > 0);
@@ -641,7 +669,16 @@ void gxt2edit::SortTable()
 			return false;
 		};
 
-		std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
+#if defined(MEASURE_ENABLED)
+		const std::chrono::steady_clock::time_point startpoint = std::chrono::high_resolution_clock::now();
+		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+		const std::chrono::steady_clock::time_point endpoint = std::chrono::high_resolution_clock::now();
+
+		printf("[%s] Entry Count = %lli, Execution Time = %lli\n", __FUNCSIG__, m_Filter.size(), std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
+#else
+		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+#endif
+
 		sortSpecs->SpecsDirty = false;
 	}
 }
