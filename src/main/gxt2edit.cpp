@@ -237,7 +237,7 @@ void gxt2edit::RenderTable()
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
+		if (ImGui::BeginTable("GXT2 Editor", eColumnSetup::COLUMN_MAX, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
 			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide, 150.f);
@@ -269,8 +269,7 @@ void gxt2edit::RenderTable()
 
 						ImGui::TableNextRow();
 
-						// Delete column
-						ImGui::TableSetColumnIndex(0);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_DELETE);
 						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - trashIconWidth) * 0.5f);
 						if (ImGui::Button((ICON_FA_TRASH "##" + std::to_string(uHash)).c_str()))
@@ -279,14 +278,12 @@ void gxt2edit::RenderTable()
 						}
 						ImGui::PopStyleColor();
 
-						// Hash / Label column
-						ImGui::TableSetColumnIndex(1);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_HASH);
 						ImGui::PushItemWidth(-FLT_EPSILON);
 						ImGui::InputText(("##Hash" + displayName).c_str(), &displayName, ImGuiInputTextFlags_ReadOnly);
 						ImGui::PopItemWidth();
 
-						// Text column
-						ImGui::TableSetColumnIndex(2);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_TEXT);
 						ImGui::PushItemWidth(-FLT_EPSILON);
 						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll))
 						{
@@ -625,11 +622,12 @@ void gxt2edit::SortTable()
 		{
 			for (int n = 0; n < sortSpecs->SpecsCount; n++)
 			{
-				const ImGuiTableColumnSortSpecs* sortSpec = &sortSpecs->Specs[n];
 				int delta = 0;
+				const ImGuiTableColumnSortSpecs* sortSpec = &sortSpecs->Specs[n];
+				
 				switch (sortSpec->ColumnIndex)
 				{
-				case 1:
+				case eColumnSetup::COLUMN_HASH:
 				{
 					if (m_LabelsNotFound)
 					{
@@ -657,7 +655,7 @@ void gxt2edit::SortTable()
 					}
 				}
 				break;
-				case 2:
+				case eColumnSetup::COLUMN_TEXT:
 				{
 					delta = a.second.compare(b.second);
 				}

@@ -51,6 +51,16 @@ private:
 
 		FILETYPE_MAX
 	};
+	enum eColumnSetup : int
+	{
+		COLUMN_INVALID = -1,
+
+		COLUMN_DELETE,
+		COLUMN_HASH,
+		COLUMN_TEXT,
+
+		COLUMN_MAX
+	};
 private:
 	gxt2edit(const std::string& windowTitle, int width, int height);
 	virtual ~gxt2edit();
