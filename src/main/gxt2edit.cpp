@@ -1049,7 +1049,7 @@ void gxt2edit::UpdateFilter()
 		{
 			m_Filter.push_back(entry);
 		}
-		if (utils::ToLower(m_LabelNames->GetData()[entry.first]).find(utils::ToLower(m_SearchInput)) != std::string::npos)
+		else if (utils::ToLower(m_LabelNames->GetData()[entry.first]).find(utils::ToLower(m_SearchInput)) != std::string::npos)
 		{
 			m_Filter.push_back(entry);
 		}
