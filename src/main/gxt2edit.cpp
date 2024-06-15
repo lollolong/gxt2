@@ -238,9 +238,23 @@ void gxt2edit::RenderTable()
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (ImGui::BeginTable("GXT2 Editor", eColumnSetup::COLUMN_MAX, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
+		if (ImGui::BeginTable("GXT2 Editor", 
+			eColumnSetup::COLUMN_MAX, 
+				ImGuiTableFlags_SizingFixedFit | 
+				ImGuiTableFlags_RowBg          | 
+				ImGuiTableFlags_BordersOuter   | 
+				ImGuiTableFlags_BordersV       | 
+				ImGuiTableFlags_Resizable      | 
+				ImGuiTableFlags_ScrollX        | 
+				ImGuiTableFlags_ScrollY        | 
+				ImGuiTableFlags_Sortable))
 		{
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
+			ImGui::TableSetupColumn("", 
+				ImGuiTableColumnFlags_NoHide    | 
+				ImGuiTableColumnFlags_NoResize  |
+				ImGuiTabItemFlags_NoReorder     | 
+				ImGuiTableColumnFlags_NoSort, 
+				10.f);
 			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide, 150.f);
 			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
