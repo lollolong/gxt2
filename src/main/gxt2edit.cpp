@@ -233,8 +233,8 @@ void gxt2edit::RenderTable()
 		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
 		{
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
-			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
-			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide);//| ImGuiTableColumnFlags_WidthStretch
+			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide);//| ImGuiTableColumnFlags_WidthStretch
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
 
@@ -258,7 +258,7 @@ void gxt2edit::RenderTable()
 						const unsigned int& uHash = m_Filter[i].first;
 						std::string& text = m_Filter[i].second;
 
-						std::string szHash = std::format("0x{:08X}", uHash);
+						std::string& displayName = m_LabelNames->GetData()[uHash];
 
 						ImGui::TableNextRow();
 
@@ -272,10 +272,10 @@ void gxt2edit::RenderTable()
 						}
 						ImGui::PopStyleColor();
 
-						// Hash column
+						// Hash / Label column
 						ImGui::TableSetColumnIndex(1);
-						ImGui::PushItemWidth(90.f);
-						ImGui::InputText(("##Hash" + szHash).c_str(), &szHash, ImGuiInputTextFlags_ReadOnly);
+						ImGui::PushItemWidth(-FLT_EPSILON);
+						ImGui::InputText(("##Hash" + displayName).c_str(), &displayName, ImGuiInputTextFlags_ReadOnly);
 						ImGui::PopItemWidth();
 
 						// Text column
@@ -623,8 +623,9 @@ void gxt2edit::SortTable()
 				switch (sortSpec->ColumnIndex)
 				{
 				case 1:
-					if (a.first < b.first) delta = -1;
-					if (a.first > b.first) delta = 1;
+					//if (a.first < b.first) delta = -1;
+					//if (a.first > b.first) delta = 1;
+					delta = m_LabelNames->GetData()[a.first].compare(m_LabelNames->GetData()[b.first]);
 					break;
 				case 2:
 					delta = a.second.compare(b.second);
@@ -968,12 +969,32 @@ void gxt2edit::UpdateFilter()
 		{
 			m_Filter.push_back(entry);
 		}
+		if (utils::ToLower(m_LabelNames->GetData()[entry.first]).find(utils::ToLower(m_SearchInput)) != std::string::npos)
+		{
+			m_Filter.push_back(entry);
+		}
 	}
 }
 
 void gxt2edit::UpdateEntries()
 {
 	bool bShouldUpdateFilter = false;
+	static bool bManageLabelNames = false;
+
+	auto updateDisplayName = [=](unsigned int uHash) -> void
+	{
+		if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
+		{
+			if (!m_LabelInput.empty())
+			{
+				m_LabelNames->GetData()[uHash] = m_LabelInput;
+			}
+			else
+			{
+				m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
+			}
+		}
+	};
 
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
@@ -1008,6 +1029,9 @@ void gxt2edit::UpdateEntries()
 			bShouldUpdateFilter = true;
 			m_HasPendingChanges = true;
 
+			// Update Display Names
+			updateDisplayName(uHash);
+
 			// Insertion was successful, clear fields
 			m_HashInput.clear();
 			m_LabelInput.clear();
@@ -1032,6 +1056,9 @@ void gxt2edit::UpdateEntries()
 				m_HasPendingChanges = true;
 				m_OverrideExistingEntry = false;
 
+				// Update Display Names
+				updateDisplayName(uHash);
+
 				// Insertion was successful, clear fields
 				m_HashInput.clear();
 				m_LabelInput.clear();
@@ -1045,6 +1072,25 @@ void gxt2edit::UpdateEntries()
 			printf("m_RenderEntryAlreadyExistPopup = %i\n", m_RenderEntryAlreadyExistPopup);
 		}
 #endif
+	}
+
+	if (!m_Data.empty())
+	{
+		if (!bManageLabelNames)
+		{
+			for (const auto& [uHash, szTextEntry] : m_Data)
+			{
+				if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
+				{
+					m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
+				}
+			}
+			bManageLabelNames = true;
+		}
+	}
+	else
+	{
+		bManageLabelNames = false;
 	}
 
 	if (!m_EntriesToRemove.empty())
