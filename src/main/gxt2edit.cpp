@@ -1126,15 +1126,16 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 //
 
 #ifdef _WIN32
+	//#define MAIN_ENTRY_RELEASE
 	//#define WINMAIN_ENTRY_DEBUG
-	#if defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)
+	#if defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG) || defined(MAIN_ENTRY_RELEASE)
 		#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 	#else
 		#pragma comment(linker, "/SUBSYSTEM:WINDOWS")
 	#endif
 #endif
 
-#if (defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)) || !defined(_WIN32)
+#if (defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)) || !defined(_WIN32) || defined(MAIN_ENTRY_RELEASE)
 int main(int argc, char* argv[])
 {
 #elif _WIN32
@@ -1148,7 +1149,7 @@ int WINAPI WinMain(
 #endif
 	try
 	{
-#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+#if defined(_WIN32) && !defined(MAIN_ENTRY_RELEASE) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
 		int argc = 0;
 		char** argv = nullptr;
 
@@ -1194,7 +1195,7 @@ int WINAPI WinMain(
 		//
 		gxt2edit::GetInstance().Run(argc, argv);
 
-#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+#if defined(_WIN32) && !defined(MAIN_ENTRY_RELEASE) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
 		if (argc && argv)
 		{
 			for (int i = 0; i < argc; i++)
