@@ -57,6 +57,7 @@ public:
 
 	Map& GetData();
 	const Map& GetData() const;
+	const Map& GetDataConst() const;
 	void SetData(const Map& data);
 	void SetData(const Vec& data);
 

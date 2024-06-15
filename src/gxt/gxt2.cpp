@@ -92,6 +92,11 @@ const CFile::Map& CFile::GetData() const
 	return m_Entries;
 } // const CFile::Map& ::GetData() const
 
+const CFile::Map& CFile::GetDataConst() const
+{
+	return m_Entries;
+} // const CFile::Map& ::GetDataConst() const
+
 void CFile::SetData(const Map& data)
 {
 	//m_Entries = data;
