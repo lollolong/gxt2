@@ -36,6 +36,10 @@
 #define FILE_EXTENSION_HANDLER		TEXT("GXT2TextFile")
 #define FILE_EXTENSION_DESC			TEXT("GTA Text Table")
 
+// Known Labels Filename
+#define LABELS_FILENAME				"labels.txt"
+#define GXT_EDITOR_DOCUMENTS_PATH	"GXT Editor"
+
 class gxt2edit : public CAppUI
 {
 private:

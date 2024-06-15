@@ -89,7 +89,7 @@ bool gxt2edit::Init()
 
 #endif
 
-	const std::filesystem::path labelsFile = basePath / "labels.txt";
+	std::filesystem::path labelsFile = basePath / LABELS_FILENAME;
 	if (std::filesystem::exists(labelsFile))
 	{
 		m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
@@ -98,8 +98,27 @@ bool gxt2edit::Init()
 	}
 	else
 	{
-		m_LabelNames = GXT_NEW CMemoryFile(); // memory device
-		m_LabelsNotFound = true;
+#if _WIN32
+		TCHAR documentsPath[MAX_PATH] = {};
+		if (SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, 0, documentsPath) == S_OK)
+		{
+			basePath = documentsPath;
+			basePath /= GXT_EDITOR_DOCUMENTS_PATH;
+
+			labelsFile = basePath / LABELS_FILENAME;
+		}
+		if (std::filesystem::exists(labelsFile))
+		{
+			m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
+			m_LabelNames->ReadEntries();
+			m_LabelNames->Close();
+		}
+		else
+#endif
+		{
+			m_LabelNames = GXT_NEW CMemoryFile(); // memory device
+			m_LabelsNotFound = true;
+		}
 	}
 
 	return bInit;
