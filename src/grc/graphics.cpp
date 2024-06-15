@@ -13,6 +13,7 @@
 
 // Windows
 #ifdef _WIN32
+	#include <ShlObj.h>
 	#include <dwmapi.h>
 	#define DARK_MODE_STRING_NAME	L"DarkMode_Explorer"
 	#define DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 19
@@ -746,7 +747,17 @@ void CGraphics::SetupFonts()
 	std::string modulePath = szModulePath;
 	modulePath = modulePath.substr(0, modulePath.find_last_of('\\'));
 
-	const std::filesystem::path fontsPath = std::filesystem::path(modulePath) / "fonts";
+	std::filesystem::path fontsPath = std::filesystem::path(modulePath) / "fonts";
+	if (!std::filesystem::exists(fontsPath))
+	{
+		TCHAR documentsPath[MAX_PATH] = {};
+		if (SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, 0, documentsPath) == S_OK)
+		{
+			fontsPath = documentsPath;
+			fontsPath /= GXT_EDITOR_DOCUMENTS_PATH;
+			fontsPath /= "fonts";
+		}
+	}
 	if (std::filesystem::exists(fontsPath))
 	{
 		io.Fonts->AddFontFromFileTTF((fontsPath / "NotoSansJP-Regular.ttf").string().c_str(), 18.f, &notoConfigCJK, io.Fonts->GetGlyphRangesJapanese());
