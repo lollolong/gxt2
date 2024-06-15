@@ -94,6 +94,7 @@ bool gxt2edit::Init()
 	{
 		m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
 		m_LabelNames->ReadEntries();
+		m_LabelNames->Close();
 	}
 	else
 	{

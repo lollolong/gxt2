@@ -62,6 +62,11 @@ bool CFile::IsOpen() const
 	return m_File.is_open();
 } // bool ::IsOpen() const
 
+void CFile::Close()
+{
+	m_File.close();
+} // bool ::Close() const
+
 void CFile::Head()
 {
 	m_File.seekg(0, std::ios::beg);

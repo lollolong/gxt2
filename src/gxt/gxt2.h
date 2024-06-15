@@ -54,6 +54,7 @@ public:
 	void Reset();
 	void Dump() const;
 	bool IsOpen() const;
+	void Close();
 
 	Map& GetData();
 	const Map& GetData() const;
