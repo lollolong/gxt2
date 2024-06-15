@@ -93,6 +93,10 @@ bool gxt2edit::Init()
 		m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
 		m_LabelNames->ReadEntries();
 	}
+	else
+	{
+		m_LabelNames = GXT_NEW CMemoryFile(); // memory device
+	}
 
 	return bInit;
 }

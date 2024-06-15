@@ -117,7 +117,7 @@ private:
 	//
 	CFile::Vec m_Data;
 	CFile::Vec m_Filter;
-	CHashDatabase* m_LabelNames;
+	CFile* m_LabelNames;
 	std::string m_Path;
 	int m_Endian;
 
