@@ -42,8 +42,9 @@ public:
 	};
 	using Map = std::map<unsigned int, std::string, std::less<unsigned int>>;
 	using Vec = std::vector<std::pair<unsigned int, std::string>>;
-public:
+protected:
 	CFile();
+public:
 	CFile(const std::string& fileName, int openFlags = FLAGS_DEFAULT, int endian = _LITTLE_ENDIAN);
 	virtual ~CFile();
 
@@ -53,9 +54,11 @@ public:
 	void Reset();
 	void Dump() const;
 	bool IsOpen() const;
+	void Close();
 
 	Map& GetData();
 	const Map& GetData() const;
+	const Map& GetDataConst() const;
 	void SetData(const Map& data);
 	void SetData(const Vec& data);
 
@@ -109,6 +112,18 @@ protected:
 	std::fstream m_File;
 	Map m_Entries;
 	int m_Endian;
+};
+
+//-----------------------------------------------------------------------------------------
+//
+
+class CMemoryFile : public CFile
+{
+public:
+	CMemoryFile();
+
+	bool ReadEntries() override;
+	bool WriteEntries() override;
 };
 
 //-----------------------------------------------------------------------------------------

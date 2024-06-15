@@ -16,6 +16,7 @@
 #include <format>
 #include <algorithm>
 #include <filesystem>
+#include <execution>
 
 // vendor
 #include <IconsFontAwesome6.h>
@@ -24,6 +25,7 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	CAppUI(windowTitle, width, height),
 	m_LabelNames(nullptr),
 	m_Endian(CFile::_LITTLE_ENDIAN),
+	m_LabelsNotFound(false),
 	m_EditorToolsHeight(110.f),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
@@ -87,11 +89,36 @@ bool gxt2edit::Init()
 
 #endif
 
-	const std::filesystem::path labelsFile = basePath / "labels.txt";
+	std::filesystem::path labelsFile = basePath / LABELS_FILENAME;
 	if (std::filesystem::exists(labelsFile))
 	{
 		m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
 		m_LabelNames->ReadEntries();
+		m_LabelNames->Close();
+	}
+	else
+	{
+#if _WIN32
+		TCHAR documentsPath[MAX_PATH] = {};
+		if (SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, 0, documentsPath) == S_OK)
+		{
+			basePath = documentsPath;
+			basePath /= GXT_EDITOR_DOCUMENTS_PATH;
+
+			labelsFile = basePath / LABELS_FILENAME;
+		}
+		if (std::filesystem::exists(labelsFile))
+		{
+			m_LabelNames = GXT_NEW CHashDatabase(labelsFile.string());
+			m_LabelNames->ReadEntries();
+			m_LabelNames->Close();
+		}
+		else
+#endif
+		{
+			m_LabelNames = GXT_NEW CMemoryFile(); // memory device
+			m_LabelsNotFound = true;
+		}
 	}
 
 	return bInit;
@@ -230,10 +257,24 @@ void gxt2edit::RenderTable()
 
 	if (ImGui::Begin("##Editor", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (ImGui::BeginTable("GXT2 Editor", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Sortable))
+		if (ImGui::BeginTable("GXT2 Editor", 
+			eColumnSetup::COLUMN_MAX, 
+				ImGuiTableFlags_SizingFixedFit | 
+				ImGuiTableFlags_RowBg          | 
+				ImGuiTableFlags_BordersOuter   | 
+				ImGuiTableFlags_BordersV       | 
+				ImGuiTableFlags_Resizable      | 
+				ImGuiTableFlags_ScrollX        | 
+				ImGuiTableFlags_ScrollY        | 
+				ImGuiTableFlags_Sortable))
 		{
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize | ImGuiTabItemFlags_NoReorder | ImGuiTableColumnFlags_NoSort);
-			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoResize);
+			ImGui::TableSetupColumn("", 
+				ImGuiTableColumnFlags_NoHide    | 
+				ImGuiTableColumnFlags_NoResize  |
+				ImGuiTabItemFlags_NoReorder     | 
+				ImGuiTableColumnFlags_NoSort, 
+				10.f);
+			ImGui::TableSetupColumn("Hash", ImGuiTableColumnFlags_NoHide, 150.f);
 			ImGui::TableSetupColumn("Text", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch);
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
@@ -255,15 +296,21 @@ void gxt2edit::RenderTable()
 				{
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 					{
-						const unsigned int& uHash = m_Filter[i].first;
-						std::string& text = m_Filter[i].second;
+						// Data
+						const unsigned int& uHash	= m_Filter[i].first;
+						std::string& szText			= m_Filter[i].second;
 
-						std::string szHash = std::format("0x{:08X}", uHash);
+						const CFile::Map::const_iterator itMap = m_LabelNames->GetDataConst().find(uHash);
+						if (itMap == m_LabelNames->GetDataConst().end())
+						{
+							UpdateDisplayName(uHash, true);
+						}
+
+						std::string displayName = m_LabelNames->GetDataConst().find(uHash)->second;
 
 						ImGui::TableNextRow();
 
-						// Delete column
-						ImGui::TableSetColumnIndex(0);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_DELETE);
 						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - trashIconWidth) * 0.5f);
 						if (ImGui::Button((ICON_FA_TRASH "##" + std::to_string(uHash)).c_str()))
@@ -272,18 +319,16 @@ void gxt2edit::RenderTable()
 						}
 						ImGui::PopStyleColor();
 
-						// Hash column
-						ImGui::TableSetColumnIndex(1);
-						ImGui::PushItemWidth(90.f);
-						ImGui::InputText(("##Hash" + szHash).c_str(), &szHash, ImGuiInputTextFlags_ReadOnly);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_HASH);
+						ImGui::PushItemWidth(-FLT_EPSILON);
+						ImGui::InputText(("##Hash" + displayName).c_str(), &displayName, ImGuiInputTextFlags_ReadOnly);
 						ImGui::PopItemWidth();
 
-						// Text column
-						ImGui::TableSetColumnIndex(2);
+						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_TEXT);
 						ImGui::PushItemWidth(-FLT_EPSILON);
-						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll))
+						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &szText, ImGuiInputTextFlags_AutoSelectAll))
 						{
-							if (text.empty())
+							if (szText.empty())
 							{
 								FlagForDeletion(uHash);
 							}
@@ -297,9 +342,9 @@ void gxt2edit::RenderTable()
 
 								if (it != m_Data.end())
 								{
-									if (it->second != text)
+									if (it->second != szText)
 									{
-										it->second = text;
+										it->second = szText;
 									}
 								}
 							}
@@ -618,17 +663,44 @@ void gxt2edit::SortTable()
 		{
 			for (int n = 0; n < sortSpecs->SpecsCount; n++)
 			{
-				const ImGuiTableColumnSortSpecs* sortSpec = &sortSpecs->Specs[n];
 				int delta = 0;
+				const ImGuiTableColumnSortSpecs* sortSpec = &sortSpecs->Specs[n];
+				
 				switch (sortSpec->ColumnIndex)
 				{
-				case 1:
-					if (a.first < b.first) delta = -1;
-					if (a.first > b.first) delta = 1;
-					break;
-				case 2:
+				case eColumnSetup::COLUMN_HASH:
+				{
+					if (m_LabelsNotFound)
+					{
+						// Hash comparison
+						if (a.first < b.first) delta = -1;
+						if (a.first > b.first) delta = 1;
+					}
+					else
+					{
+						const CFile::Map& mLabels = m_LabelNames->GetDataConst();
+						const CFile::Map::const_iterator aIt = mLabels.find(a.first);
+						const CFile::Map::const_iterator bIt = mLabels.find(b.first);
+
+						if (aIt != mLabels.end() && bIt != mLabels.end())
+						{
+							// Name comparison
+							delta = aIt->second.compare(bIt->second);
+						}
+						else
+						{
+							// Hash comparison
+							if (a.first < b.first) delta = -1;
+							if (a.first > b.first) delta = 1;
+						}
+					}
+				}
+				break;
+				case eColumnSetup::COLUMN_TEXT:
+				{
 					delta = a.second.compare(b.second);
-					break;
+				}
+				break;
 				}
 				if (delta != 0)
 					return (sortSpec->SortDirection == ImGuiSortDirection_Ascending) ? (delta < 0) : (delta > 0);
@@ -636,7 +708,16 @@ void gxt2edit::SortTable()
 			return false;
 		};
 
-		std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
+#if defined(MEASURE_ENABLED)
+		const std::chrono::steady_clock::time_point startpoint = std::chrono::high_resolution_clock::now();
+		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+		const std::chrono::steady_clock::time_point endpoint = std::chrono::high_resolution_clock::now();
+
+		printf("[%s] Entry Count = %lli, Execution Time = %lli\n", __FUNCSIG__, m_Filter.size(), std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
+#else
+		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+#endif
+
 		sortSpecs->SpecsDirty = false;
 	}
 }
@@ -968,12 +1049,17 @@ void gxt2edit::UpdateFilter()
 		{
 			m_Filter.push_back(entry);
 		}
+		if (utils::ToLower(m_LabelNames->GetData()[entry.first]).find(utils::ToLower(m_SearchInput)) != std::string::npos)
+		{
+			m_Filter.push_back(entry);
+		}
 	}
 }
 
 void gxt2edit::UpdateEntries()
 {
 	bool bShouldUpdateFilter = false;
+	static bool bManageLabelNames = false;
 
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
@@ -1008,6 +1094,9 @@ void gxt2edit::UpdateEntries()
 			bShouldUpdateFilter = true;
 			m_HasPendingChanges = true;
 
+			// Update Display Names
+			UpdateDisplayName(uHash);
+
 			// Insertion was successful, clear fields
 			m_HashInput.clear();
 			m_LabelInput.clear();
@@ -1032,6 +1121,9 @@ void gxt2edit::UpdateEntries()
 				m_HasPendingChanges = true;
 				m_OverrideExistingEntry = false;
 
+				// Update Display Names
+				UpdateDisplayName(uHash);
+
 				// Insertion was successful, clear fields
 				m_HashInput.clear();
 				m_LabelInput.clear();
@@ -1047,6 +1139,25 @@ void gxt2edit::UpdateEntries()
 #endif
 	}
 
+	if (!m_Data.empty())
+	{
+		if (!bManageLabelNames)
+		{
+			for (const auto& [uHash, szTextEntry] : m_Data)
+			{
+				if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
+				{
+					m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
+				}
+			}
+			bManageLabelNames = true;
+		}
+	}
+	else
+	{
+		bManageLabelNames = false;
+	}
+
 	if (!m_EntriesToRemove.empty())
 	{
 		m_EntriesToRemove.clear();
@@ -1056,6 +1167,26 @@ void gxt2edit::UpdateEntries()
 		UpdateFilter();
 	}
 }
+
+void gxt2edit::UpdateDisplayName(unsigned int uHash, bool bHashOnly /*= false*/)
+{
+	if (!m_LabelNames)
+	{
+		return;
+	}
+
+	if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
+	{
+		if (!m_LabelInput.empty() && !bHashOnly)
+		{
+			m_LabelNames->GetData()[uHash] = m_LabelInput;
+		}
+		else
+		{
+			m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
+		}
+	}
+};
 
 #if _WIN32
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
@@ -1076,15 +1207,16 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 //
 
 #ifdef _WIN32
+	//#define MAIN_ENTRY_RELEASE
 	//#define WINMAIN_ENTRY_DEBUG
-	#if defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)
+	#if defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG) || defined(MAIN_ENTRY_RELEASE)
 		#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 	#else
 		#pragma comment(linker, "/SUBSYSTEM:WINDOWS")
 	#endif
 #endif
 
-#if (defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)) || !defined(_WIN32)
+#if (defined(_DEBUG) && !defined(WINMAIN_ENTRY_DEBUG)) || !defined(_WIN32) || defined(MAIN_ENTRY_RELEASE)
 int main(int argc, char* argv[])
 {
 #elif _WIN32
@@ -1098,7 +1230,7 @@ int WINAPI WinMain(
 #endif
 	try
 	{
-#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+#if defined(_WIN32) && !defined(MAIN_ENTRY_RELEASE) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
 		int argc = 0;
 		char** argv = nullptr;
 
@@ -1144,7 +1276,7 @@ int WINAPI WinMain(
 		//
 		gxt2edit::GetInstance().Run(argc, argv);
 
-#if defined(_WIN32) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
+#if defined(_WIN32) && !defined(MAIN_ENTRY_RELEASE) && (!defined(_DEBUG) || defined(WINMAIN_ENTRY_DEBUG))
 		if (argc && argv)
 		{
 			for (int i = 0; i < argc; i++)

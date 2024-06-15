@@ -62,6 +62,11 @@ bool CFile::IsOpen() const
 	return m_File.is_open();
 } // bool ::IsOpen() const
 
+void CFile::Close()
+{
+	m_File.close();
+} // bool ::Close() const
+
 void CFile::Head()
 {
 	m_File.seekg(0, std::ios::beg);
@@ -92,6 +97,11 @@ const CFile::Map& CFile::GetData() const
 	return m_Entries;
 } // const CFile::Map& ::GetData() const
 
+const CFile::Map& CFile::GetDataConst() const
+{
+	return m_Entries;
+} // const CFile::Map& ::GetDataConst() const
+
 void CFile::SetData(const Map& data)
 {
 	//m_Entries = data;
@@ -119,6 +129,25 @@ void CFile::DoSwapEndian(unsigned int& x) const
 		CFile::SwapEndian(x);
 	}
 } // void ::CheckDoSwapEndian(unsigned int& x)
+
+//-----------------------------------------------------------------------------------------
+//
+
+CMemoryFile::CMemoryFile() : CFile()
+{
+} // ::CMemoryFile()
+
+bool CMemoryFile::ReadEntries()
+{
+	assert(false /*, "CMemoryFile::WriteEntries() should not be called!"*/);
+	return false;
+} // bool ::ReadEntries()
+
+bool CMemoryFile::WriteEntries()
+{
+	assert(false /*, "CMemoryFile::WriteEntries() should not be called!"*/);
+	return false;
+} // bool ::WriteEntries()
 
 //-----------------------------------------------------------------------------------------
 //
@@ -481,7 +510,21 @@ bool CHashDatabase::ReadEntries()
 	std::string line;
 	while (std::getline(m_File, line))
 	{
-		m_Entries[rage::atStringHash(line.c_str())] = line;
+		const unsigned int uHash = rage::atStringHash(line.c_str());
+
+#if _DEBUG
+		if (auto it = m_Entries.find(uHash); it != m_Entries.end())
+		{
+			if (it->second != line)
+			{
+				std::cout << std::format("[{}] Warning: Duplicate Hash Entry (0x{:08X}) found!\n\tprv = {}\n\tcur = {}", __FUNCTION__, uHash, it->second, line) << std::endl;
+			}
+		}
+		else
+#endif
+		{
+			m_Entries[uHash] = line;
+		}
 	}
 	return true;
 } // bool ::ReadEntries()

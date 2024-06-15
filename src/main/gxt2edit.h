@@ -36,6 +36,10 @@
 #define FILE_EXTENSION_HANDLER		TEXT("GXT2TextFile")
 #define FILE_EXTENSION_DESC			TEXT("GTA Text Table")
 
+// Known Labels Filename
+#define LABELS_FILENAME				"labels.txt"
+#define GXT_EDITOR_DOCUMENTS_PATH	"GXT Editor"
+
 class gxt2edit : public CAppUI
 {
 private:
@@ -50,6 +54,16 @@ private:
 		FILETYPE_OXT,
 
 		FILETYPE_MAX
+	};
+	enum eColumnSetup : int
+	{
+		COLUMN_INVALID = -1,
+
+		COLUMN_DELETE,
+		COLUMN_HASH,
+		COLUMN_TEXT,
+
+		COLUMN_MAX
 	};
 private:
 	gxt2edit(const std::string& windowTitle, int width, int height);
@@ -111,15 +125,17 @@ private:
 	void FlagForDeletion(unsigned int uHash);
 	void UpdateFilter();
 	void UpdateEntries();
+	void UpdateDisplayName(unsigned int uHash, bool bHashOnly = false);
 
 private:
 	//---------------- IO ----------------
 	//
 	CFile::Vec m_Data;
 	CFile::Vec m_Filter;
-	CHashDatabase* m_LabelNames;
+	CFile* m_LabelNames;
 	std::string m_Path;
 	int m_Endian;
+	bool m_LabelsNotFound;
 
 	//---------------- UI ----------------
 	//
