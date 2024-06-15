@@ -121,6 +121,7 @@ private:
 	void FlagForDeletion(unsigned int uHash);
 	void UpdateFilter();
 	void UpdateEntries();
+	void UpdateDisplayName(unsigned int uHash, bool bHashOnly = false);
 
 private:
 	//---------------- IO ----------------

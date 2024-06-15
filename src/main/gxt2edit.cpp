@@ -263,10 +263,17 @@ void gxt2edit::RenderTable()
 				{
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
 					{
-						const unsigned int& uHash = m_Filter[i].first;
-						std::string& text = m_Filter[i].second;
+						// Data
+						const unsigned int& uHash	= m_Filter[i].first;
+						std::string& szText			= m_Filter[i].second;
 
-						std::string& displayName = m_LabelNames->GetData()[uHash];
+						const CFile::Map::const_iterator itMap = m_LabelNames->GetDataConst().find(uHash);
+						if (itMap == m_LabelNames->GetDataConst().end())
+						{
+							UpdateDisplayName(uHash, true);
+						}
+
+						std::string displayName = m_LabelNames->GetDataConst().find(uHash)->second;
 
 						ImGui::TableNextRow();
 
@@ -286,9 +293,9 @@ void gxt2edit::RenderTable()
 
 						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_TEXT);
 						ImGui::PushItemWidth(-FLT_EPSILON);
-						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &text, ImGuiInputTextFlags_AutoSelectAll))
+						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &szText, ImGuiInputTextFlags_AutoSelectAll))
 						{
-							if (text.empty())
+							if (szText.empty())
 							{
 								FlagForDeletion(uHash);
 							}
@@ -302,9 +309,9 @@ void gxt2edit::RenderTable()
 
 								if (it != m_Data.end())
 								{
-									if (it->second != text)
+									if (it->second != szText)
 									{
-										it->second = text;
+										it->second = szText;
 									}
 								}
 							}
@@ -1021,21 +1028,6 @@ void gxt2edit::UpdateEntries()
 	bool bShouldUpdateFilter = false;
 	static bool bManageLabelNames = false;
 
-	auto updateDisplayName = [=](unsigned int uHash) -> void
-	{
-		if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
-		{
-			if (!m_LabelInput.empty())
-			{
-				m_LabelNames->GetData()[uHash] = m_LabelInput;
-			}
-			else
-			{
-				m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
-			}
-		}
-	};
-
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
 		auto it = std::find_if(m_Data.begin(), m_Data.end(),
@@ -1070,7 +1062,7 @@ void gxt2edit::UpdateEntries()
 			m_HasPendingChanges = true;
 
 			// Update Display Names
-			updateDisplayName(uHash);
+			UpdateDisplayName(uHash);
 
 			// Insertion was successful, clear fields
 			m_HashInput.clear();
@@ -1097,7 +1089,7 @@ void gxt2edit::UpdateEntries()
 				m_OverrideExistingEntry = false;
 
 				// Update Display Names
-				updateDisplayName(uHash);
+				UpdateDisplayName(uHash);
 
 				// Insertion was successful, clear fields
 				m_HashInput.clear();
@@ -1142,6 +1134,26 @@ void gxt2edit::UpdateEntries()
 		UpdateFilter();
 	}
 }
+
+void gxt2edit::UpdateDisplayName(unsigned int uHash, bool bHashOnly /*= false*/)
+{
+	if (!m_LabelNames)
+	{
+		return;
+	}
+
+	if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
+	{
+		if (!m_LabelInput.empty() && !bHashOnly)
+		{
+			m_LabelNames->GetData()[uHash] = m_LabelInput;
+		}
+		else
+		{
+			m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
+		}
+	}
+};
 
 #if _WIN32
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
