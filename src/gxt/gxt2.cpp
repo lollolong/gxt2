@@ -123,6 +123,25 @@ void CFile::DoSwapEndian(unsigned int& x) const
 //-----------------------------------------------------------------------------------------
 //
 
+CMemoryFile::CMemoryFile() : CFile()
+{
+} // ::CMemoryFile()
+
+bool CMemoryFile::ReadEntries()
+{
+	assert(false /*, "CMemoryFile::WriteEntries() should not be called!"*/);
+	return false;
+} // bool ::ReadEntries()
+
+bool CMemoryFile::WriteEntries()
+{
+	assert(false /*, "CMemoryFile::WriteEntries() should not be called!"*/);
+	return false;
+} // bool ::WriteEntries()
+
+//-----------------------------------------------------------------------------------------
+//
+
 CGxt2File::CGxt2File(const std::string& fileName, int openFlags /*= FLAGS_READ_COMPILED*/, int endian /*= _LITTLE_ENDIAN*/) :
 	CFile(fileName, openFlags, endian)
 {
