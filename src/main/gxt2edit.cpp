@@ -27,6 +27,7 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_Endian(CFile::_LITTLE_ENDIAN),
 	m_LabelsNotFound(false),
 	m_EditorToolsHeight(110.f),
+	m_SortViewNextRound(false),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
@@ -304,6 +305,7 @@ void gxt2edit::RenderTable()
 						if (itMap == m_LabelNames->GetDataConst().end())
 						{
 							UpdateDisplayName(uHash, true);
+							m_SortViewNextRound = true;
 						}
 
 						std::string displayName = m_LabelNames->GetDataConst().find(uHash)->second;
@@ -479,6 +481,7 @@ void gxt2edit::RenderEditTools()
 		{
 			if (!m_SearchInput.empty())
 			{
+				m_SortViewNextRound = true;
 				UpdateFilter();
 			}
 		}
@@ -486,6 +489,7 @@ void gxt2edit::RenderEditTools()
 		if (ImGui::Button("Clear", ImVec2(100.f, 0.f)))
 		{
 			m_SearchInput.clear();
+			m_SortViewNextRound = true;
 			UpdateFilter();
 		}
 
@@ -657,7 +661,7 @@ void gxt2edit::ProcessShortcuts()
 void gxt2edit::SortTable()
 {
 	ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs();
-	if (sortSpecs && sortSpecs->SpecsDirty)
+	if (sortSpecs && (sortSpecs->SpecsDirty || m_SortViewNextRound))
 	{
 		auto compareEntries = [&](const std::pair<unsigned int, std::string>& a, const std::pair<unsigned int, std::string>& b) -> bool
 		{
@@ -714,13 +718,17 @@ void gxt2edit::SortTable()
 		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
 		const std::chrono::steady_clock::time_point endpoint = std::chrono::high_resolution_clock::now();
 
-		printf("[%s] Entry Count = %lli, Execution Time = %lli\n", __FUNCSIG__, m_Filter.size(), std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
+		printf("[%s] Entry Count = %lli, m_SortViewNextRound = %s, Execution Time = %lli ms\n", __FUNCSIG__, 
+			m_Filter.size(), 
+			(m_SortViewNextRound == true) ? "true" : "false", 
+			std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
 #else
 		std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
 #endif
 
 		sortSpecs->SpecsDirty = false;
+		m_SortViewNextRound = false;
 	}
 }
 
@@ -960,6 +968,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 				m_Data.emplace_back(uHash, szEntry);
 			}
 			m_Filter = m_Data;
+			m_SortViewNextRound = true;
 
 			if (fileType == FILETYPE_GXT2)
 			{
