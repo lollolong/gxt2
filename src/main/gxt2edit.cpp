@@ -302,15 +302,17 @@ void gxt2edit::RenderTable()
 						// Data
 						const unsigned int& uHash	= m_Filter[i].first;
 						std::string& szText			= m_Filter[i].second;
+						std::string& displayName	= m_LabelNames->GetData()[uHash];
 
+#if 0
 						const CFile::Map::const_iterator itMap = m_LabelNames->GetDataConst().find(uHash);
 						if (itMap == m_LabelNames->GetDataConst().end())
 						{
 							UpdateDisplayName(uHash, true);
 							m_SortViewNextRound = true;
 						}
-
 						std::string displayName = m_LabelNames->GetDataConst().find(uHash)->second;
+#endif
 
 						ImGui::TableNextRow();
 
