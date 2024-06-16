@@ -524,6 +524,7 @@ void gxt2edit::RenderPopups()
 			m_RequestOpenFile = false;
 			m_RequestImportFile = false;
 			m_RenderSaveChangesPopup = false;
+			m_RequestCloseFile = false;
 			CGraphics::SetIsClosing(false);
 			ImGui::CloseCurrentPopup();
 		}
