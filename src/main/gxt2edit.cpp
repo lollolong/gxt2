@@ -714,19 +714,22 @@ void gxt2edit::SortTable()
 			return false;
 		};
 
-#if defined(MEASURE_ENABLED)
-		const std::chrono::steady_clock::time_point startpoint = std::chrono::high_resolution_clock::now();
-		std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
-		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
-		const std::chrono::steady_clock::time_point endpoint = std::chrono::high_resolution_clock::now();
+		MEASURE_START;
+		{
+			if (m_SortUnderlyingData)
+			{
+				std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
+			}
+			std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+		}
+		MEASURE_END;
 
-		printf("[%s] Entry Count = %lli, m_SortViewNextRound = %s, Execution Time = %lli ms\n", __FUNCSIG__, 
+#if MEASURE_ENABLED
+		printf("[%s] Entry Count = %lli, m_SortViewNextRound = %s, m_SortUnderlyingData = %s, Execution Time = %lli ms\n", __FUNCTION__, 
 			m_Filter.size(), 
-			(m_SortViewNextRound == true) ? "true" : "false", 
-			std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
-#else
-		std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
-		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+			(m_SortViewNextRound) ? "true" : "false", 
+			(m_SortUnderlyingData) ? "true" : "false",
+			MEASURE_MS);
 #endif
 
 		sortSpecs->SpecsDirty = false;
