@@ -710,11 +710,13 @@ void gxt2edit::SortTable()
 
 #if defined(MEASURE_ENABLED)
 		const std::chrono::steady_clock::time_point startpoint = std::chrono::high_resolution_clock::now();
+		std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
 		const std::chrono::steady_clock::time_point endpoint = std::chrono::high_resolution_clock::now();
 
 		printf("[%s] Entry Count = %lli, Execution Time = %lli\n", __FUNCSIG__, m_Filter.size(), std::chrono::duration_cast<std::chrono::milliseconds>(endpoint - startpoint).count());
 #else
+		std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 		std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
 #endif
 
