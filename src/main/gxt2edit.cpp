@@ -28,6 +28,7 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_LabelsNotFound(false),
 	m_EditorToolsHeight(110.f),
 	m_SortViewNextRound(false),
+	m_SortUnderlyingData(false),
 	m_AddFileImg(nullptr),
 	m_RequestNewFile(false),
 	m_RequestOpenFile(false),
@@ -730,6 +731,7 @@ void gxt2edit::SortTable()
 
 		sortSpecs->SpecsDirty = false;
 		m_SortViewNextRound = false;
+		m_SortUnderlyingData = false;
 	}
 }
 
@@ -970,6 +972,7 @@ void gxt2edit::LoadFromFile(const std::string& path, eFileType fileType)
 			}
 			m_Filter = m_Data;
 			m_SortViewNextRound = true;
+			m_SortUnderlyingData = true;
 
 			if (fileType == FILETYPE_GXT2)
 			{
@@ -1053,6 +1056,7 @@ void gxt2edit::UpdateFilter()
 	if (m_SearchInput.empty())
 	{
 		m_Filter = m_Data;
+		m_SortUnderlyingData = true;
 		return;
 	}
 	for (const auto& entry : m_Data)

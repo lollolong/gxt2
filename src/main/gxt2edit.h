@@ -142,6 +142,7 @@ private:
 	ImVec2 m_BarSize;
 	float m_EditorToolsHeight;
 	bool m_SortViewNextRound;
+	bool m_SortUnderlyingData;
 	std::string m_HashInput;
 	std::string m_LabelInput;
 	std::string m_TextInput;
