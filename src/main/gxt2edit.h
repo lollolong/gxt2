@@ -126,6 +126,7 @@ private:
 	void UpdateFilter();
 	void UpdateEntries();
 	void UpdateDisplayName(unsigned int uHash, bool bHashOnly = false);
+	void CacheDisplayNames();
 
 private:
 	//---------------- IO ----------------

@@ -155,6 +155,7 @@ void gxt2edit::Draw()
 {
 	HandleDragDropLoading();
 	RenderPopups();
+	CacheDisplayNames();
 	RenderEditor();
 	ProcessShortcuts();
 	ProcessFileRequests();
@@ -1078,7 +1079,6 @@ void gxt2edit::UpdateFilter()
 void gxt2edit::UpdateEntries()
 {
 	bool bShouldUpdateFilter = false;
-	static bool bManageLabelNames = false;
 
 	for (const unsigned int& uHash : m_EntriesToRemove)
 	{
@@ -1158,25 +1158,6 @@ void gxt2edit::UpdateEntries()
 #endif
 	}
 
-	if (!m_Data.empty())
-	{
-		if (!bManageLabelNames)
-		{
-			for (const auto& [uHash, szTextEntry] : m_Data)
-			{
-				if (auto it = m_LabelNames->GetData().find(uHash); it == m_LabelNames->GetData().end())
-				{
-					m_LabelNames->GetData()[uHash] = std::format("0x{:08X}", uHash);
-				}
-			}
-			bManageLabelNames = true;
-		}
-	}
-	else
-	{
-		bManageLabelNames = false;
-	}
-
 	if (!m_EntriesToRemove.empty())
 	{
 		m_EntriesToRemove.clear();
@@ -1206,6 +1187,28 @@ void gxt2edit::UpdateDisplayName(unsigned int uHash, bool bHashOnly /*= false*/)
 		}
 	}
 };
+
+void gxt2edit::CacheDisplayNames()
+{
+	static bool bManageLabelNames = false;
+
+	if (!m_Data.empty())
+	{
+		if (!bManageLabelNames)
+		{
+			for (const auto& [uHash, szTextEntry] : m_Data)
+			{
+				IM_UNUSED(szTextEntry);
+				UpdateDisplayName(uHash, true);
+			}
+			bManageLabelNames = true;
+		}
+	}
+	else
+	{
+		bManageLabelNames = false;
+	}
+}
 
 #if _WIN32
 void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
