@@ -317,7 +317,7 @@ void gxt2edit::RenderTable()
 						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_DELETE);
 						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - trashIconWidth) * 0.5f);
-						if (ImGui::Button((ICON_FA_TRASH "##" + std::to_string(uHash)).c_str()))
+						if (ImGui::Button((ICON_FA_TRASH "##Delete" + displayName).c_str()))
 						{
 							FlagForDeletion(uHash);
 						}
@@ -330,7 +330,7 @@ void gxt2edit::RenderTable()
 
 						ImGui::TableSetColumnIndex(eColumnSetup::COLUMN_TEXT);
 						ImGui::PushItemWidth(-FLT_EPSILON);
-						if (ImGui::InputText(("##Text" + std::to_string(uHash)).c_str(), &szText, ImGuiInputTextFlags_AutoSelectAll))
+						if (ImGui::InputText(("##Text" + displayName).c_str(), &szText, ImGuiInputTextFlags_AutoSelectAll))
 						{
 							if (szText.empty())
 							{
