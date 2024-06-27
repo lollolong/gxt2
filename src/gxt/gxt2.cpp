@@ -105,7 +105,10 @@ const CFile::Map& CFile::GetDataConst() const
 void CFile::SetData(const Map& data)
 {
 	//m_Entries = data;
-	m_Entries.insert(data.begin(), data.end());
+	for (const auto& [key, value] : data)
+	{
+		m_Entries.insert_or_assign(key, value);
+	}
 } // void ::SetData()
 
 void CFile::SetData(const Vec& data)
