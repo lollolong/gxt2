@@ -20,6 +20,8 @@ namespace utils
 	std::string ToLower(const std::string& str);
 	std::string ToUpper(const std::string& str);
 
+	int SortStringIntegers(const std::string& a, const std::string& b);
+
 #if _WIN32
 	HRESULT WriteRegistryValue(HKEY hKey, PCWSTR pszSubKey, PCWSTR pszValueName, PCWSTR pszData);
 	HRESULT RegisterShellFileExtension(PCWSTR pszFileType, PCWSTR pszHandlerName, PCWSTR pszFileTypeName);

@@ -694,7 +694,7 @@ void gxt2edit::SortTable()
 						if (aIt != mLabels.end() && bIt != mLabels.end())
 						{
 							// Name comparison
-							delta = aIt->second.compare(bIt->second);
+							delta = utils::SortStringIntegers(aIt->second, bIt->second);
 						}
 						else
 						{
