@@ -46,6 +46,7 @@ if(MSVC)
 endif()
 
 # Includes
+include(cmake/glfw.cmake)
 include(cmake/json.cmake)
 
 # Directories

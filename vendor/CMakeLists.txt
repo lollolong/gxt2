@@ -2,14 +2,6 @@
 # vendor/CMakeLists.txt
 #
 
-# GLFW
-set(GLFW_INSTALL OFF)
-set(GLFW_BUILD_DOCS OFF)
-set(GLFW_BUILD_TESTS OFF)
-set(GLFW_BUILD_EXAMPLES OFF)
-
-add_subdirectory(glfw)
-
 include("ImGui.cmake")
 
 add_subdirectory("portable-file-dialogs")
