@@ -45,6 +45,9 @@ if(MSVC)
     add_definitions(-DUNICODE -D_UNICODE)
 endif()
 
+# Includes
+include(cmake/json.cmake)
+
 # Directories
 add_subdirectory(${VENDOR_DIR})
 add_subdirectory(src)

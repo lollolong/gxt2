@@ -12,7 +12,6 @@ add_subdirectory(glfw)
 
 include("ImGui.cmake")
 
-add_subdirectory("json")
 add_subdirectory("portable-file-dialogs")
 
 # move projects
