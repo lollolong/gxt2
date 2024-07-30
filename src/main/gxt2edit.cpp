@@ -693,8 +693,20 @@ void gxt2edit::SortTable()
 
 						if (aIt != mLabels.end() && bIt != mLabels.end())
 						{
-							// Name comparison
-							delta = utils::SortStringIntegers(aIt->second, bIt->second);
+							const std::string strA = aIt->second;
+							const std::string strB = bIt->second;
+							
+							if (strA.starts_with("0x") && strB.starts_with("0x"))
+							{
+								// Hash comparison
+								if (a.first < b.first) delta = -1;
+								if (a.first > b.first) delta = 1;
+							}
+							else
+							{
+								// Name comparison
+								delta = utils::SortStringIntegers(strA, strB);
+							}
 						}
 						else
 						{
