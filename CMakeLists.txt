@@ -10,7 +10,7 @@ if(CMAKE_HOST_WIN32)
 endif(CMAKE_HOST_WIN32)
 
 set(VENDOR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
-project(gxt2 VERSION 1.0)
+project(gxt2 VERSION 1.1)
 
 # Options
 set(BUILD_SHARED_LIBS OFF)
