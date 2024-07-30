@@ -147,7 +147,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	glfw
-	ImGui::ImGui
+	imgui
 	portable_file_dialogs
 	nlohmann_json::nlohmann_json
 	${Vulkan_LIBRARIES}
