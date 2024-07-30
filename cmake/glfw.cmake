@@ -12,3 +12,6 @@ FetchContent_Declare(
     GIT_PROGRESS   TRUE
 )
 FetchContent_MakeAvailable(glfw)
+
+set_target_properties(glfw PROPERTIES FOLDER "Dependencies")
+set_target_properties(update_mappings PROPERTIES FOLDER "Dependencies")

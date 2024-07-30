@@ -27,3 +27,5 @@ target_include_directories(imgui PUBLIC
 
 target_link_libraries(imgui PUBLIC glfw ${Vulkan_LIBRARIES})
 target_include_directories(imgui PUBLIC ${Vulkan_INCLUDE_DIRS})
+
+set_target_properties(imgui PROPERTIES FOLDER "Dependencies")
