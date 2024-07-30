@@ -5,7 +5,6 @@
 // Project
 #include "util.h"
 #include "grc/graphics.h"
-#include "portable-file-dialogs.h"
 #include <filesystem>
 
 #if _WIN32
@@ -15,6 +14,9 @@
 
 // C/C++
 #include <ctype.h>
+
+// vendor
+#include <portable-file-dialogs.h>
 
 namespace utils
 {

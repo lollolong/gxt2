@@ -49,6 +49,7 @@ endif()
 include(cmake/glfw.cmake)
 include(cmake/json.cmake)
 include(cmake/imgui.cmake)
+include(cmake/pfd.cmake)
 
 # Directories
 add_subdirectory(${VENDOR_DIR})

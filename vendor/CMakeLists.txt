@@ -3,8 +3,6 @@
 #
 
 
-add_subdirectory("portable-file-dialogs")
-
 # move projects
 set(DEPENDENCIES_FOLDER "Dependencies")
 
