@@ -128,6 +128,10 @@ private:
 	void UpdateDisplayName(unsigned int uHash, bool bHashOnly = false);
 	void CacheDisplayNames();
 
+	//---------------- Tools ----------------
+	//
+	void GenerateUsedLabelList() const;
+
 private:
 	//---------------- IO ----------------
 	//

@@ -498,8 +498,8 @@ bool COxtFile::WriteEntries()
 //-----------------------------------------------------------------------------------------
 //
 
-CHashDatabase::CHashDatabase(const std::string& fileName) :
-	CFile(fileName, FLAGS_READ_DECOMPILED)
+CHashDatabase::CHashDatabase(const std::string& fileName, int openFlags /*= FLAGS_READ_DECOMPILED*/) :
+	CFile(fileName, openFlags)
 {
 } // ::CHashDatabase(const string& fileName)
 
@@ -534,6 +534,15 @@ bool CHashDatabase::ReadEntries()
 
 bool CHashDatabase::WriteEntries()
 {
-	assert(false /*, "CHashDatabase::WriteEntries() should not be called!"*/);
-	return false;
+	if (!IsOpen())
+	{
+		return false;
+	}
+
+	for (const auto& [uHash, szName] : m_Entries)
+	{
+		m_File << szName << std::endl;
+	}
+
+	return true;
 } // bool ::WriteEntries()

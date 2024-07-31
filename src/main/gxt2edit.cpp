@@ -204,6 +204,14 @@ void gxt2edit::RenderMenuBar()
 			}
 			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("Tools"))
+		{
+			if (ImGui::MenuItem(ICON_FA_LIST " Generate Used Label List"))
+			{
+				GenerateUsedLabelList();
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Settings"))
 		{
 			if (ImGui::MenuItem("Little Endian", nullptr, IsLittleEndian()))
@@ -1221,6 +1229,38 @@ void gxt2edit::CacheDisplayNames()
 	else
 	{
 		bManageLabelNames = false;
+	}
+}
+
+void gxt2edit::GenerateUsedLabelList() const
+{
+	if (!m_LabelNames)
+	{
+		return;
+	}
+
+	CFile::Map mMap;
+	const CFile::Map& mLabels = m_LabelNames->GetDataConst();
+
+	for (const auto& [uHash, szName] : m_Data)
+	{
+		if (auto it = mLabels.find(uHash); it != mLabels.end())
+		{
+			if (it->second.starts_with("0x"))
+			{
+				continue;
+			}
+			mMap[uHash] = it->second;
+		}
+	}
+
+	if (!mMap.empty())
+	{
+		CFile* pFile = GXT_NEW CHashDatabase(std::format("labelnames-{}.txt", time(nullptr)), CFile::FLAGS_WRITE_DECOMPILED);
+		pFile->SetData(mMap);
+		pFile->WriteEntries();
+
+		delete pFile;
 	}
 }
 

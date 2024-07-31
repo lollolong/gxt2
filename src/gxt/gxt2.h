@@ -203,7 +203,7 @@ public:
 class CHashDatabase : public CFile
 {
 public:
-	CHashDatabase(const std::string& fileName);
+	CHashDatabase(const std::string& fileName, int openFlags = FLAGS_READ_DECOMPILED);
 
 	bool ReadEntries() override;
 	bool WriteEntries() override;
