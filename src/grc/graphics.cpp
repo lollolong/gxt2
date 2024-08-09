@@ -348,7 +348,7 @@ void CGraphics::InitVulkan()
 				extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 			}
 
-#ifdef VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME
+#if VK_KHR_portability_enumeration && 1
 			if (strcmp(vkExtensionProperty.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
 			{
 				extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
@@ -370,6 +370,13 @@ void CGraphics::InitVulkan()
 		createInfo.enabledLayerCount = (uint32_t)std::size(enabledLayers);
 		createInfo.ppEnabledLayerNames = enabledLayers;
 		extensions.push_back("VK_EXT_debug_report");
+#endif
+
+#ifdef VULKAN_DEBUG
+		for (const char*& ext : extensions)
+		{
+			printf("[vulkan][extension list] %s\n", ext);
+		}
 #endif
 
 		//---------------- Create Vulkan Instance ----------------
