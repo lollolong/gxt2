@@ -1,0 +1,42 @@
+name: CMake AppImage
+
+on:
+  push:
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'cmake/**'
+      - 'vendor/**'
+      - 'CMakeLists.txt'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          submodules: recursive
+
+    - name: Install Dependencies
+      run: sudo apt update && sudo apt install -y libwayland-dev libxkbcommon-dev xorg-dev libvulkan-dev libvulkan1 gcc g++ cmake clang desktop-file-utils fuse libfuse2
+    
+    - name: Configure CMake
+      run: CC=clang CXX=clang++ cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGXT2_IS_APPIMAGE_BUILD=ON
+
+    - name: Build
+      run: CC=clang CXX=clang++ cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Generate AppImage
+      run: cd scripts && ./generate_appimage.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: gxt2edit-appimage
+        path: scripts/Output
