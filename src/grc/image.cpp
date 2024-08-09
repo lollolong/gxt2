@@ -222,4 +222,4 @@ void CImage::Release()
 	m_DescriptorSet = VK_NULL_HANDLE;
 }
 
-#endif
+#endif // UI_BACKEND
