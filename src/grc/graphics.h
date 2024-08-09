@@ -35,6 +35,7 @@
 #ifdef _DEBUG
 	#define VULKAN_DEBUG
 	#define ASSERT_VULKAN(vkRes) CheckVulkan(vkRes);
+	//#define ASSERT_VULKAN(vkRes) printf("[ASSERT_VULKAN]:%i\n", __LINE__); CheckVulkan(vkRes);
 #else
 	#define ASSERT_VULKAN(vkRes) (void)vkRes;
 #endif
