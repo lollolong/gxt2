@@ -1,4 +1,4 @@
-name: CMake AppImage
+name: CMake Linux
 
 on:
   push:
