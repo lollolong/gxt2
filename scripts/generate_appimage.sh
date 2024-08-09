@@ -15,5 +15,6 @@ chmod 0744 Temp/appimagetool-x86_64.AppImage
 NO_STRIP=true ./Temp/linuxdeploy-x86_64.AppImage --appdir AppDir --executable ./../build/src/gxt2edit -d ./gxt2edit.desktop -i ./icon_gxt2edit.png
 
 cp -r ../fonts AppDir/
+cp ../labels.txt AppDir/
 
 NO_STRIP=true ARCH=x86_64 ./Temp/appimagetool-x86_64.AppImage AppDir Output/gxt2edit.AppImage
