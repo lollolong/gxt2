@@ -336,6 +336,22 @@ bool CGraphics::ShouldUseDarkMode() const
 		}
 		return false;
 	}
+#elif defined(__APPLE__)
+	FILE* pipe = popen("defaults read -g AppleInterfaceStyle", "r");
+	if (pipe)
+	{
+		char buffer[128] = {};
+		std::string result = "";
+		while (fgets(buffer, sizeof(buffer), pipe) != nullptr)
+		{
+			result += buffer;
+		}
+		pclose(pipe);
+
+		if (result.empty()) {
+			return false;
+		}
+	}
 #endif
 
 	return true; // prefer dark mode
