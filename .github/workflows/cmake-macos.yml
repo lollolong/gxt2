@@ -35,7 +35,7 @@ jobs:
       - name: Copy Vulkan Libraries
         run: |
           mkdir -p "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks"
-          cp -R "${{ steps.vulkan-sdk.outputs.vulkan_sdk_path }}/lib/libvulkan.1.dylib" "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks/"
+          cp -R "${{ github.workspace }}/VULKAN_SDK/lib/libvulkan.1.dylib" "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks/"
           install_name_tool -change @rpath/libvulkan.1.dylib @rpath/Frameworks/libvulkan.1.dylib "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/MacOS/gxt2edit"
 
       - name: Test
