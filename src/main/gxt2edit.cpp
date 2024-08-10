@@ -123,6 +123,7 @@ bool gxt2edit::Init()
 		}
 	}
 
+	m_IsInitialized = bInit;
 	return bInit;
 }
 

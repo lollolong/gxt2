@@ -72,6 +72,7 @@ public:
 	int Run(int argc, char* argv[]) override;
 public:
 	static gxt2edit& GetInstance();
+	bool IsInitialized() const { return m_IsInitialized; }
 private:
 	//---------------- App ----------------
 	//
@@ -170,6 +171,10 @@ private:
 	bool m_RenderEmptyTextPopup;
 	std::vector<unsigned int> m_EntriesToRemove;
 	std::stack<std::pair<unsigned int, std::string>> m_ItemsToAdd;
+
+	//---------------- App ----------------
+	//
+	bool m_IsInitialized;
 };
 
 #endif // !_GXT2EDIT_H_
