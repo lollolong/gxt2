@@ -1,0 +1,41 @@
+name: CMake MacOS
+
+on:
+  push:
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'cmake/**'
+      - 'vendor/**'
+      - 'CMakeLists.txt'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          submodules: recursive
+
+    - name: Install Vulkan SDK  
+      uses: humbletim/install-vulkan-sdk@v1.1.1
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGXT2_ENABLE_UNITY_BUILD=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos_arm64_${{env.BUILD_TYPE}}
+        path: ${{github.workspace}}/build/src/${{env.BUILD_TYPE}}/*.app
