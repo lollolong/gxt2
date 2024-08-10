@@ -11,31 +11,41 @@ on:
 
 env:
   BUILD_TYPE: Release
+  APP_NAME: gxt2edit.app
 
 jobs:
   build:
-    runs-on: macos-latest-arm64
-
+    runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
+      - uses: actions/checkout@v4
+        with:
           submodules: recursive
 
-    - name: Install Vulkan SDK  
-      uses: humbletim/install-vulkan-sdk@v1.1.1
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.1.1
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{env.BUILD_TYPE}}
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos_arm64_${{env.BUILD_TYPE}}
-        path: ${{github.workspace}}/build/src/*.app
+      - name: Create DMG
+        run: |
+          hdiutil create -volname "${{ env.APP_NAME }}" -srcfolder "${{github.workspace}}/build/src/${{ env.APP_NAME }}" -ov -format UDZO "${{github.workspace}}/build/${{ env.APP_NAME }}.dmg"
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_arm64_${{env.BUILD_TYPE}}_app
+          path: ${{github.workspace}}/build/src/${{ env.APP_NAME }}
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_arm64_${{env.BUILD_TYPE}}_dmg
+          path: ${{github.workspace}}/build/${{ env.APP_NAME }}.dmg
