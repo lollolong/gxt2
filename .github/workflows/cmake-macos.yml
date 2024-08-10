@@ -38,4 +38,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: macos_arm64_${{env.BUILD_TYPE}}
-        path: ${{github.workspace}}/build/src/${{env.BUILD_TYPE}}/*.app
+        path: ${{github.workspace}}/build/src/*.app
