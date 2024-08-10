@@ -40,7 +40,8 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RenderEntryAlreadyExistPopup(false),
 	m_OverrideExistingEntry(false),
 	m_RenderEmptyHashPopup(false),
-	m_RenderEmptyTextPopup(false)
+	m_RenderEmptyTextPopup(false),
+	m_IsInitialized(false)
 {
 }
 
@@ -123,6 +124,7 @@ bool gxt2edit::Init()
 		}
 	}
 
+	m_IsInitialized = bInit;
 	return bInit;
 }
 
@@ -214,6 +216,15 @@ void gxt2edit::RenderMenuBar()
 		}
 		if (ImGui::BeginMenu("Settings"))
 		{
+			if (ImGui::MenuItem("Light Theme", nullptr, !CGraphics::GetInstance().IsUsingDarkMode()))
+			{
+				SetEditorTheme(false);
+			}
+			if (ImGui::MenuItem("Dark Theme", nullptr, CGraphics::GetInstance().IsUsingDarkMode()))
+			{
+				SetEditorTheme(true);
+			}
+			ImGui::Separator();
 			if (ImGui::MenuItem("Little Endian", nullptr, IsLittleEndian()))
 			{
 				SetLittleEndian();
@@ -1278,6 +1289,24 @@ void gxt2edit::RegisterExtension(bool bUnregister /*= false*/)
 	}
 }
 #endif
+
+void gxt2edit::SetEditorTheme(bool bDarkTheme /*= true*/) const
+{
+	if (CGraphics::GetInstance().IsUsingDarkMode() != bDarkTheme)
+	{
+		CGraphics::GetInstance().SetupTheme(bDarkTheme);
+
+#if _WIN32
+		// Refresh for Windows Title Bar
+
+		//ShowWindow(CGraphics::GetInstance().GetWin32Window(), SW_MINIMIZE);
+		//ShowWindow(CGraphics::GetInstance().GetWin32Window(), SW_RESTORE);
+
+		glfwHideWindow(CGraphics::GetInstance().GetWindow());
+		glfwShowWindow(CGraphics::GetInstance().GetWindow());
+#endif
+	}
+}
 
 //---------------- Entry Point ----------------
 //

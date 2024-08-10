@@ -73,7 +73,10 @@ public:
 
 #if _WIN32
 	HWND GetWin32Window() const;
+	void SetWindowsTitleBarTheme(bool bDarkTheme = true) const;
 #endif
+
+	bool ShouldUseDarkMode() const;
 
 	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
 
@@ -88,6 +91,12 @@ public:
 	uint32_t GetQueueFamilyIndex() const { return m_QueueFamily; }
 	int GetMinImageCount() const { return m_MinImageCount; }
 	bool IsSwapchainRebuild() const { return m_SwapChainRebuild; }
+	bool IsUsingDarkMode() const { return m_IsUsingDarkMode; }
+
+#if _WIN32
+	HMODULE GetUxThemeLibrary() const { return m_UxTheme; };
+	bool HasUxThemeLoaded() const { return GetUxThemeLibrary() != nullptr; };
+#endif
 
 	static CGraphics& GetInstance() { return sm_Instance; }
 	static std::stack<std::string>& GetDropFiles() { return sm_DropFiles; }
@@ -114,12 +123,15 @@ private:
 	// ImGui
 	void InitImGui();
 	void SetupFonts();
-	void SetupTheme();
 
+public:
+	void SetupTheme(bool bDarkTheme = true);
+
+private:
 	// Callbacks
 	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 	static void CloseCallback(GLFWwindow* window);
-public:
+private:
 	GLFWwindow* m_Window;
 	int m_Width;
 	int m_Height;
@@ -136,6 +148,12 @@ public:
 	static CGraphics sm_Instance;
 	static std::stack<std::string> sm_DropFiles;
 	static bool sm_InClosingState;
+
+#if _WIN32
+	HMODULE m_UxTheme;
+#endif
+
+	bool m_IsUsingDarkMode;
 };
 
 #endif // UI_BACKEND
