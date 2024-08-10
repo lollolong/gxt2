@@ -40,7 +40,8 @@ gxt2edit::gxt2edit(const std::string& windowTitle, int width, int height) :
 	m_RenderEntryAlreadyExistPopup(false),
 	m_OverrideExistingEntry(false),
 	m_RenderEmptyHashPopup(false),
-	m_RenderEmptyTextPopup(false)
+	m_RenderEmptyTextPopup(false),
+	m_IsInitialized(false)
 {
 }
 
