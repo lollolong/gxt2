@@ -15,8 +15,16 @@
 #ifdef _WIN32
 	#include <ShlObj.h>
 	#include <dwmapi.h>
+	#include <Uxtheme.h>
 	#define DARK_MODE_STRING_NAME	L"DarkMode_Explorer"
 	#define DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 19
+
+	#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+		#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+	#endif
+
+	#define UXTHEME_DLL_NAME L"uxtheme.dll"
+	#define UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL 132
 #endif
 
 // vendor
@@ -41,6 +49,9 @@ CGraphics::CGraphics() :
 	m_DescriptorPool(VK_NULL_HANDLE),
 	m_MinImageCount(2),
 	m_SwapChainRebuild(false)
+#if _WIN32
+	, m_UxTheme(nullptr)
+#endif
 {
 }
 
@@ -87,6 +98,12 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	}
 
 #ifdef _WIN32
+
+	m_UxTheme = LoadLibraryExW(UXTHEME_DLL_NAME, nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+	assert(m_UxTheme);
+
+	printf("UxTheme library loaded, m_UxTheme = %p\n", m_UxTheme);
+
 	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 
 	const BOOL isDarkMode = TRUE;
@@ -138,6 +155,14 @@ void CGraphics::Shutdown()
 
 	CGraphics::CleanupVulkanWindow();
 	CGraphics::CleanupVulkan();
+
+#if _WIN32
+	if (HasUxThemeLoaded())
+	{
+		FreeLibrary(GetUxThemeLibrary());
+		printf("Free UxTheme library ... \n");
+	}
+#endif
 
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();

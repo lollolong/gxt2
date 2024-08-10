@@ -89,6 +89,11 @@ public:
 	int GetMinImageCount() const { return m_MinImageCount; }
 	bool IsSwapchainRebuild() const { return m_SwapChainRebuild; }
 
+#if _WIN32
+	HMODULE GetUxThemeLibrary() const { return m_UxTheme; };
+	bool HasUxThemeLoaded() const { return GetUxThemeLibrary() != nullptr; };
+#endif
+
 	static CGraphics& GetInstance() { return sm_Instance; }
 	static std::stack<std::string>& GetDropFiles() { return sm_DropFiles; }
 
@@ -136,6 +141,10 @@ public:
 	static CGraphics sm_Instance;
 	static std::stack<std::string> sm_DropFiles;
 	static bool sm_InClosingState;
+
+#if _WIN32
+	HMODULE m_UxTheme;
+#endif
 };
 
 #endif // UI_BACKEND
