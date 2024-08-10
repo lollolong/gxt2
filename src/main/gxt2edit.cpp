@@ -18,6 +18,18 @@
 #include <filesystem>
 #include <execution>
 
+#if defined(__clang__) && defined(__APPLE__) && __has_include(<execution>)
+    #define ENABLE_PARALLEL_SORT
+#endif
+
+#if defined(__APPLE__)
+	#define CONTROL_STR "CMD"
+	#define ALT_STR "OPTION"
+#else
+	#define CONTROL_STR "CTRL"
+	#define ALT_STR "ALT"
+#endif
+
 // vendor
 #include <IconsFontAwesome6.h>
 
@@ -171,24 +183,24 @@ void gxt2edit::RenderMenuBar()
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem(ICON_FA_FILE "  New File", "CTRL + N"))
+			if (ImGui::MenuItem(ICON_FA_FILE "  New File", CONTROL_STR " + N"))
 			{
 				m_RequestNewFile = true;
 			}
-			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File", "CTRL + O"))
+			if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open File", CONTROL_STR " + O"))
 			{
 				m_RequestOpenFile = true;
 			}
-			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", "CTRL + W", false, !m_RenderEmptyEditorTable))
+			if (ImGui::MenuItem(ICON_FA_FOLDER_CLOSED " Close File", CONTROL_STR " + W", false, !m_RenderEmptyEditorTable))
 			{
 				m_RequestCloseFile = true;
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save", "CTRL + S", false, !m_Data.empty()))
+			if (ImGui::MenuItem(ICON_FA_FLOPPY_DISK "  Save", CONTROL_STR " + S", false, !m_Data.empty()))
 			{
 				SaveFile();
 			}
-			if (ImGui::MenuItem(ICON_FA_COPY "  Save As", "CTRL + SHIFT + S", false, !m_Data.empty()))
+			if (ImGui::MenuItem(ICON_FA_COPY "  Save As", CONTROL_STR " + SHIFT + S", false, !m_Data.empty()))
 			{
 				SaveFileAs();
 			}
@@ -196,11 +208,11 @@ void gxt2edit::RenderMenuBar()
 		}
 		if (ImGui::BeginMenu("Import and Export"))
 		{
-			if (ImGui::MenuItem(ICON_FA_FILE_IMPORT " Import", "CTRL + I"))
+			if (ImGui::MenuItem(ICON_FA_FILE_IMPORT " Import", CONTROL_STR " + I"))
 			{
 				m_RequestImportFile = true;
 			}
-			if (ImGui::MenuItem(ICON_FA_FILE_EXPORT " Export", "CTRL + E", false, !m_Data.empty()))
+			if (ImGui::MenuItem(ICON_FA_FILE_EXPORT " Export", CONTROL_STR " + E", false, !m_Data.empty()))
 			{
 				ExportFile();
 			}
@@ -245,7 +257,7 @@ void gxt2edit::RenderMenuBar()
 			}
 #endif
 			ImGui::Separator();
-			if (ImGui::MenuItem("Exit", "ALT + F4"))
+			if (ImGui::MenuItem("Exit", ALT_STR " + F4"))
 			{
 				CGraphics::SetIsClosing(true);
 			}
@@ -750,11 +762,20 @@ void gxt2edit::SortTable()
 
 		MEASURE_START;
 		{
+			#ifndef ENABLE_PARALLEL_SORT
 			if (m_SortUnderlyingData)
 			{
 				std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 			}
 			std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+			#else
+			if (m_SortUnderlyingData)
+			{
+				std::sort(m_Data.begin(), m_Data.end(), compareEntries);
+			}
+			std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
+
+			#endif
 		}
 		MEASURE_END;
 
