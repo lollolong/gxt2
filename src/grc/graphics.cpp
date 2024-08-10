@@ -304,15 +304,32 @@ bool CGraphics::ShouldUseDarkMode() const
 		return ShouldAppsUseDarkMode();
 	}
 #elif linux
-	const std::string gtkTheme = std::getenv("GTK_THEME");
-	if (!gtkTheme.empty())
+	FILE* pipe = popen("gsettings get org.gnome.desktop.interface color-scheme", "r");
+	if (pipe)
 	{
-		if (gtkTheme.find("dark") != std::string::npos)
+		char buffer[128] = {};
+		std::string result = "";
+		while (fgets(buffer, sizeof(buffer), pipe) != nullptr)
+		{
+			result += buffer;
+		}
+		pclose(pipe);
+
+		if (result.find("prefer-dark") != std::string::npos)
 		{
 			return true;
 		}
 	}
 
+	const char* gtkTheme = std::getenv("GTK_THEME");
+	if (gtkTheme)
+	{
+		std::string theme(gtkTheme);
+		if (theme.find("dark") != std::string::npos)
+		{
+			return true;
+		}
+	}
 #endif
 
 	// TODO: Linux
