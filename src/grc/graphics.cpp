@@ -48,10 +48,11 @@ CGraphics::CGraphics() :
 	m_Queue(VK_NULL_HANDLE),
 	m_DescriptorPool(VK_NULL_HANDLE),
 	m_MinImageCount(2),
-	m_SwapChainRebuild(false)
+	m_SwapChainRebuild(false),
 #if _WIN32
-	, m_UxTheme(nullptr)
+	m_UxTheme(nullptr),
 #endif
+	m_IsUsingDarkMode(true)
 {
 }
 
