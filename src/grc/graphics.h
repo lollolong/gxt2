@@ -114,7 +114,7 @@ private:
 	// ImGui
 	void InitImGui();
 	void SetupFonts();
-	void SetupTheme(bool bDarkTheme = true);
+	void SetupTheme(bool bDarkTheme = true) const;
 
 	// Callbacks
 	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);

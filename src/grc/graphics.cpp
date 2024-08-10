@@ -804,7 +804,7 @@ void CGraphics::SetupFonts()
 	io.Fonts->Build();
 }
 
-void CGraphics::SetupTheme(bool bDarkTheme /*= true*/)
+void CGraphics::SetupTheme(bool bDarkTheme /*= true*/) const
 {
 	ImGuiStyle& style = ImGui::GetStyle();
 
