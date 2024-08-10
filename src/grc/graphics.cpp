@@ -319,7 +319,7 @@ bool CGraphics::ShouldUseDarkMode() const
 		{
 			return true;
 		}
-		printf("color-scheme = %s\n", result)
+		printf("color-scheme = %s\n", result.c_str());
 	}
 
 	const char* gtkTheme = std::getenv("GTK_THEME");
