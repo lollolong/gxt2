@@ -1,9 +1,12 @@
+[![Linux](https://github.com/lollolong/gxt2/actions/workflows/cmake-linux.yml/badge.svg)](https://github.com/lollolong/gxt2/actions/workflows/cmake-linux.yml)
+[![Windows](https://github.com/lollolong/gxt2/actions/workflows/cmake-windows.yml/badge.svg)](https://github.com/lollolong/gxt2/actions/workflows/cmake-windows.yml)
 # Grand Theft Auto V Text Table Editor
 
 This tool allows you to view and edit Grand Theft Auto V text files (*.gxt2).
 
 ![Editor](./editor_win.png)
 ![Editor](./editor_linux.png)
+![Editor](./editor_mac.png)
 
 ## Features
 
