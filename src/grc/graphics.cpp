@@ -808,40 +808,40 @@ void CGraphics::SetupTheme(bool bDarkTheme /*= true*/)
 {
 	ImGuiStyle& style = ImGui::GetStyle();
 
+	style.Alpha = 1.0f;
+	style.DisabledAlpha = 1.0f;
+	style.WindowPadding = ImVec2(12.0f, 12.0f);
+	style.WindowRounding = 0.0f;
+	style.WindowBorderSize = 0.0f;
+	style.WindowMinSize = ImVec2(20.0f, 20.0f);
+	style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+	style.WindowMenuButtonPosition = ImGuiDir_None;
+	style.ChildRounding = 0.0f;
+	style.ChildBorderSize = 1.0f;
+	style.PopupRounding = 0.0f;
+	style.PopupBorderSize = 1.0f;
+	style.FramePadding = ImVec2(6.0f, 6.0f);
+	style.FrameRounding = 0.0f;
+	style.FrameBorderSize = 0.0f;
+	style.ItemSpacing = ImVec2(12.0f, 6.0f);
+	style.ItemInnerSpacing = ImVec2(6.0f, 3.0f);
+	style.CellPadding = ImVec2(12.0f, 6.0f);
+	style.IndentSpacing = 20.0f;
+	style.ColumnsMinSpacing = 6.0f;
+	style.ScrollbarSize = 12.0f;
+	style.ScrollbarRounding = 0.0f;
+	style.GrabMinSize = 12.0f;
+	style.GrabRounding = 0.0f;
+	style.TabRounding = 0.0f;
+	style.TabBorderSize = 0.0f;
+	style.TabMinWidthForCloseButton = 0.0f;
+	style.ColorButtonPosition = ImGuiDir_Right;
+	style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
+	style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
+
 	if (bDarkTheme)
 	{
 		// Future Dark style by rewrking from ImThemes
-
-		style.Alpha = 1.0f;
-		style.DisabledAlpha = 1.0f;
-		style.WindowPadding = ImVec2(12.0f, 12.0f);
-		style.WindowRounding = 0.0f;
-		style.WindowBorderSize = 0.0f;
-		style.WindowMinSize = ImVec2(20.0f, 20.0f);
-		style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
-		style.WindowMenuButtonPosition = ImGuiDir_None;
-		style.ChildRounding = 0.0f;
-		style.ChildBorderSize = 1.0f;
-		style.PopupRounding = 0.0f;
-		style.PopupBorderSize = 1.0f;
-		style.FramePadding = ImVec2(6.0f, 6.0f);
-		style.FrameRounding = 0.0f;
-		style.FrameBorderSize = 0.0f;
-		style.ItemSpacing = ImVec2(12.0f, 6.0f);
-		style.ItemInnerSpacing = ImVec2(6.0f, 3.0f);
-		style.CellPadding = ImVec2(12.0f, 6.0f);
-		style.IndentSpacing = 20.0f;
-		style.ColumnsMinSpacing = 6.0f;
-		style.ScrollbarSize = 12.0f;
-		style.ScrollbarRounding = 0.0f;
-		style.GrabMinSize = 12.0f;
-		style.GrabRounding = 0.0f;
-		style.TabRounding = 0.0f;
-		style.TabBorderSize = 0.0f;
-		style.TabMinWidthForCloseButton = 0.0f;
-		style.ColorButtonPosition = ImGuiDir_Right;
-		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
-		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
 
 		style.Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.2745098173618317f, 0.3176470696926117f, 0.4509803950786591f, 1.0f);
@@ -900,37 +900,6 @@ void CGraphics::SetupTheme(bool bDarkTheme /*= true*/)
 	else
 	{
 		// Light style by dougbinks from ImThemes
-
-		style.Alpha = 1.0f;
-		style.DisabledAlpha = 0.6000000238418579f;
-		style.WindowPadding = ImVec2(4.0f, 6.0f);
-		style.WindowRounding = 0.0f;
-		style.WindowBorderSize = 0.0f;
-		style.WindowMinSize = ImVec2(32.0f, 32.0f);
-		style.WindowTitleAlign = ImVec2(0.0f, 0.5f);
-		style.WindowMenuButtonPosition = ImGuiDir_Left;
-		style.ChildRounding = 0.0f;
-		style.ChildBorderSize = 1.0f;
-		style.PopupRounding = 0.0f;
-		style.PopupBorderSize = 1.0f;
-		style.FramePadding = ImVec2(8.0f, 6.0f);
-		style.FrameRounding = 0.0f;
-		style.FrameBorderSize = 1.0f;
-		style.ItemSpacing = ImVec2(8.0f, 6.0f);
-		style.ItemInnerSpacing = ImVec2(8.0f, 6.0f);
-		style.CellPadding = ImVec2(4.0f, 2.0f);
-		style.IndentSpacing = 20.0f;
-		style.ColumnsMinSpacing = 6.0f;
-		style.ScrollbarSize = 20.0f;
-		style.ScrollbarRounding = 0.0f;
-		style.GrabMinSize = 5.0f;
-		style.GrabRounding = 0.0f;
-		style.TabRounding = 4.0f;
-		style.TabBorderSize = 0.0f;
-		style.TabMinWidthForCloseButton = 0.0f;
-		style.ColorButtonPosition = ImGuiDir_Right;
-		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
-		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
 
 		style.Colors[ImGuiCol_Text] = ImVec4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.4980392158031464f, 0.4980392158031464f, 0.4980392158031464f, 1.0f);
