@@ -258,27 +258,6 @@ HWND CGraphics::GetWin32Window() const
 	return glfwGetWin32Window(m_Window);
 }
 
-bool CGraphics::ShouldUseDarkMode() const
-{
-	typedef bool(WINAPI* fnShouldAppsUseDarkMode)();
-
-	static fnShouldAppsUseDarkMode ShouldAppsUseDarkMode = nullptr;
-
-	if (!ShouldAppsUseDarkMode && HasUxThemeLoaded())
-	{
-		ShouldAppsUseDarkMode = (fnShouldAppsUseDarkMode)GetProcAddress(GetUxThemeLibrary(), MAKEINTRESOURCEA(UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL));
-	}
-
-	if (ShouldAppsUseDarkMode)
-	{
-		return ShouldAppsUseDarkMode();
-	}
-
-	// TODO: Linux
-
-	return true; // prefer dark mode
-}
-
 void CGraphics::SetWindowsTitleBarTheme(bool bDarkTheme/* = true*/) const
 {
 	// https://github.com/microsoft/terminal/blob/v0.8.10261.0/src/interactivity/win32/windowtheme.cpp
@@ -307,6 +286,29 @@ void CGraphics::SetWindowsTitleBarTheme(bool bDarkTheme/* = true*/) const
 }
 
 #endif
+
+bool CGraphics::ShouldUseDarkMode() const
+{
+#if _WIN32
+	typedef bool(WINAPI* fnShouldAppsUseDarkMode)();
+
+	static fnShouldAppsUseDarkMode ShouldAppsUseDarkMode = nullptr;
+
+	if (!ShouldAppsUseDarkMode && HasUxThemeLoaded())
+	{
+		ShouldAppsUseDarkMode = (fnShouldAppsUseDarkMode)GetProcAddress(GetUxThemeLibrary(), MAKEINTRESOURCEA(UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL));
+	}
+
+	if (ShouldAppsUseDarkMode)
+	{
+		return ShouldAppsUseDarkMode();
+	}
+#endif
+
+	// TODO: Linux
+
+	return true; // prefer dark mode
+}
 
 unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const
 {
@@ -872,7 +874,9 @@ void CGraphics::SetupFonts()
 
 void CGraphics::SetupTheme(bool bDarkTheme /*= true*/) const
 {
+#if _WIN32
 	SetWindowsTitleBarTheme(bDarkTheme);
+#endif
 
 	ImGuiStyle& style = ImGui::GetStyle();
 
