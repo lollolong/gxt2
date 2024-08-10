@@ -127,6 +127,9 @@ set(SOURCES
 
 # Determine if we are on macOS
 if(APPLE)
+	set(CMAKE_MACOSX_RPATH ON)
+	set(CMAKE_INSTALL_RPATH "${VULKAN_SDK}/lib")
+
     set(MACOSX_BUNDLE_BUNDLE_NAME "GXTEdit")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.lollolong.gxt2edit")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.1")
