@@ -127,7 +127,7 @@ private:
 	// Callbacks
 	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 	static void CloseCallback(GLFWwindow* window);
-public:
+private:
 	GLFWwindow* m_Window;
 	int m_Width;
 	int m_Height;
