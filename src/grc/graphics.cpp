@@ -105,9 +105,6 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 
 	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 #endif
-	
-	
-#endif
 
 #if linux
 	// Window has to be visible on surface creation for vulkan
@@ -308,6 +305,8 @@ void CGraphics::SetWindowsTitleBarTheme(bool bDarkTheme/* = true*/) const
 	IM_UNUSED(SET_CAPTION_COLOR);
 #endif
 }
+
+#endif
 
 unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const
 {
