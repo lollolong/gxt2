@@ -6,7 +6,7 @@ FetchContent_Declare(
     GIT_TAG        8199457a7d9e453f8d3d9cadc14683fb54a858b5
     GIT_PROGRESS   TRUE
 )
-FetchContent_Populate(imgui)
+FetchContent_MakeAvailable(imgui)
 
 file(GLOB IMGUI_SOURCE_FILES
     ${imgui_SOURCE_DIR}/*.h
