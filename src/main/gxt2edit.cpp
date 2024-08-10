@@ -16,10 +16,12 @@
 #include <format>
 #include <algorithm>
 #include <filesystem>
-#include <execution>
 
-#if defined(__clang__) && defined(__APPLE__) && __has_include(<execution>)
-    #define ENABLE_PARALLEL_SORT
+#if __has_include(<execution>)
+	#include <execution>
+	#if !(defined(__clang__) && defined(__APPLE__))
+		#define USE_EXECUTION_SORT
+	#endif
 #endif
 
 #if defined(__APPLE__)
@@ -762,20 +764,20 @@ void gxt2edit::SortTable()
 
 		MEASURE_START;
 		{
-			#ifndef ENABLE_PARALLEL_SORT
+#ifdef USE_EXECUTION_SORT
 			if (m_SortUnderlyingData)
 			{
 				std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 			}
 			std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
-			#else
+#else
 			if (m_SortUnderlyingData)
 			{
 				std::sort(m_Data.begin(), m_Data.end(), compareEntries);
 			}
 			std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
 
-			#endif
+#endif
 		}
 		MEASURE_END;
 
