@@ -32,11 +32,20 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+      - name: Print Library Paths
+        run: otool -L "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/MacOS/gxt2edit"
+
+
       - name: Copy Vulkan Libraries
         run: |
           mkdir -p "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks"
           cp -R "${{ github.workspace }}/VULKAN_SDK/lib/libvulkan.1.dylib" "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks/"
+          cp -R "${{ github.workspace }}/VULKAN_SDK/lib/libvulkan.dylib" "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks/"
+          
+          # Update executable's library path to point to the Frameworks folder
           install_name_tool -change @rpath/libvulkan.1.dylib @rpath/Frameworks/libvulkan.1.dylib "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/MacOS/gxt2edit"
+          install_name_tool -change @rpath/libvulkan.dylib @rpath/Frameworks/libvulkan.dylib "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/MacOS/gxt2edit"
+
 
       - name: Test
         working-directory: ${{github.workspace}}/build

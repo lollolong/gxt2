@@ -127,8 +127,11 @@ set(SOURCES
 
 # Determine if we are on macOS
 if(APPLE)
-	set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 	set(CMAKE_MACOSX_RPATH ON)
+
+	# Specify RPATH to point to the Frameworks directory
+	set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
     set(MACOSX_BUNDLE_BUNDLE_NAME "GXTEdit")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.lollolong.gxt2edit")
