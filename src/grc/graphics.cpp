@@ -98,21 +98,15 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	}
 
 #ifdef _WIN32
-
 	m_UxTheme = LoadLibraryExW(UXTHEME_DLL_NAME, nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	assert(m_UxTheme);
 
 	printf("UxTheme library loaded, m_UxTheme = %p\n", m_UxTheme);
 
 	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
-
-	const BOOL isDarkMode = TRUE;
-
-	//SetWindowTheme(GetWin32Window(), DARK_MODE_STRING_NAME, nullptr);
-	if (FAILED(DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode))))
-	{
-		DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, &isDarkMode, sizeof(isDarkMode));
-	}
+#endif
+	
+	
 #endif
 
 #if linux
@@ -261,11 +255,59 @@ void CGraphics::PollEvents() const
 }
 
 #ifdef _WIN32
+
 HWND CGraphics::GetWin32Window() const
 {
 	return glfwGetWin32Window(m_Window);
 }
+
+bool CGraphics::ShouldUseDarkMode() const
+{
+	typedef bool(WINAPI* fnShouldAppsUseDarkMode)();
+
+	static fnShouldAppsUseDarkMode ShouldAppsUseDarkMode = nullptr;
+
+	if (!ShouldAppsUseDarkMode && HasUxThemeLoaded())
+	{
+		ShouldAppsUseDarkMode = (fnShouldAppsUseDarkMode)GetProcAddress(GetUxThemeLibrary(), MAKEINTRESOURCEA(UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL));
+	}
+
+	if (ShouldAppsUseDarkMode)
+	{
+		return ShouldAppsUseDarkMode();
+	}
+
+	// TODO: Linux
+
+	return true; // prefer dark mode
+}
+
+void CGraphics::SetWindowsTitleBarTheme(bool bDarkTheme/* = true*/) const
+{
+	// https://github.com/microsoft/terminal/blob/v0.8.10261.0/src/interactivity/win32/windowtheme.cpp
+	// https://stackoverflow.com/questions/39261826/change-the-color-of-the-title-bar-caption-of-a-win32-application
+
+	const BOOL USE_DARK_MODE = bDarkTheme;
+
+	//SetWindowTheme(GetWin32Window(), DARK_MODE_STRING_NAME, nullptr);
+	if (FAILED(DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE, &USE_DARK_MODE, sizeof(USE_DARK_MODE))))
+	{
+		DwmSetWindowAttribute(GetWin32Window(), DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, &USE_DARK_MODE, sizeof(USE_DARK_MODE));
+	}
+
+#if WIN11_DARK_MODE_EXTENDED
+	COLORREF DARK_COLOR = 0x00505050;
+	BOOL SET_CAPTION_COLOR = SUCCEEDED(DwmSetWindowAttribute(
+		GetWin32Window(), DWMWINDOWATTRIBUTE::DWMWA_BORDER_COLOR,
+		&DARK_COLOR, sizeof(DARK_COLOR)));
+
+	SET_CAPTION_COLOR = SUCCEEDED(DwmSetWindowAttribute(
+		GetWin32Window(), DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR,
+		&DARK_COLOR, sizeof(DARK_COLOR)));
+
+	IM_UNUSED(SET_CAPTION_COLOR);
 #endif
+}
 
 unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const
 {
@@ -742,7 +784,7 @@ void CGraphics::InitImGui()
 	//---------------- Fonts & Theme ----------------
 	//
 	CGraphics::SetupFonts();
-	CGraphics::SetupTheme();
+	CGraphics::SetupTheme(ShouldUseDarkMode());
 }
 
 void CGraphics::SetupFonts()
@@ -831,6 +873,8 @@ void CGraphics::SetupFonts()
 
 void CGraphics::SetupTheme(bool bDarkTheme /*= true*/) const
 {
+	SetWindowsTitleBarTheme(bDarkTheme);
+
 	ImGuiStyle& style = ImGui::GetStyle();
 
 	style.Alpha = 1.0f;

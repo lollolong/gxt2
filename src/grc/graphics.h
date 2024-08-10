@@ -73,6 +73,9 @@ public:
 
 #if _WIN32
 	HWND GetWin32Window() const;
+
+	bool ShouldUseDarkMode() const;
+	void SetWindowsTitleBarTheme(bool bDarkTheme = true) const;
 #endif
 
 	unsigned int GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned int typeFlags) const;
