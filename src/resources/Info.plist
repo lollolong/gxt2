@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>GXTEdit</string>
+    <key>CFBundleExecutable</key>
+    <string>gxt2edit</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.lollolong.GXTEdit</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>editor.icns</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.10</string>
+</dict>
+</plist>

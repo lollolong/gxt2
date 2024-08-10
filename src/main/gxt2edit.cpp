@@ -18,6 +18,10 @@
 #include <filesystem>
 #include <execution>
 
+#if defined(__clang__) && defined(__APPLE__) && __has_include(<execution>)
+    #define ENABLE_PARALLEL_SORT
+#endif
+
 // vendor
 #include <IconsFontAwesome6.h>
 
@@ -739,11 +743,20 @@ void gxt2edit::SortTable()
 
 		MEASURE_START;
 		{
+			#ifndef ENABLE_PARALLEL_SORT
 			if (m_SortUnderlyingData)
 			{
 				std::sort(std::execution::par, m_Data.begin(), m_Data.end(), compareEntries);
 			}
 			std::sort(std::execution::par, m_Filter.begin(), m_Filter.end(), compareEntries);
+			#else
+			if (m_SortUnderlyingData)
+			{
+				std::sort(m_Data.begin(), m_Data.end(), compareEntries);
+			}
+			std::sort(m_Filter.begin(), m_Filter.end(), compareEntries);
+
+			#endif
 		}
 		MEASURE_END;
 

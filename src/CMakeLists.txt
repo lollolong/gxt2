@@ -125,7 +125,43 @@ set(SOURCES
 	system/app.h
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Determine if we are on macOS
+if(APPLE)
+    set(MACOSX_BUNDLE_BUNDLE_NAME "GXTEdit")
+    set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.lollolong.gxt2edit")
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.1")
+    set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
+    set(MACOSX_BUNDLE_ICON_FILE "Resources/editor.icns")
+
+    # Get fonts
+    set(FONTS_DIR ${CMAKE_SOURCE_DIR}/fonts)
+    file(GLOB FONT_FILES "${FONTS_DIR}/*.ttf")
+
+    # Define icon and labels.txt paths
+    set(ICON_PATH ${CMAKE_SOURCE_DIR}/src/resources/icons/editor.icns)
+    set(LABELS_PATH ${CMAKE_SOURCE_DIR}/labels.txt)
+
+    # Add the icon file to the target
+    set_source_files_properties(${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+    # Add the labels file to the target
+    set_source_files_properties(${LABELS_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+    # Add the font files to the target
+    set_source_files_properties(${FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/fonts")
+
+    # Include icon and labels.txt in the target sources
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${FONT_FILES} ${ICON_PATH} ${LABELS_PATH})
+
+    # Set macOS-specific bundle properties
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/resources/Info.plist
+    )
+else()
+    # Regular executable for non-macOS platforms
+    add_executable(${PROJECT_NAME} ${SOURCES})
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	# project
