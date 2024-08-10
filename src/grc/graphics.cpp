@@ -972,7 +972,7 @@ void CGraphics::SetupTheme(bool bDarkTheme /*= true*/)
 	}
 	else
 	{
-		// Light style by dougbinks from ImThemes
+		// Microsoft style by usernameiwantedwasalreadytaken from ImThemes
 
 		style.Colors[ImGuiCol_Text] = ImVec4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.4980392158031464f, 0.4980392158031464f, 0.4980392158031464f, 1.0f);
