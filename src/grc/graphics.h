@@ -91,6 +91,7 @@ public:
 	uint32_t GetQueueFamilyIndex() const { return m_QueueFamily; }
 	int GetMinImageCount() const { return m_MinImageCount; }
 	bool IsSwapchainRebuild() const { return m_SwapChainRebuild; }
+	bool IsUsingDarkMode() const { return m_IsUsingDarkMode; }
 
 #if _WIN32
 	HMODULE GetUxThemeLibrary() const { return m_UxTheme; };
@@ -122,8 +123,11 @@ private:
 	// ImGui
 	void InitImGui();
 	void SetupFonts();
-	void SetupTheme(bool bDarkTheme = true) const;
 
+public:
+	void SetupTheme(bool bDarkTheme = true);
+
+private:
 	// Callbacks
 	static void DropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 	static void CloseCallback(GLFWwindow* window);
@@ -148,6 +152,8 @@ private:
 #if _WIN32
 	HMODULE m_UxTheme;
 #endif
+
+	bool m_IsUsingDarkMode;
 };
 
 #endif // UI_BACKEND

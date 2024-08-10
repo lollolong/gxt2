@@ -872,8 +872,9 @@ void CGraphics::SetupFonts()
 	io.Fonts->Build();
 }
 
-void CGraphics::SetupTheme(bool bDarkTheme /*= true*/) const
+void CGraphics::SetupTheme(bool bDarkTheme /*= true*/)
 {
+	m_IsUsingDarkMode = bDarkTheme;
 #if _WIN32
 	SetWindowsTitleBarTheme(bDarkTheme);
 #endif

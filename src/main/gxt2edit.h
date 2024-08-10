@@ -83,6 +83,7 @@ private:
 #if _WIN32
 	void RegisterExtension(bool bUnregister = false);
 #endif
+	void SetEditorTheme(bool bDarkMode /*= true*/) const;
 
 	//---------------- UI ----------------
 	//
