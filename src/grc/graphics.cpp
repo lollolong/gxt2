@@ -303,6 +303,16 @@ bool CGraphics::ShouldUseDarkMode() const
 	{
 		return ShouldAppsUseDarkMode();
 	}
+#elif linux
+	const std::string gtkTheme = std::getenv("GTK_THEME");
+	if (!gtkTheme.empty())
+	{
+		if (gtkTheme.find("dark") != std::string::npos)
+		{
+			return true;
+		}
+	}
+
 #endif
 
 	// TODO: Linux
