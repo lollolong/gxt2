@@ -315,11 +315,14 @@ bool CGraphics::ShouldUseDarkMode() const
 		}
 		pclose(pipe);
 
-		if (result.find("prefer-dark") != std::string::npos)
+		if (!result.empty())
 		{
-			return true;
+			if (result.find("dark") != std::string::npos)
+			{
+				return true;
+			}
+			return false;
 		}
-		printf("color-scheme = %s\n", result.c_str());
 	}
 
 	const char* gtkTheme = std::getenv("GTK_THEME");
@@ -330,10 +333,9 @@ bool CGraphics::ShouldUseDarkMode() const
 		{
 			return true;
 		}
+		return false;
 	}
 #endif
-
-	// TODO: Linux
 
 	return true; // prefer dark mode
 }
