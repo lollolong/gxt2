@@ -22,13 +22,21 @@ jobs:
           submodules: recursive
 
       - name: Install Vulkan SDK
+        id: vulkan-sdk
         uses: humbletim/install-vulkan-sdk@v1.1.1
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_OSX_ARCHITECTURES=arm64
+        run: |
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_MACOSX_RPATH=ON
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Copy Vulkan Libraries
+        run: |
+          mkdir -p "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks"
+          cp -R "${{ steps.vulkan-sdk.outputs.vulkan_sdk_path }}/lib/libvulkan.1.dylib" "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/Frameworks/"
+          install_name_tool -change @rpath/libvulkan.1.dylib @rpath/Frameworks/libvulkan.1.dylib "${{ github.workspace }}/build/src/${{ env.APP_NAME }}/Contents/MacOS/gxt2edit"
 
       - name: Test
         working-directory: ${{github.workspace}}/build
