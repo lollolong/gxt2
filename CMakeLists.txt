@@ -41,9 +41,7 @@ if (MSVC)
 endif()
 
 # Unicode Charset
-if(MSVC)
-    add_definitions(-DUNICODE -D_UNICODE)
-endif()
+add_definitions(-DUNICODE -D_UNICODE)
 
 # Includes
 include(cmake/glfw.cmake)
