@@ -17,6 +17,12 @@
 #include <nlohmann/json_fwd.hpp>
 #include <nlohmann/json.hpp>
 
+#define MAKE_MAGIC(a, b, c, d)            \
+	(static_cast<unsigned int>(a) << 24 | \
+	 static_cast<unsigned int>(b) << 16 | \
+	 static_cast<unsigned int>(c) << 8  | \
+	 static_cast<unsigned int>(d))
+
 class CFile
 {
 public:
@@ -143,8 +149,8 @@ public:
 	bool ReadEntries() override;
 	bool WriteEntries() override;
 
-	static constexpr unsigned int GXT2_MAGIC_LE = 'GXT2';
-	static constexpr unsigned int GXT2_MAGIC_BE = '2TXG';
+	static constexpr unsigned int GXT2_MAGIC_LE = MAKE_MAGIC('G', 'X', 'T', '2');
+	static constexpr unsigned int GXT2_MAGIC_BE = MAKE_MAGIC('2', 'T', 'X', 'G');
 };
 
 //-----------------------------------------------------------------------------------------
