@@ -299,7 +299,8 @@ bool CGraphics::ShouldUseDarkMode() const
 
 	if (!ShouldAppsUseDarkMode && HasUxThemeLoaded())
 	{
-		ShouldAppsUseDarkMode = (fnShouldAppsUseDarkMode)GetProcAddress(GetUxThemeLibrary(), MAKEINTRESOURCEA(UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL));
+		ShouldAppsUseDarkMode = reinterpret_cast<fnShouldAppsUseDarkMode>(
+			reinterpret_cast<void*>(GetProcAddress(GetUxThemeLibrary(), MAKEINTRESOURCEA(UXTHEME_SHOULDAPPSUSEDARKMODE_ORDINAL))));
 	}
 
 	if (ShouldAppsUseDarkMode)
@@ -368,7 +369,7 @@ unsigned int CGraphics::GetMemoryType(VkMemoryPropertyFlags memFlags, unsigned i
 		if ((properties.memoryTypes[iType].propertyFlags & memFlags) == memFlags && typeFlags & (1 << iType))
 			return iType;
 	}
-	return 0XFFFFFFFF;
+	return 0xFFFFFFFF;
 }
 
 void CGraphics::DropCallback(GLFWwindow* window, int path_count, const char* paths[])
