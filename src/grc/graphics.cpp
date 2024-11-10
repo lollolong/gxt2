@@ -102,7 +102,9 @@ bool CGraphics::Init(const std::string& windowTitle, int width, int height)
 	m_UxTheme = LoadLibraryExW(UXTHEME_DLL_NAME, nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	assert(m_UxTheme);
 
-	printf("UxTheme library loaded, m_UxTheme = %p\n", m_UxTheme);
+#if _DEBUG || 1
+	printf("UxTheme library loaded, m_UxTheme = %p\n", (void*)m_UxTheme);
+#endif
 
 	SetClassLongPtr(GetWin32Window(), GCLP_HICON, (LONG_PTR)LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APP_ICON)));
 #endif
